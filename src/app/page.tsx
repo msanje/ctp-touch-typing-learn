@@ -13,6 +13,7 @@ export default function Home() {
   const [timerStarted, setTimerStarted] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [wpmScore, setWpmScore] = useState(0);
+  const [textSize, setTextSize] = useState<number>(2)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!timerStarted) setTimerStarted(true);
@@ -48,6 +49,11 @@ export default function Home() {
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
   };
+
+  const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const textSize = parseInt(event.target.value);
+    setTextSize(textSize);
+  }
 
   useEffect(() => {
     if (!timerStarted) return;
@@ -98,7 +104,7 @@ export default function Home() {
         {/* Typing Content Box */}
         <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-4xl border border-gray-200">
           {/* Paragraph */}
-          <p className="text-lg leading-relaxed text-gray-700">
+          <p className={`text-${textSize}xl h-56 overflow-hidden leading-relaxed text-gray-700`}>
             {/* Typed characters */}
             <span className="text-gray-400">
               {originalText.slice(0, userInput.length)}
@@ -117,6 +123,22 @@ export default function Home() {
             {/* Remaining characters */}
             <span>{originalText.slice(userInput.length + 1)}</span>
           </p>
+        </div>
+
+        <div className="w-full mt-4">
+          <input
+            type="range"
+            min={2}
+            max={5}
+            value={textSize}
+            onChange={handleSliderChange}
+            className="w-full h-6 rounded-lg bg-gray-300 outline-none opacity-70 transition-opacity duration-200 hover:opacity-100 
+      appearance-none cursor-pointer
+      [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:h-6 
+      [&::-webkit-slider-thumb]:bg-green-600 [&::-webkit-slider-thumb]:rounded-full
+      [&::-moz-range-thumb]:w-6 [&::-moz-range-thumb]:h-6 [&::-moz-range-thumb]:bg-green-600 [&::-moz-range-thumb]:rounded-full"
+            id="myRange"
+          />
         </div>
 
         {/* Input Field */}
