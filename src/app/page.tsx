@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { lorem } from "./helpers/paragraph";
+import { lorem } from "../helpers/paragraph";
 import Image from "next/image";
-import { wpm } from "./helpers/wpm";
+import { wpm } from "../helpers/wpm";
+import Link from "next/link";
 
 export default function Home() {
   const originalText = lorem;
@@ -83,6 +84,8 @@ export default function Home() {
         <h1 className="text-5xl font-extrabold text-gray-800 mb-4">
           Test Your Typing Speed
         </h1>
+
+        <Link className="text-blue-500 text-2xl underline" href={"/learn"}>Learn</Link>
 
         {/* Timer */}
         <div className="flex flex-row justify-between items-center bg-yellow-300 p-4 rounded-lg shadow-md mb-6">
