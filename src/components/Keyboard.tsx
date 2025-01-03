@@ -4,15 +4,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import KeyboardComponent from './KeyboardComponent';
+import LessonsComponent from './LessonsComponent';
 
 export default function Keyboard() {
     const [activeKey, setActiveKey] = useState('');
-    const [values, setValues] = useState<string>('fork me on github');
+    const [values, setValues] = useState<string>('');
     const [typedText, setTypedText] = useState<string>('');
     const [timerStarted, setTimerStarted] = useState<boolean>();
     const [isDisabled, setIsDisabled] = useState<boolean>(false);
     const [wpmScore, setWpmScore] = useState(0);
-    const originalText = "fork me on github";
+    const originalText = "The quick brown fox jumps over the lazy dog";
     const [currentError, setCurrentError] = useState(false);
     const [userInput, setUserInput] = useState<string>("");
     const [timeLeft, setTimeLeft] = useState(60);
@@ -83,11 +84,15 @@ export default function Keyboard() {
                     Exercise: {exercise} Lesson: {lesson}
                 </h1>
 
-                <Link className="text-blue-500 text-2xl underline" href={"/"}>Home</Link>
+                <Link className="text-blue-500 text-2xl underline" href={"/"}>
+                    Home
+                </Link>
 
                 <div className="flex justify-center">
-                    <div className="w-2/3 border-2 border-gray-300 rounded-lg p-4">
-                        <p className={`text-${textSize}xl text-gray-700 text-center`}>
+                    <div className="w-full border-2 border-gray-300 rounded-lg p-4">
+                        <p
+                            className={`text-${textSize}xl text-gray-700 text-center px-6 py-2`}
+                        >
                             <span className="text-gray-400">
                                 {originalText.slice(0, userInput.length)}
                             </span>
