@@ -1,14 +1,20 @@
 import Keyboard from '@/components/Keyboard'
-import { FC } from 'react'
+import { options } from "../api/auth/[...nextauth]/options"
+import { getServerSession } from "next-auth/next"
+import { redirect } from "next/navigation"
+import Navbar from '@/components/ui/Navbar'
 
-interface pageProps {
+export default async function LearnPage() {
+    const session = await getServerSession(options)
 
-}
+    if (!session) {
+        // redirect('/api/auth/signin?callbackUrl=/server')
+        redirect('/signup?callbackUrl=/api/auth/signin?callbackUrl=/learn')
+    }
 
-const page: FC<pageProps> = ({ }) => {
     return <div>
+        <Navbar />
         <Keyboard />
     </div>
 }
 
-export default page
