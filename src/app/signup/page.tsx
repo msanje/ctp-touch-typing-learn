@@ -3,7 +3,7 @@
 // components/SignUpForm.tsx
 import { useState } from 'react';
 import { useRouter } from 'next/navigation'
-import { useSearchParams } from 'next/navigation'
+import Link from 'next/link';
 
 const SignUpForm = () => {
     const [username, setUsername] = useState('');
@@ -11,8 +11,8 @@ const SignUpForm = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const router = useRouter()
-    const searchParams = useSearchParams()
-    const callbackUrl = searchParams.get('callbackUrl') || '/api/auth/signin?callbackUrl=/learn'
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     const handleSignUp = async () => {
         try {
@@ -21,6 +21,8 @@ const SignUpForm = () => {
                 alert('Password do not match');
                 return;
             }
+
+            setLoading(true);
 
             const response = await fetch('/api/signup', {
                 method: 'POST',
@@ -33,13 +35,19 @@ const SignUpForm = () => {
             if (response.ok) {
                 // Handle successful sign-up
                 alert('User signed up successfully');
-                router.push(callbackUrl);
+                // router.push(callbackUrl);
+                console.log("hii from successful login");
+                router.push("/signin");
             } else {
                 // Handle sign-up error
-                alert('Failed to sign up');
+                const { message } = await response.json();;
+                alert(message || 'Failed to sign up');
             }
+
+            setLoading(false);
         } catch (error) {
             alert(`Error during sign-up ${error}`);
+            setLoading(false);
         }
     };
 
@@ -96,11 +104,19 @@ const SignUpForm = () => {
                             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                             type="button"
                             onClick={handleSignUp}
+                            disabled={loading}
                         >
-                            Sign Up
+                            {loading ? "Signing Up..." : 'Sign Up'}
                         </button>
                     </div>
                 </form>
+
+                {(
+                    <div className="mt-4">
+                        <p className="text-red-700">User already exists, please {' '}
+                            <Link className='text-blue-700' href="/signin">sign in</Link></p>
+                    </div>
+                )}
             </div>
         </div>
     );
