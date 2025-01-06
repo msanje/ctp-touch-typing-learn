@@ -1,9 +1,8 @@
-import Keyboard from '@/components/Keyboard'
+import Keyboard from '@/components/LearnInput'
 import { options } from "../api/auth/[...nextauth]/options"
 import { getServerSession } from "next-auth/next"
 import { redirect } from "next/navigation"
-import Navbar from '@/components/ui/Navbar'
-import UserCard from "@/components/UserCard"
+import Navbar from '@/components/Navbar'
 
 export default async function LearnPage() {
     const session = await getServerSession(options)
@@ -14,10 +13,9 @@ export default async function LearnPage() {
 
     return <div>
         <section className="flex flex-col gap-6">
-            <UserCard user={session?.user} pagetype={"Server"} />
+            <Navbar user={session?.user} pagetype={"Server"} />
         </section>
-        <Navbar />
-        <Keyboard />
+        <Keyboard lessonId={1} />
     </div>
 }
 

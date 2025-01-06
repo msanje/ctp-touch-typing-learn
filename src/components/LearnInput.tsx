@@ -1,35 +1,37 @@
 "use client"
 
-import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import KeyboardComponent from './KeyboardComponent';
 
-export default function Keyboard() {
+export default function LearnInput({ lessonId }: { lessonId: number }) {
     const [activeKey, setActiveKey] = useState('');
-    const [timerStarted, setTimerStarted] = useState<boolean>();
+    const [timerStarted, setTimerStarted] = useState<boolean>(false);
     const [isDisabled, setIsDisabled] = useState<boolean>(false);
-    const originalText = "The quick brown fox jumps over the lazy dog";
     const [currentError, setCurrentError] = useState(false);
     const [userInput, setUserInput] = useState<string>("");
-    const [exercise, setExercise] = useState<number>(0);
-    const [lesson, setLesson] = useState<number>(0);
-    const [textSize, setTextSize] = useState<number>(2);
+    const [exerciseIndex, setExerciseIndex] = useState<number>(0);
+    const [exercises, setExercises] = useState<string[]>([]);
+    const [lessonTitle, setLessonTitle] = useState<string>("");
 
     useEffect(() => {
-        // test data
-        setLesson(1);
-        setExercise(1);
-        setTextSize(3);
-    }, [])
+        // fetch exercises from the backend
+        const fetchExercises = async () => {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lessons/${lessonId}`);
+            const lessonData = await res.json();
+            setExercises(lessonData.exercises.map((exercise: { content: string }) => exercise.content));
+            setLessonTitle(lessonData.title);
+        };
 
-    const textClass = `text-${textSize}xl text-gray-700 text-center px-6 py-2`;
+        fetchExercises();
+    }, [lessonId]);
+
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!timerStarted) setTimerStarted(true);
         if (isDisabled) return;
 
         const value = e.target.value;
-        const normalizedOriginal = originalText.trim();
+        const normalizedOriginal = exercises[exerciseIndex]?.trim();
 
         if (normalizedOriginal.startsWith(value)) {
             setCurrentError(false);
@@ -38,8 +40,26 @@ export default function Keyboard() {
         }
 
         setUserInput(value);
+
+        // check if the exercis is completed
+        if (value === normalizedOriginal) {
+            setTimeout(() => handleNextExercise(), 500);
+        }
+
         setActiveKey(value.slice(-1)); // Set the last character as active key
     };
+
+    const handleNextExercise = () => {
+        if (exerciseIndex < exercises.length - 1) {
+            setExerciseIndex(exerciseIndex + 1);
+            setUserInput("");
+            setCurrentError(false);
+            setTimerStarted(false);
+            setIsDisabled(false);
+        } else {
+            setIsDisabled(true);
+        }
+    }
 
     const restartTest = () => {
         setUserInput("");
@@ -47,6 +67,7 @@ export default function Keyboard() {
         setTimerStarted(false);
         setIsDisabled(false);
         setActiveKey('');
+        setExerciseIndex(0);
     };
 
     const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -77,20 +98,20 @@ export default function Keyboard() {
                 className={`transition-all duration-300 ${isDisabled ? "blur-sm" : ""}`}
             >
                 <h1 className="text-5xl font-extrabold text-gray-800 mb-4">
-                    Exercise: {exercise} Lesson: {lesson}
+                    {lessonTitle} - Exercise {exerciseIndex + 1}/{exercises.length}
                 </h1>
 
-                <Link className="text-blue-500 text-2xl underline" href={"/"}>
+                {/* <Link className="text-blue-500 text-2xl underline" href={"/"}>
                     Home
-                </Link>
+                </Link> */}
 
                 <div className="flex justify-center">
                     <div className="w-full border-2 border-gray-300 rounded-lg p-4">
                         <p
-                            className={`text-${textClass}xl text-gray-700 text-center px-6 py-2`}
+                            className={`text-3xl text-gray-700 text-center px-6 py-2`}
                         >
                             <span className="text-gray-400">
-                                {originalText.slice(0, userInput.length)}
+                                {exercises[exerciseIndex]?.slice(0, userInput.length)}
                             </span>
 
                             <span
@@ -99,10 +120,10 @@ export default function Keyboard() {
                                     : "text-blue-600 bg-blue-100 rounded px-1"
                                     } font-bold underline`}
                             >
-                                {originalText.charAt(userInput.length)}
+                                {exercises[exerciseIndex]?.charAt(userInput.length)}
                             </span>
 
-                            <span>{originalText.slice(userInput.length + 1)}</span>
+                            <span>{exercises[exerciseIndex]?.slice(userInput.length + 1)}</span>
                         </p>
                     </div>
                 </div>

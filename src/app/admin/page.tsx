@@ -31,7 +31,19 @@ const AdminDashboard: FC = () => {
                 </div>
             </Link>
 
-            <Link href={'/admin/lessons'}>View Lessons</Link>
+            {/* <Link className="block mt-4" href={'/admin/lessons'}>View Lessons</Link> */}
+
+            {/* displaying lessons */}
+            <div className="mt-8">
+                <h2 className="text-2xl font-bold mb-4">Lessons</h2>
+                <ul>
+                    {lessons.map((lesson) => (
+                        <li key={lesson.id} className="mb-2">
+                            {lesson.title}
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 };
