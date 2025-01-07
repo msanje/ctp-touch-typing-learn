@@ -41,3 +41,47 @@ export async function POST(req: Request, res: Response) {
         return NextResponse.json({ error: "Error updating progress" }, { status: 500 });
     }
 }
+
+export async function GET(req: Request) {
+    const url = new URL(req.url);
+    const userId = url.searchParams.get('userId');
+
+    if (!userId) {
+        return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
+
+    try {
+        // Fetch progress for the given userId
+        const progress = await db.progress.findMany({
+            where: {
+                userId: Number(userId), // Ensure the userId is a number
+            },
+            include: {
+                lesson: true,
+            },
+        });
+
+        if (progress.length === 0) {
+            return NextResponse.json({ message: 'No progress found for this user' }, { status: 404 });
+        }
+
+        const exercises = await db.exercise.findMany({
+            where: {
+                lessonId: {
+                    in: progress.map(p => p.lessonId)
+                }
+            }
+        });
+
+        const responseData = {
+            progress,
+            exercises
+        }
+
+        return NextResponse.json(responseData);
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json({ error: 'Failed to fetch progress' }, { status: 500 });
+    }
+}
+
