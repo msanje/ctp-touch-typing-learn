@@ -36,7 +36,6 @@ const SignUpForm = () => {
                 // Handle successful sign-up
                 alert('User signed up successfully');
                 // router.push(callbackUrl);
-                console.log("hii from successful login");
                 router.push("/signin");
             } else {
                 // Handle sign-up error

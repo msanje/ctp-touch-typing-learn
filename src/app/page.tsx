@@ -34,7 +34,6 @@ export default function Home() {
 
   const calculateWPM = () => {
     const wordsPerMinute = wpm(userInput.length, 1);
-    console.log("hello from calclateWPM", wordsPerMinute);
     setWpmScore(wordsPerMinute);
   };
 

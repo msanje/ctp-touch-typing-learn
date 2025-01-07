@@ -3,13 +3,12 @@ import { db } from "@/lib/index";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-    const { title, description, exercises } = await req.json();
+    const { title, exercises } = await req.json();
 
     // Create a new lesson and its associated exercises
     const newLesson = await db.lesson.create({
         data: {
             title,
-            desciption: description,
             exercises: {
                 create: exercises.map((content: string, index: number) => ({
                     index,
@@ -35,7 +34,6 @@ export async function PUT(req: Request) {
         where: { id },
         data: {
             title,
-            desciption: description,
             exercises: {
                 deleteMany: {}, // Delete old exercises
                 create: exercises.map((content: string, index: number) => ({

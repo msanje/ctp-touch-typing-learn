@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import KeyboardComponent from './KeyboardComponent';
 
-export default function LearnInput({ lessonId }: { lessonId: number }) {
+export default function LearnInput({ user }: { user: any }) {
     const [activeKey, setActiveKey] = useState('');
     const [timerStarted, setTimerStarted] = useState<boolean>(false);
     const [isDisabled, setIsDisabled] = useState<boolean>(false);
@@ -12,19 +12,48 @@ export default function LearnInput({ lessonId }: { lessonId: number }) {
     const [exerciseIndex, setExerciseIndex] = useState<number>(0);
     const [exercises, setExercises] = useState<string[]>([]);
     const [lessonTitle, setLessonTitle] = useState<string>("");
+    const [currentLessonIndex, setCurrentLessonIndex] = useState<number>(0);
+    const [userId, setUserId] = useState<number>(0);
+
+    interface Lesson {
+        title: string;
+        exercises: { content: string }[];
+    }
+
+    const [lessonsData, setLessonsData] = useState<Lesson[]>([]);
+
+    useEffect(() => {
+        const fetchLessons = async () => {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lessons`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setLessonsData(data);
+                }
+            } catch (error) {
+                console.error("Error fetching lessons: ", error);
+            }
+        };
+
+        fetchLessons();
+    }, [])
 
     useEffect(() => {
         // fetch exercises from the backend
         const fetchExercises = async () => {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lessons/${lessonId}`);
-            const lessonData = await res.json();
-            setExercises(lessonData.exercises.map((exercise: { content: string }) => exercise.content));
-            setLessonTitle(lessonData.title);
+            if (lessonsData.length > 0) {
+                const currentLesson = lessonsData[currentLessonIndex];
+                setExercises(
+                    currentLesson.exercises.map(
+                        (exercise: { content: string }) => exercise.content
+                    )
+                );
+                setLessonTitle(currentLesson.title);
+            }
         };
 
         fetchExercises();
-    }, [lessonId]);
-
+    }, [currentLessonIndex, lessonsData]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!timerStarted) setTimerStarted(true);
@@ -41,15 +70,15 @@ export default function LearnInput({ lessonId }: { lessonId: number }) {
 
         setUserInput(value);
 
-        // check if the exercis is completed
+        // check if the exercise is completed
         if (value === normalizedOriginal) {
-            setTimeout(() => handleNextExercise(), 500);
+            // Do not automatically move to the next exercise
         }
 
         setActiveKey(value.slice(-1)); // Set the last character as active key
     };
 
-    const handleNextExercise = () => {
+    const handleNextExercise = async () => {
         if (exerciseIndex < exercises.length - 1) {
             setExerciseIndex(exerciseIndex + 1);
             setUserInput("");
@@ -57,7 +86,61 @@ export default function LearnInput({ lessonId }: { lessonId: number }) {
             setTimerStarted(false);
             setIsDisabled(false);
         } else {
-            setIsDisabled(true);
+            if (currentLessonIndex < lessonsData.length - 1) {
+                setCurrentLessonIndex(currentLessonIndex + 1);
+                setExerciseIndex(0);
+                setUserInput("");
+                setCurrentError(false);
+                setTimerStarted(false);
+                setIsDisabled(false);
+            } else {
+                setIsDisabled(true);
+            }
+        }
+
+        try {
+            // Update user progress via API route
+            const response = await fetch('/api/progress', { // Adjust the path if your API route is different
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: userId,
+                    email: user.email,
+                    lessonId: lessonsData[currentLessonIndex].id,
+                    exerciseIndex: exerciseIndex + 1,
+                    completed: exerciseIndex + 1 === exercises.length - 1,
+                }),
+            });
+
+            if (response.ok) {
+                // Progress updated successfully
+                if (exerciseIndex < exercises.length - 1) {
+                    setExerciseIndex(exerciseIndex + 1);
+                    setUserInput("");
+                    setCurrentError(false);
+                    setTimerStarted(false);
+                    setIsDisabled(false);
+                } else {
+                    if (currentLessonIndex < lessonsData.length - 1) {
+                        setCurrentLessonIndex(currentLessonIndex + 1);
+                        setExerciseIndex(0);
+                        setUserInput("");
+                        setCurrentError(false);
+                        setTimerStarted(false);
+                        setIsDisabled(false);
+                    } else {
+                        setIsDisabled(true);
+                    }
+                }
+            } else {
+                console.error('Failed to update progress:', response.status);
+                // Handle error, e.g., show an error message to the user
+            }
+        } catch (error) {
+            console.error('Error updating progress:', error);
+            // Handle error, e.g., show an error message to the user
         }
     }
 
@@ -147,6 +230,15 @@ export default function LearnInput({ lessonId }: { lessonId: number }) {
                     />
                 </div>
 
+                {userInput === exercises[exerciseIndex] && ( // Conditionally render the button
+                    <button
+                        className="px-6 py-3 text-xl border-2 rounded-lg focus:outline-none transition-all duration-200 bg-green-500 hover:bg-green-600 text-white mt-4"
+                        onClick={handleNextExercise}
+                    >
+                        Next Exercise
+                    </button>
+                )}
+
                 <div className="flex flex-col items-center mt-8 w-full">
                     <button
                         className="px-6 py-3 text-xl border-2 rounded-lg focus:outline-none transition-all duration-200 bg-blue-500 hover:bg-blue-600 text-white mb-4"
@@ -161,4 +253,3 @@ export default function LearnInput({ lessonId }: { lessonId: number }) {
         </div>
     );
 }
-

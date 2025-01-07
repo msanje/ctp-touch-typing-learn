@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation"
 import Link from "next/link";
 
 type User = {
+    id?: string | null | undefined;
     name?: string | null | undefined;
     email?: string | null | undefined;
     image?: string | null | undefined;
@@ -93,6 +94,14 @@ export default function Navbar({ user, pagetype }: Props) {
                         <span className="text-gray-700 font-medium">4</span>
                         <div className="w-6 h-6 bg-yellow-400 rounded-full"></div>
                     </div>
+
+                    {/* sign out button */}
+                    <button
+                        onClick={handleSignOut}
+                        className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors font-medium"
+                    >
+                        Sign Out
+                    </button>
 
                     {/* Popup Menu */}
                     {isProfileMenuOpen && (
