@@ -46,6 +46,8 @@ const Page: FC<pageProps> = ({ }) => {
     const [completedExercises, setCompletedExercises] = useState<ProgressData | null>(null);
     const [userId, setUserId] = useState<number>(4); // current logged in user
 
+    console.log("completedExercises.exercises: ", completedExercises?.exercises);
+
     useEffect(() => {
         const fetchLessons = async () => {
             const response = await fetch('/api/lessons');
@@ -64,6 +66,12 @@ const Page: FC<pageProps> = ({ }) => {
         fetchLessons();
         fetchCompletedExercises();
     }, [userId]);
+
+    const completedExerciseSet = new Set(
+        completedExercises?.exercises.map(
+            (exercise) => `${exercise.lessonId}-${exercise.index}`
+        )
+    );
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
@@ -91,9 +99,7 @@ const Page: FC<pageProps> = ({ }) => {
                         <div className="text-sm text-gray-600">Completed</div>
                     </div>
                     <div className="text-center">
-                        <div className="text-2xl font-bold text-purple-600">
-                            {lessons.length}
-                        </div>
+                        <div className="text-2xl font-bold text-purple-600">{lessons.length}</div>
                         <div className="text-sm text-gray-600">Lessons</div>
                     </div>
                 </div>
@@ -103,9 +109,15 @@ const Page: FC<pageProps> = ({ }) => {
             {lessons.length > 0 ? (
                 <div className="space-y-6">
                     {lessons.map(({ id, title, exercises }) => {
-                        const completedCount = completedExercises?.progress.filter(
-                            prog => prog.lessonId === id
-                        ).length || 0;
+                        // const completedCount = completedExercises?.progress.filter(
+                        //     (prog) => prog.lessonId === id
+                        // ).length || 0;
+                        const completedCount = exercises.filter((exercise) =>
+                            completedExerciseSet.has(`${exercise.lessonId}-${exercise.index}`)
+                        ).length;
+
+                        // calculate the progress percentage
+                        const progressPercentage = exercises.length > 0 ? (completedCount / exercises.length) * 100 : 0;
 
                         return (
                             <div key={id} className="bg-white p-6 rounded-xl shadow-sm">
@@ -124,41 +136,36 @@ const Page: FC<pageProps> = ({ }) => {
                                     <div
                                         className="h-2 bg-blue-600 rounded-full transition-all duration-300"
                                         style={{
-                                            width: `${(completedCount / exercises.length) * 100}%`
+                                            width: `${(completedCount / exercises.length) * 100}%`,
                                         }}
                                     />
                                 </div>
 
                                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {exercises.map((exercise) => {
-                                        // const isCompleted = completedExercises?.progress.some(
-                                        //     prog => prog.lessonId === id && prog.exerciseIndex === exercise.index && prog.completed === true
-                                        // ) ?? false;
-
-                                        const isCompleted = completedExercises?.progress.some(
-                                            prog => prog.lessonId === id && prog.exerciseIndex === exercise.index && prog.completed === true
-                                        ) ?? false;
-
-                                        console.log('Progress Data:', {
-                                            lessonId: id,
-                                            exerciseIndex: exercise.index,
-                                            completedExercises: completedExercises?.progress
-                                        });
+                                        const isCompleted = completedExerciseSet.has(
+                                            `${exercise.lessonId}-${exercise.index}`
+                                        );
 
                                         return (
                                             <li
                                                 key={exercise.id}
-                                                className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                                                className={`flex items-center space-x-3 p-3 rounded-lg transition-colors cursor-pointer ${isCompleted ? "bg-green-50" : "hover:bg-gray-50"
+                                                    }`}
                                             >
                                                 {isCompleted ? (
                                                     <CheckCircle className="w-5 h-5 text-green-500" />
                                                 ) : (
                                                     <Circle className="w-5 h-5 text-gray-300" />
                                                 )}
-                                                <span className="flex-1 text-gray-700 font-medium">
+                                                <span
+                                                    className={`flex-1 font-medium ${isCompleted
+                                                        ? "text-green-700"
+                                                        : "text-gray-700"
+                                                        }`}
+                                                >
                                                     Exercise {exercise.index + 1}
                                                 </span>
-                                                {/* <ChevronRight className="w-5 h-5 text-gray-400" /> */}
                                             </li>
                                         );
                                     })}
