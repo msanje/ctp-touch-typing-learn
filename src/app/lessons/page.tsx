@@ -149,7 +149,7 @@ const Page: FC<pageProps> = ({ }) => {
                                         return (
                                             <Link
                                                 key={exercise.id}
-                                                href={`/learn/${exercise.lessonId}/exercise/${exercise.index}`}
+                                                href={`/lessons/${exercise.lessonId}/${exercise.index}`}
                                                 className='cursor-pointer'
                                             >
                                                 <li

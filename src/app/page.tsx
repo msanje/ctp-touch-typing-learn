@@ -85,6 +85,7 @@ export default function Home() {
         </h1>
 
         <Link className="text-blue-500 text-2xl underline" href={"/learn"}>Learn</Link>
+        <Link className="text-blue-500 text-2xl underline ml-4" href={"/lessons"}>Lessons</Link>
 
         {/* Timer */}
         <div className="flex flex-row justify-between items-center bg-yellow-300 p-4 rounded-lg shadow-md mb-6">

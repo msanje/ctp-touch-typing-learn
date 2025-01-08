@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams } from 'next/navigation'
 import KeyboardComponent from "@/components/KeyboardComponent";
 
-export default function ExercisePage({ params }: { params: { lessonId: string, exerciseIndex: string } }) {
+export default function ExercisePage() {
+    const params = useParams<{ lessonId: string; exerciseIndex: string }>()
     const { lessonId, exerciseIndex } = params;
 
     const [activeKey, setActiveKey] = useState("");
@@ -18,7 +19,7 @@ export default function ExercisePage({ params }: { params: { lessonId: string, e
     useEffect(() => {
         const fetchExercise = async () => {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lessons/${lessonId}`);
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lessons/${lessonId}/exercises/${exerciseIndex}`);
                 if (res.ok) {
                     const data = await res.json();
                     setLessonTitle(data.title);

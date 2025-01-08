@@ -33,7 +33,7 @@ export default async function LessonDetails({
     return (
         <div className="p-4">
             <h1 className="text-3xl font-bold">{lesson.title}</h1>
-            <p>{lesson.desciption}</p>
+            {/* <p>{lesson.desciption}</p> */}
 
             <h2 className="text-2xl font-bold mt-4">Exercises</h2>
             <ul>
