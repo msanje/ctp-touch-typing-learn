@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import KeyboardComponent from './KeyboardComponent';
+import ViewLessons from './ViewLessons';
 
 export default function LearnInput({ user }: { user: any }) {
     const [activeKey, setActiveKey] = useState('');
@@ -238,6 +239,8 @@ export default function LearnInput({ user }: { user: any }) {
                         Next Exercise
                     </button>
                 )}
+
+                <ViewLessons />
 
                 <div className="flex flex-col items-center mt-8 w-full">
                     <button
