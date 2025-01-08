@@ -2,6 +2,7 @@
 
 import { FC, useEffect, useId, useState } from 'react'
 import { CheckCircle, Circle, Trophy, Book, ChevronRight } from 'lucide-react';
+import Link from 'next/link';
 
 interface pageProps { }
 
@@ -148,25 +149,31 @@ const Page: FC<pageProps> = ({ }) => {
                                         );
 
                                         return (
-                                            <li
+                                            <Link
                                                 key={exercise.id}
-                                                className={`flex items-center space-x-3 p-3 rounded-lg transition-colors cursor-pointer ${isCompleted ? "bg-green-50" : "hover:bg-gray-50"
-                                                    }`}
+                                                href={`/learn/${exercise.lessonId}/exercise/${exercise.index}`}
+                                                className='cursor-pointer'
                                             >
-                                                {isCompleted ? (
-                                                    <CheckCircle className="w-5 h-5 text-green-500" />
-                                                ) : (
-                                                    <Circle className="w-5 h-5 text-gray-300" />
-                                                )}
-                                                <span
-                                                    className={`flex-1 font-medium ${isCompleted
-                                                        ? "text-green-700"
-                                                        : "text-gray-700"
+                                                <li
+                                                    key={exercise.id}
+                                                    className={`flex items-center space-x-3 p-3 rounded-lg transition-colors cursor-pointer ${isCompleted ? "bg-green-50" : "hover:bg-gray-50"
                                                         }`}
                                                 >
-                                                    Exercise {exercise.index + 1}
-                                                </span>
-                                            </li>
+                                                    {isCompleted ? (
+                                                        <CheckCircle className="w-5 h-5 text-green-500" />
+                                                    ) : (
+                                                        <Circle className="w-5 h-5 text-gray-300" />
+                                                    )}
+                                                    <span
+                                                        className={`flex-1 font-medium ${isCompleted
+                                                            ? "text-green-700"
+                                                            : "text-gray-700"
+                                                            }`}
+                                                    >
+                                                        Exercise {exercise.index + 1}
+                                                    </span>
+                                                </li>
+                                            </Link>
                                         );
                                     })}
                                 </ul>
