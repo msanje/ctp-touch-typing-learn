@@ -1,9 +1,14 @@
 import { db } from "@/lib";
 import { NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: { params: { lessonId: string, exerciseIndex: string } }) {
-    const lessonId = params.lessonId;
-    const exerciseIndex = params.exerciseIndex;  // This is still the index of the exercise in the array
+export async function GET(
+    req: Request,
+    context: { params: { lessonId: string; exerciseId: string } }
+) {
+    const { lessonId, exerciseId } = context.params;
+
+    // exerciseId from string to number
+    const exerciseIdNum = parseInt(exerciseId, 10);
 
     const lesson = await db.lesson.findUnique({
         where: { id: parseInt(lessonId, 10) },
@@ -16,14 +21,14 @@ export async function GET(req: Request, { params }: { params: { lessonId: string
         return NextResponse.json({ error: "Lesson not found" }, { status: 404 });
     }
 
-    const exerciseId = lesson.exercises[parseInt(exerciseIndex, 10)]?.id; // Get exercise ID based on the index
+    // const exerciseIndex = lesson.exercises[parseInt(exerciseId, 10)]?.id; // Get exercise ID based on the index
 
-    if (!exerciseId) {
+    if (!exerciseIdNum) {
         return NextResponse.json({ error: "Exercise not found" }, { status: 404 });
     }
 
     const exercise = await db.exercise.findUnique({
-        where: { id: exerciseId }
+        where: { id: exerciseIdNum }
     });
 
     if (!exercise) {

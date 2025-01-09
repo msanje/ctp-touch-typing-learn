@@ -1,12 +1,10 @@
 "use client"
 
-import { FC, useState } from 'react'
+import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
-interface SignInFormProps { }
-
-const SignInForm: FC<SignInFormProps> = ({ }) => {
+const SignInForm = ({ }) => {
     const [username, setUsername] = useState<string>('')
     const [password, setPassword] = useState<string>('')
     const [loading, setLoading] = useState<boolean>(false)

@@ -2,7 +2,7 @@ import { db } from "@/lib/index";
 import bcrypt from "bcrypt";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   try {
     const { username, email, password } = await req.json();
     // Validate user input (example)
@@ -32,7 +32,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
       },
     });
 
-    return NextResponse.json({ message: "User registered." }, { status: 201 });
+    return NextResponse.json(
+      { message: "User registered.", user: { id: user.id, username: user.username, email: user.email } },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error from api/signup:", error);
 

@@ -1,8 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import { db } from "@/lib/index";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
     try {
         const { email, lessonId, exerciseIndex, completed } = await req.json();
 

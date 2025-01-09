@@ -1,6 +1,6 @@
 "use client"
 
-import { FC, useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle, Circle, Trophy, Book } from "lucide-react";
 import Link from "next/link";
 import {
@@ -12,7 +12,6 @@ import {
     AlertDialogDescription,
     AlertDialogFooter,
     AlertDialogCancel,
-    AlertDialogAction,
 } from "./ui/alert-dialog";
 import {
     Accordion,
@@ -20,9 +19,6 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
-
-
-interface pageProps { }
 
 type ProgressData = {
     progress: ({
@@ -47,6 +43,8 @@ type ProgressData = {
 
 type Exercise = {
     id: number;
+    index: number;
+    lessonId: number;
     title: string;
     exercise: Exercise[];
 }
@@ -63,6 +61,8 @@ const ViewLessons = () => {
     const [lessons, setLessons] = useState<LessonsState>([]);
     const [completedExercises, setCompletedExercises] = useState<ProgressData | null>(null);
     const [userId, setUserId] = useState<number>(4); // current logged in user
+
+    // setUserId(4);
 
     useEffect(() => {
         const fetchLessons = async () => {
@@ -121,7 +121,7 @@ const ViewLessons = () => {
                                 ).length;
 
                                 return (
-                                    <AccordionItem key={id} value={id}>
+                                    <AccordionItem key={id} value={id.toString()}>
                                         <AccordionTrigger>
                                             <div className="flex items-center justify-between">
                                                 <div className="flex items-center space-x-3">

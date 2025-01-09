@@ -1,7 +1,6 @@
 "use client"
 
 import { signOut } from "next-auth/react";
-import Image from "next/image"
 import { useRouter } from "next/navigation"
 import Link from "next/link";
 import { useState } from "react";
@@ -15,23 +14,11 @@ type User = {
 
 type Props = {
     user: User,
-    pagetype: string,
 }
 
-export default function Navbar({ user, pagetype }: Props) {
+export default function Navbar({ user }: Props) {
     const [open, setOpen] = useState<boolean>(false)
     const router = useRouter()
-
-    const userImage = user?.image ? (
-        <Image
-            className="border-4 border-black dark:border-slate-500 drop-shadow-xl shadow-black rounded-full mx-auto mt-8"
-            src={user?.image}
-            width={200}
-            height={200}
-            alt={user?.name ?? "Profile Pic"}
-            priority={true}
-        />
-    ) : null
 
     const handleSignOut = async () => {
         try {

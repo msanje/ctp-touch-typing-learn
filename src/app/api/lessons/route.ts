@@ -22,7 +22,7 @@ export async function POST(req: Request) {
 }
 
 export async function PUT(req: Request) {
-    const { id, title, description, exercises } = await req.json();
+    const { id, title, exercises } = await req.json();
 
     // Ensure that `id` is provided for the update request
     if (!id) {

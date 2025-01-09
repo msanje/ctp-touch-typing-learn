@@ -1,10 +1,8 @@
 "use client"
 
-import { FC, useEffect, useId, useState } from 'react'
-import { CheckCircle, Circle, Trophy, Book, ChevronRight } from 'lucide-react';
+import { useEffect, useState } from 'react'
+import { CheckCircle, Circle, Trophy, Book } from 'lucide-react';
 import Link from 'next/link';
-
-interface pageProps { }
 
 type ProgressData = {
     progress: ({
@@ -42,10 +40,12 @@ type Lesson = {
 
 type LessonsState = Lesson[];
 
-const Page: FC<pageProps> = ({ }) => {
+const Page = ({ }) => {
     const [lessons, setLessons] = useState<LessonsState>([]);
     const [completedExercises, setCompletedExercises] = useState<ProgressData | null>(null);
     const [userId, setUserId] = useState<number>(4); // current logged in user
+
+    // setUserId(4);
 
     useEffect(() => {
         const fetchLessons = async () => {
@@ -114,9 +114,6 @@ const Page: FC<pageProps> = ({ }) => {
                         const completedCount = exercises.filter((exercise) =>
                             completedExerciseSet.has(`${exercise.lessonId}-${exercise.index}`)
                         ).length;
-
-                        // calculate the progress percentage
-                        const progressPercentage = exercises.length > 0 ? (completedCount / exercises.length) * 100 : 0;
 
                         return (
                             <div key={id} className="bg-white p-6 rounded-xl shadow-sm">

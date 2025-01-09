@@ -24,11 +24,7 @@ export const options: NextAuthOptions = {
           placeholder: "your-awesome-password",
         },
       },
-      async authorize(credentials, req) {
-        const { username, password } = credentials as {
-          username: string;
-          password: string;
-        };
+      async authorize(credentials) {
 
         const matchingUser = await db.user.findFirst({
           where: {

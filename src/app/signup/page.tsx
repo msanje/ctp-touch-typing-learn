@@ -12,7 +12,6 @@ const SignUpForm = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const router = useRouter()
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
 
     const handleSignUp = async () => {
         try {

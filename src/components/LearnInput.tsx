@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import KeyboardComponent from './KeyboardComponent';
 import ViewLessons from './ViewLessons';
+import { User } from '@/types/User';
 
-export default function LearnInput({ user }: { user: any }) {
+export default function LearnInput({ user }: { user: User }) {
     const [activeKey, setActiveKey] = useState('');
     const [timerStarted, setTimerStarted] = useState<boolean>(false);
     const [isDisabled, setIsDisabled] = useState<boolean>(false);
@@ -16,7 +17,10 @@ export default function LearnInput({ user }: { user: any }) {
     const [currentLessonIndex, setCurrentLessonIndex] = useState<number>(0);
     const [userId, setUserId] = useState<number>(0);
 
+    // setUserId(4);
+
     interface Lesson {
+        id: number;
         title: string;
         exercises: { content: string }[];
     }
@@ -108,7 +112,7 @@ export default function LearnInput({ user }: { user: any }) {
                 },
                 body: JSON.stringify({
                     userId: userId,
-                    email: user.email,
+                    email: user!.email,
                     lessonId: lessonsData[currentLessonIndex].id,
                     exerciseIndex: exerciseIndex + 1,
                     completed: exerciseIndex + 1 === exercises.length - 1,

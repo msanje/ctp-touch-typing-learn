@@ -1,17 +1,12 @@
 "use client"
 
 // app/admin/lessons/[id]/page.tsx
-import { FC, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Lesson, Exercise } from "@prisma/client";
 import { useParams } from "next/navigation";
 
-export default async function LessonDetails({
-    params,
-}: {
-    params: Promise<{ id: string }>
-}) {
-    const id = (await params).id;
+export default function LessonDetails() {
+    const { id } = useParams();
     const [lesson, setLesson] = useState<Lesson | null>(null);
     const [exercises, setExercises] = useState<Exercise[]>([]);
 
