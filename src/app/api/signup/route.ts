@@ -5,6 +5,8 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const { username, email, password } = await req.json();
+    console.log("username: ", username, "emai: ", email, "password: ", password);
+
     // Validate user input (example)
     if (!username || !email || !password) {
       return NextResponse.json(
@@ -13,7 +15,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const exists = await db.user.findFirst({ where: { email } });
+    const exists = await db.user.findFirst({ where: { email: email } });
 
     if (exists) {
       return NextResponse.json(
@@ -34,7 +36,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       { message: "User registered.", user: { id: user.id, username: user.username, email: user.email } },
-      { status: 201 }
+      { status: 201, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {
     console.error("Error from api/signup:", error);

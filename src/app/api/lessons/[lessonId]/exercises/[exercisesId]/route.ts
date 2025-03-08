@@ -1,14 +1,16 @@
 import { db } from "@/lib";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
-    req: Request,
-    context: { params: { lessonId: string; exerciseId: string } }
+    req: NextRequest,
+    { params }: { params: { lessonId: string; exercisesId: string } }
 ) {
-    const { lessonId, exerciseId } = context.params;
+    const { lessonId, exercisesId } = params;
+
+    console.log("lessonId: ", lessonId, "exercisesId: ", exercisesId);
 
     // exerciseId from string to number
-    const exerciseIdNum = parseInt(exerciseId, 10);
+    const exerciseIdNum = parseInt(exercisesId, 10);
 
     const lesson = await db.lesson.findUnique({
         where: { id: parseInt(lessonId, 10) },

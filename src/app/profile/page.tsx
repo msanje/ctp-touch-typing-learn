@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { CheckCircle, Circle, Trophy, Book } from 'lucide-react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 type ProgressData = {
     progress: ({
@@ -43,17 +44,36 @@ type LessonsState = Lesson[];
 const Page = ({ }) => {
     const [lessons, setLessons] = useState<LessonsState>([]);
     const [completedExercises, setCompletedExercises] = useState<ProgressData | null>(null);
-    const [userId, setUserId] = useState<number>(4); // current logged in user
+    // const [userId, setUserId] = useState<number>(4); // current logged in user
+    const { data: session } = useSession();
+    const [userId, setUserId] = useState<number | null>(null);
 
-    // setUserId(4);
+    console.log("app/profile userId: ", userId);
+    console.log("app/profile lessons: ", lessons);
+    console.log("app/profile completedExercises: ", completedExercises);
 
     useEffect(() => {
         const fetchLessons = async () => {
             const response = await fetch('/api/lessons');
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const text = await response.text();
+
+            if (!text) {
+                throw new Error("Empty response body");
+            }
+
             const data: LessonsState = await response.json();
 
             setLessons(data);
         };
+
+        if (session?.user?.name) {
+            setUserId(session.user.id);
+        }
 
         const fetchCompletedExercises = async () => {
             const response = await fetch(`/api/progress?userId=${userId}`);
@@ -80,6 +100,10 @@ const Page = ({ }) => {
                     <Trophy className="w-5 h-5 text-yellow-500" />
                     <span className="font-medium text-gray-700">Level 4</span>
                 </div>
+            </div>
+
+            <div className='bg-red-700 w-full text-white'>
+                {session?.user!.id}
             </div>
 
             {/* Progress Overview */}

@@ -15,9 +15,7 @@ export default function LearnInput({ user }: { user: User }) {
     const [exercises, setExercises] = useState<string[]>([]);
     const [lessonTitle, setLessonTitle] = useState<string>("");
     const [currentLessonIndex, setCurrentLessonIndex] = useState<number>(0);
-    const [userId, setUserId] = useState<number>(0);
-
-    // setUserId(4);
+    const [userId, setUserId] = useState<String | null>(null);
 
     interface Lesson {
         id: number;
@@ -39,6 +37,9 @@ export default function LearnInput({ user }: { user: User }) {
                 console.error("Error fetching lessons: ", error);
             }
         };
+
+        // TODO: needs to be removed/used
+        setUserId("f7411d0b-3d69-47ba-94ac-30645c2860e2");
 
         fetchLessons();
     }, [])

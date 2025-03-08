@@ -30,7 +30,7 @@ model Exercise {
 }
 
 model User {
-  id       Int        @id @default(autoincrement())
+  id String @id @default(uuid())
   username String     @unique
   email    String     @unique
   password String
@@ -39,7 +39,7 @@ model User {
 
 model Progress {
   id            Int     @id @default(autoincrement())
-  userId        Int
+  userId        String
   lessonId      Int
   user          User    @relation(fields: [userId], references: [id])
   lesson        Lesson  @relation(fields: [lessonId], references: [id])

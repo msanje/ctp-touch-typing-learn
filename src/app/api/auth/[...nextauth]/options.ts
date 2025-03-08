@@ -3,6 +3,23 @@ import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "@/lib/index";
 import bcrypt from "bcrypt";
+import "next-auth";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id?: string
+      name?: string | null
+      email?: string | null
+    }
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string
+  }
+}
 
 export const options: NextAuthOptions = {
   providers: [
@@ -25,6 +42,9 @@ export const options: NextAuthOptions = {
         },
       },
       async authorize(credentials) {
+        if (!credentials?.username || !credentials.password) {
+          return null; // Invalid credentials
+        }
 
         const matchingUser = await db.user.findFirst({
           where: {
@@ -35,13 +55,8 @@ export const options: NextAuthOptions = {
         if (!matchingUser) {
           return null; // User not found
         }
-
-        if (credentials?.password === undefined) {
-          return null; // Password not provided, authentication failure
-        }
-
         // Compare the provided password with the hashed password stored in the database
-        const passwordMatch = bcrypt.compare(
+        const passwordMatch = await bcrypt.compare(
           credentials?.password,
           matchingUser.password
         );
@@ -50,14 +65,24 @@ export const options: NextAuthOptions = {
           return null; // Passwords do not match
         }
 
-        return {
-          id: matchingUser.id.toString(),
-          name: matchingUser.username,
-          email: matchingUser.email,
-        };
+        return { id: matchingUser.id, username: matchingUser.username, email: matchingUser.email };
       },
     }),
   ],
+  callbacks: {
+    async session({ session, token }) {
+      if (token?.id) {
+        session.user!.id = token.id;
+      }
+      return session;
+    },
+    async jwt({ token, user }) {
+      if (user?.id) {
+        token.id = user.id;
+      }
+      return token;
+    }
+  },
   pages: {
     signIn: "/signin",
     signOut: "/signout"

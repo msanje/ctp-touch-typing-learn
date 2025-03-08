@@ -43,10 +43,7 @@ type LessonsState = Lesson[];
 const Page = ({ }) => {
     const [lessons, setLessons] = useState<LessonsState>([]);
     const [completedExercises, setCompletedExercises] = useState<ProgressData | null>(null);
-    const [userId, setUserId] = useState<number>(4); // current logged in user
-
-    // for now
-    // setUserId(4);
+    const [userId, setUserId] = useState<String | null>(null); // current logged in user
 
     useEffect(() => {
         const fetchLessons = async () => {
@@ -55,6 +52,9 @@ const Page = ({ }) => {
 
             setLessons(data);
         };
+
+        // TODO: needs to be removed/used
+        setUserId("f7411d0b-3d69-47ba-94ac-30645c2860e2");
 
         const fetchCompletedExercises = async () => {
             const response = await fetch(`/api/progress?userId=${userId}`);

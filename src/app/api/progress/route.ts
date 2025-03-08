@@ -45,6 +45,8 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const userId = url.searchParams.get('userId');
 
+    console.log("api/progress: userId ", userId);
+
     if (!userId) {
         return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
@@ -53,7 +55,7 @@ export async function GET(req: Request) {
         // Fetch progress for the given userId
         const progress = await db.progress.findMany({
             where: {
-                userId: Number(userId), // Ensure the userId is a number
+                userId: userId, // Ensure the userId is a number
             },
             include: {
                 lesson: true,
@@ -61,7 +63,7 @@ export async function GET(req: Request) {
         });
 
         if (progress.length === 0) {
-            return NextResponse.json({ message: 'No progress found for this user' }, { status: 404 });
+            return NextResponse.json({ message: 'No progress found for this user' }, { status: 204 });
         }
 
         const exercises = await db.exercise.findMany({
