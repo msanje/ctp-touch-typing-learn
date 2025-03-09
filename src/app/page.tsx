@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { lorem } from "../helpers/paragraph";
 import Image from "next/image";
-import { wpm } from "../helpers/wpm";
+import { checkWpm } from "../helpers/wpm";
 import Link from "next/link";
 
 export default function Home() {
@@ -33,7 +33,7 @@ export default function Home() {
   };
 
   const calculateWPM = () => {
-    const wordsPerMinute = wpm(userInput.length, 1);
+    const wordsPerMinute = checkWpm(userInput.length, 1);
     setWpmScore(wordsPerMinute);
   };
 
