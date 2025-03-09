@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 const TypingTest = () => {
     // TODO: Fetch sentence from backend
     const textContainerRef = useRef<HTMLDivElement>(null);
-    const [started, setStarted] = useState<boolean>(true);
+    const [started, setStarted] = useState<boolean>(false);
     const [timer, setTimer] = useState(60);
     const [input, setInput] = useState("");
     const [wpm, setWpm] = useState<number | null>(null);
@@ -16,17 +16,29 @@ const TypingTest = () => {
 
     // Starting the timer when test begins
     useEffect(() => {
-        if (started && timer > 0) {
+        if (started) {
             intervalRef.current = setInterval(() => {
-                setTimer((prev) => prev - 1);
+                setTimer((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(intervalRef.current!);
+                        return 0;
+                    }
+                    return prev - 1;
+                });
             }, 1000);
+        } else if (timer === 0) {
+            clearInterval(intervalRef.current!);
+            setTimer(60);
         }
-    }, [started, timer])
 
+        return () => clearInterval(intervalRef.current!);
+    }, [started])
+
+    // Handle click outside to stop the test
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (textContainerRef.current && !textContainerRef.current.contains(event.target as Node)) {
-                setStarted(true);
+                setStarted(false);
             }
         }
 
@@ -42,14 +54,14 @@ const TypingTest = () => {
                 <div className="relative w-3/4 h-80 bg-slate-400 rounded-md p-4 font-sans overflow-auto text-3xl shadow-md shadow-gray-600/50">
                     <div
                         ref={textContainerRef}
-                        className={`transition-all duration-300 p-2 leading-normal tracking-widest text-black text-4xl ${started ? "blur-sm" : "blur-none"}`}>
+                        className={`transition-all duration-300 p-2 leading-normal tracking-widest text-black text-4xl ${!started ? "blur-sm" : "blur-none"}`}>
                         {sentence}
                     </div>
 
                     {/* Button Overlay */}
-                    {started && (
+                    {!started && (
                         <button
-                            onClick={() => setStarted(!started)}
+                            onClick={() => setStarted(true)}
                             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  text-white 
                             px-4 py-2 rounded-md text-lg  border border-black bg-gray-700 hover:bg-gray-600 font-bold hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition-duration-200"
                         >
