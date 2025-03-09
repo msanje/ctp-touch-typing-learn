@@ -7,8 +7,6 @@ export async function GET(
 ) {
     const { lessonId, exercisesId } = params;
 
-    console.log("lessonId: ", lessonId, "exercisesId: ", exercisesId);
-
     // exerciseId from string to number
     const exerciseIdNum = parseInt(exercisesId, 10);
 

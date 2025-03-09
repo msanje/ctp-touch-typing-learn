@@ -46,11 +46,7 @@ const Page = ({ }) => {
     const [completedExercises, setCompletedExercises] = useState<ProgressData | null>(null);
     // const [userId, setUserId] = useState<number>(4); // current logged in user
     const { data: session } = useSession();
-    const [userId, setUserId] = useState<number | null>(null);
-
-    console.log("app/profile userId: ", userId);
-    console.log("app/profile lessons: ", lessons);
-    console.log("app/profile completedExercises: ", completedExercises);
+    const [userId, setUserId] = useState<string | undefined>();
 
     useEffect(() => {
         const fetchLessons = async () => {

@@ -45,8 +45,6 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const userId = url.searchParams.get('userId');
 
-    console.log("api/progress: userId ", userId);
-
     if (!userId) {
         return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }

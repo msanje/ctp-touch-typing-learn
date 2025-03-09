@@ -1,8 +1,9 @@
 "use client";
 
+import { lorem } from "@/helpers/paragraph";
 import { checkWpm } from "@/helpers/wpm";
 import { Redo, Settings, Smile } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const TypingTest = () => {
     // TODO: Fetch sentence from backend
@@ -15,9 +16,7 @@ const TypingTest = () => {
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const [currentError, setCurrentError] = useState<boolean>(false);
     const [finalWpm, setFinalWpm] = useState<number | null>(null);
-    const [sentence, setSentence] = useState("Lorem ipsum dolor sit amet consectetur adipisicing elit. Ad repellendus dignissimos et distinctio dolorum totam esse magni est molestias, nemo magnam odit quisquam, iure quasi illo corporis eum molestiae aspernatur. Qui tempora eius in laborum asperiores culpa odio optio laboriosam esse neque nobis quasi suscipit architecto saepe corporis voluptatum fuga enim est sunt, alias ratione.Eos repellendus illo quos minus! Incidunt doloribus architecto labore rerum adipisci, quae sit, nesciunt fugit aut fuga, saepe repellat molestiae quasi temporibus.Est delectus sit molestias, animi quo quos doloremque porro aliquam laborum omnis rerum Unde et porro accusantium nobis praesentium, asperiores ullam sequi ipsum quod adipisci consequuntur, impedit vero! Ullam cumque quis libero ipsam corrupti debitis error quas, id voluptatibus dignissimos delectus iure enim. Necessitatibus porro repellat, fugiat at quia culpa perspiciatis deserunt temporibus ullam vitae vero soluta fuga natus veritatis, quas dicta tenetur ipsa reiciendis quae eveniet, rerum explicabo corporis.Error, esse quisquam!");
-
-    console.log("Final WPM set to:", finalWpm);
+    const [sentence, setSentence] = useState(lorem);
 
     // Starting the timer when test begins
     useEffect(() => {
@@ -78,8 +77,6 @@ const TypingTest = () => {
 
     const calculateWPM = () => {
         const wordsPerMinute = checkWpm(input.length, 1);
-        console.log("calculateWPM called, Timer:", timer);
-        console.log("WPM calculated:", wordsPerMinute);
 
         if (timer === 0) {
             setFinalWpm(wordsPerMinute);
@@ -88,22 +85,43 @@ const TypingTest = () => {
         }
     };
 
+    const charStates = useMemo(() => {
+        const cleanedSentence = sentence.trim().replace(/\s+/g, " ");
+
+        return cleanedSentence.split("").map((char, index) => {
+            const isTyped = index < input.length;
+            const isCorrect = isTyped && input[index] === char;
+
+            return { char, isCorrect, isTyped };
+        })
+    }, [input, sentence])
+
     return (
         <div className="flex flex-col justify-center items-center mt-12">
             <h1 className="text-6xl">Typing Certification Test</h1>
             <h3 className="m-4 font-semibold text-gray-400">Take a 1 min test and clarify your typing speed with English for Beginners.</h3>
-            <div className="flex flex-row justify-center w-full text-2xl font-semibold text-gray-700">
-                <p className="mx-40 tracking-wide">WPM: {wpm}</p>
-                <p className="mx-40 tracking-wide">Accuracy: {accuracy}</p>
+            <div className="flex flex-row justify-center w-full text-2xl font-semibold text-gray-700 mb-2">
+                <p className="mx-40 tracking-wide underline">WPM: {wpm}</p>
+                <p className="mx-40 tracking-wide underline">Accuracy: {accuracy}</p>
             </div>
             <div className="flex flex-col justify-center items-center">
                 <div className="relative w-3/4 h-80 bg-slate-400 rounded-md p-4 font-sans overflow-auto text-3xl shadow-md shadow-gray-600/50">
                     <div
                         ref={textContainerRef}
                         className={`transition-all duration-300 p-2 leading-normal tracking-widest text-black text-4xl ${!started ? "blur-sm" : "blur-none"}`}>
-                        {sentence}
+                        {charStates.map(({ char, isCorrect, isTyped }, index) => (
+                            <span
+                                key={index}
+                                className={
+                                    isTyped
+                                        ? (isCorrect ? "text-gray-500" : "text-red-500")
+                                        : "text-black"
+                                }
+                            >
+                                {char}
+                            </span>
+                        ))}
                     </div>
-
                     {/* Button Overlay */}
                     {!started && (
                         <button

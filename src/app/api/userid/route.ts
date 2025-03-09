@@ -4,8 +4,6 @@ import { options } from "../auth/[...nextauth]/options"; // Ensure this is the c
 export async function GET() {
     const session = await getServerSession(options);
 
-    console.log("session api/userid: ", session);
-
     if (!session) {
         return new Response(JSON.stringify({ error: "Not authenticated" }), { status: 401 });
     }
