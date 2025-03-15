@@ -24,89 +24,66 @@ export default async function Navbar() {
 
     const handleSignOut = async () => {
         try {
-            await signOut({ redirect: false })
+            await signOut({ redirect: false });
         } catch (error) {
-            console.error('Sign out error:', error)
+            console.error('Sign out error:', error);
         } finally {
-            redirect('/')
+            redirect('/');
         }
-    }
+    };
 
     return (
-        <nav className="flex items-center justify-between px-12 py-3 bg-white border-b border-gray-200">
+        <nav className="flex items-center justify-between px-16 py-4 bg-white border-b border-gray-200 shadow-sm">
             {/* Logo */}
             <div className="flex items-center">
-                <Link href="/"><span className="text-3xl font-bold text-blue-600">KEYSTREAM</span></Link>
+                <Link href="/">
+                    <span className="text-4xl font-extrabold text-blue-600 tracking-tight">KEYSTREAM</span>
+                </Link>
             </div>
 
             {/* Navigation Links */}
-            <div className="flex items-center space-x-8">
-                {/* <a
-                    href="/typing-tutor"
-                    className="relative px-3 py-2 text-xl font-bold text-gray-700 hover:text-blue-600 transition-colors duration-200 group"
-                >
-                    Typing tutor
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-                </a> */}
-
-                <a
-                    href="/typing-test"
-                    className="relative px-3 py-2 text-xl font-bold text-gray-700 hover:text-blue-600 transition-colors duration-200 group"
-                >
-                    Typing test
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-                </a>
-
-                <a
-                    href="/learn"
-                    className="relative px-3 py-2 text-xl font-bold text-gray-700 hover:text-blue-600 transition-colors duration-200 group"
-                >
-                    Learn
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-                </a>
-                <a
-                    href="/progress"
-                    className="relative px-3 py-2 text-xl font-bold text-gray-700 hover:text-blue-600 transition-colors duration-200 group"
-                >
-                    Progresss
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-                </a>
-                <a
-                    href="/lessons"
-                    className="relative px-3 py-2 text-xl font-bold text-gray-700 hover:text-blue-600 transition-colors duration-200 group"
-                >
-                    Lessons
-                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-                </a>
+            <div className="flex items-center space-x-10">
+                {['Typing Test', 'Learn', 'Progress', 'Lessons'].map((item) => (
+                    <Link
+                        key={item}
+                        href={`/${item.toLowerCase().replace(/\s/g, '-')}`}
+                        className="relative px-4 py-2 text-lg font-semibold text-gray-700 hover:text-blue-600 transition-colors duration-200 group"
+                    >
+                        {item}
+                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
+                    </Link>
+                ))}
             </div>
 
             {/* User Profile Section */}
-            {session ? (<UserDropdown user={session?.user} />
+            {session ? (
+                <UserDropdown user={session?.user} />
             ) : (
-                <div className="flex flex-row items-center px-4 py-2 rounded-md border mr-4 border-black bg-blue-700 hover:bg-blue-600 text-white font-bold text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition-duration-200">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger className="text-xl">
-                            Hey! Log in
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="flex flex-col items-center">
-                            <DropdownMenuItem
-                                className="flex flex-row w-full items-center mx-4 text-center px-4 py-2 rounded-md border mr-4 border-black bg-blue-700 hover:bg-blue-600 text-white font-bold text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition-duration-200">
-                                <Link href={'/signup'}>
-                                    Sign UP
-                                </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                className="flex flex-row w-full items-center mx-4 text-center px-4 py-2 rounded-md border mr-4 border-black bg-blue-700 hover:bg-blue-600 text-white font-bold text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition-duration-200">
-                                <Link href={'/signin'}>
-                                    Sign IN
-                                </Link>
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
+                <DropdownMenu>
+                    <DropdownMenuTrigger className="text-lg font-semibold text-gray-700 hover:text-blue-600 transition-colors">
+                        Hey! Log in
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="p-2 shadow-md border rounded-lg">
+                        <DropdownMenuItem>
+                            <Link
+                                href="/signup"
+                                className="block w-full px-6 py-2 text-white bg-blue-600 hover:bg-blue-500 font-bold text-center rounded-md transition-all duration-200"
+                            >
+                                Sign Up
+                            </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem>
+                            <Link
+                                href="/signin"
+                                className="block w-full px-6 py-2 text-white bg-gray-800 hover:bg-gray-700 font-bold text-center rounded-md transition-all duration-200"
+                            >
+                                Sign In
+                            </Link>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             )}
-        </nav >
-    )
+        </nav>
+    );
 }
-

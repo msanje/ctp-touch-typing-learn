@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 const TypingTest = () => {
     const [started, setStarted] = useState<boolean>(false);
-    const [timer, setTimer] = useState(60);
+    const [timer, setTimer] = useState(10);
     const [input, setInput] = useState("");
     const [wpm, setWpm] = useState<number | null>(0);
     const [accuracy, setAccuracy] = useState<number | null>(0);
@@ -57,8 +57,10 @@ const TypingTest = () => {
         setStarted(false);
         setWpm(null);
 
+        console.log("hello from restartTest")
+
         if (sentenceRef.current) {
-            sentenceRef.current.scrollTo({ top: 0, behavior: "instant" })
+            sentenceRef.current.scrollTo({ top: 0, behavior: "auto" })
         }
     };
 
@@ -122,9 +124,16 @@ const TypingTest = () => {
     }, [input, sentence]);
 
     return (
-        <div className="flex flex-col justify-center items-center mt-8 max-w-5xl mx-auto px-4">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">Typing Certification Test</h1>
-            <h3 className="mb-8 text-lg text-gray-500">Take a 1-minute test to certify your typing speed with English for Beginners.</h3>
+        <div className="flex flex-col justify-center items-center pt-6 max-w-5xl mx-auto px-4 bg-gradient-to-b from-blue-200 to-white">
+            <h1 className="text-6xl font-extrabold bg-gradient-to-r from-blue-700 via-purple-600 to-pink-500 bg-clip-text text-transparent mb-3 tracking-tight drop-shadow-md">
+                Typing Certification Test
+            </h1>
+            <h3 className="mb-2 text-xl text-gray-600 font-medium leading-relaxed max-w-2xl mx-auto text-center">
+                Take a <span className="font-semibold text-blue-600">1-minute test</span> to certify your typing speed.
+            </h3>
+            <h4 className="text-lg mb-2 font-semibold text-purple-600 text-center">
+                English for Beginners
+            </h4>
 
             {/* Stats Bar */}
             <div className="flex justify-between items-center w-full bg-gray-50 rounded-lg shadow-sm p-4 mb-6">
@@ -132,28 +141,21 @@ const TypingTest = () => {
                     <Clock className="text-blue-500" size={20} />
                     <div className="text-2xl font-mono font-bold">{timer}s</div>
                 </div>
-
                 <div className="flex space-x-8">
                     <div className="flex flex-col items-center">
                         <div className="text-gray-500 text-sm uppercase tracking-wider">Speed</div>
                         <div className="text-2xl font-bold">{wpm || 0} <span className="text-sm text-gray-500">WPM</span></div>
                     </div>
-
                     <div className="flex flex-col items-center">
                         <div className="text-gray-500 text-sm uppercase tracking-wider">Accuracy</div>
                         <div className="text-2xl font-bold">{accuracy || 0}<span className="text-sm text-gray-500">%</span></div>
                     </div>
                 </div>
-
                 <div className="flex items-center space-x-4">
-                    <button
-                        onClick={restartTest}
-                        className="flex items-center space-x-1 text-blue-500 hover:text-blue-700 transition-colors"
-                    >
+                    <button onClick={restartTest} className="flex items-center space-x-1 text-blue-500 hover:text-blue-700 transition-colors">
                         <Redo size={18} />
                         <span>Restart</span>
                     </button>
-
                     <button className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-colors">
                         <Settings size={18} />
                         <span>Settings</span>
@@ -163,22 +165,11 @@ const TypingTest = () => {
 
             {/* Text Display Area */}
             <div className="relative w-full h-64 bg-white rounded-lg border border-gray-200 shadow-lg overflow-auto mb-4">
-                <div
-                    ref={sentenceRef}
-                    className={`p-6 leading-relaxed text-3xl transition-all duration-300 ${!started ? "blur-sm select-none" : "blur-none"}`}
-                >
+                <div ref={sentenceRef} className={`p-6 leading-relaxed text-3xl transition-all duration-300 ${!started ? "blur-sm select-none" : "blur-none"}`}>
                     {charStates.map(({ char, isCorrect, isTyped }, index) => {
-                        const isCurrent = index === input.length; // Identify the next character to be typed
+                        const isCurrent = index === input.length;
                         return (
-                            <span
-                                key={index}
-                                ref={isCurrent ? currentCharRef : null} // Attach ref to the current character
-                                className={
-                                    isTyped
-                                        ? (isCorrect ? "text-gray-400" : "text-red-500 bg-red-100")
-                                        : "text-gray-800"
-                                }
-                            >
+                            <span key={index} ref={isCurrent ? currentCharRef : null} className={isTyped ? (isCorrect ? "text-gray-400" : "text-red-500 bg-red-100") : "text-gray-800"}>
                                 {char}
                             </span>
                         );
@@ -187,17 +178,10 @@ const TypingTest = () => {
 
                 {/* Start Button Overlay */}
                 {!started && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-50">
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-10">
                         <button
-                            onClick={() => {
-                                setStarted(true);
-                                setInput("");
-                                setWpm(null);
-                                setAccuracy(null);
-                            }}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg 
-                                      transform transition duration-200 hover:-translate-y-1 hover:shadow-lg"
-                        >
+                            onClick={() => { setStarted(true); setInput(""); setWpm(null); setAccuracy(null); }}
+                            className="fixed bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transform transition duration-200 hover:-translate-y-1 hover:shadow-lg">
                             Start Typing Test
                         </button>
                     </div>
@@ -205,17 +189,7 @@ const TypingTest = () => {
             </div>
 
             {/* Input Field */}
-            <input
-                ref={inputRef}
-                type="text"
-                className="w-full p-4 border border-gray-300 rounded-lg text-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all mb-4"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                disabled={!started || timer === 0}
-                placeholder={started ? "Type here..." : "Click 'Start' to begin the test"}
-                autoComplete="off"
-                autoFocus
-            />
+            <input ref={inputRef} type="text" className="w-full p-4 border border-gray-300 rounded-lg text-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all mb-4" value={input} onChange={(e) => setInput(e.target.value)} disabled={!started || timer === 0} placeholder={started ? "Type here..." : "Click 'Start' to begin the test"} autoComplete="off" autoFocus />
 
             {/* Test Completion Overlay */}
             {timer === 0 && (
@@ -238,9 +212,7 @@ const TypingTest = () => {
                             </div>
                         </div>
                         <button
-                            onClick={restartTest}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition-colors"
-                        >
+                            onClick={restartTest} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition-colors">
                             Take Another Test
                         </button>
                     </div>

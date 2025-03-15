@@ -2,7 +2,7 @@ import TypingTest from "@/components/TypingTest";
 
 const Page = () => {
     return (
-        <div>
+        <div className="bg-gradient-to-b from-blue-200 to-white">
             <TypingTest />
         </div>
     )
