@@ -2,12 +2,10 @@
 
 import { lorem } from "@/helpers/paragraph";
 import { checkWpm } from "@/helpers/wpm";
-import { Redo, Settings, Smile } from "lucide-react";
+import { Redo, Settings, BarChart, Clock } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const TypingTest = () => {
-    // TODO: Fetch sentence from backend
-    const textContainerRef = useRef<HTMLDivElement>(null);
     const [started, setStarted] = useState<boolean>(false);
     const [timer, setTimer] = useState(60);
     const [input, setInput] = useState("");
@@ -17,6 +15,11 @@ const TypingTest = () => {
     const [currentError, setCurrentError] = useState<boolean>(false);
     const [finalWpm, setFinalWpm] = useState<number | null>(null);
     const [sentence, setSentence] = useState(lorem);
+    const sentenceRef = useRef<HTMLDivElement | null>(null);
+    // ref for the current character element
+    const currentCharRef = useRef<HTMLSpanElement | null>(null);
+
+    console.log("started: ", started);
 
     // Starting the timer when test begins
     useEffect(() => {
@@ -37,7 +40,15 @@ const TypingTest = () => {
         }
 
         return () => clearInterval(intervalRef.current!);
-    }, [started])
+    }, [started]);
+
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (started && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [started]);
 
     const restartTest = () => {
         setInput("");
@@ -45,12 +56,16 @@ const TypingTest = () => {
         setTimer(60);
         setStarted(false);
         setWpm(null);
+
+        if (sentenceRef.current) {
+            sentenceRef.current.scrollTo({ top: 0, behavior: "instant" })
+        }
     };
 
     // Handle click outside to stop the test
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (textContainerRef.current && !textContainerRef.current.contains(event.target as Node) && event.target !== document.querySelector("input")) {
+            if (sentenceRef.current && !sentenceRef.current.contains(event.target as Node) && event.target !== document.querySelector("input")) {
                 setStarted(false);
                 calculateWPM();
             }
@@ -65,15 +80,19 @@ const TypingTest = () => {
         if (started) {
             calculateWPM();
         }
-    }, [input])
+    }, [input]);
+
+    useEffect(() => {
+        currentCharRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, [input]);
 
     // triggering recalculation of wpm when the timer ends
     useEffect(() => {
         if (timer === 0) {
             const wordsPerMinute = checkWpm(input.length, 1);
-            setFinalWpm(wordsPerMinute)
+            setFinalWpm(wordsPerMinute);
         }
-    }, [timer])
+    }, [timer]);
 
     const calculateWPM = () => {
         const wordsPerMinute = checkWpm(input.length, 1);
@@ -83,6 +102,12 @@ const TypingTest = () => {
         } else {
             setWpm(wordsPerMinute);
         }
+
+        // Calculate accuracy (placeholder - implement actual logic)
+        // This is just an example, you'd need to implement the actual accuracy calculation
+        const totalChars = input.length;
+        const correctChars = input.split('').filter((char, idx) => char === sentence[idx]).length;
+        setAccuracy(totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0);
     };
 
     const charStates = useMemo(() => {
@@ -93,37 +118,76 @@ const TypingTest = () => {
             const isCorrect = isTyped && input[index] === char;
 
             return { char, isCorrect, isTyped };
-        })
-    }, [input, sentence])
+        });
+    }, [input, sentence]);
 
     return (
-        <div className="flex flex-col justify-center items-center mt-12">
-            <h1 className="text-6xl">Typing Certification Test</h1>
-            <h3 className="m-4 font-semibold text-gray-400">Take a 1 min test and clarify your typing speed with English for Beginners.</h3>
-            <div className="flex flex-row justify-center w-full text-2xl font-semibold text-gray-700 mb-2">
-                <p className="mx-40 tracking-wide underline">WPM: {wpm}</p>
-                <p className="mx-40 tracking-wide underline">Accuracy: {accuracy}</p>
+        <div className="flex flex-col justify-center items-center mt-8 max-w-5xl mx-auto px-4">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">Typing Certification Test</h1>
+            <h3 className="mb-8 text-lg text-gray-500">Take a 1-minute test to certify your typing speed with English for Beginners.</h3>
+
+            {/* Stats Bar */}
+            <div className="flex justify-between items-center w-full bg-gray-50 rounded-lg shadow-sm p-4 mb-6">
+                <div className="flex items-center space-x-2">
+                    <Clock className="text-blue-500" size={20} />
+                    <div className="text-2xl font-mono font-bold">{timer}s</div>
+                </div>
+
+                <div className="flex space-x-8">
+                    <div className="flex flex-col items-center">
+                        <div className="text-gray-500 text-sm uppercase tracking-wider">Speed</div>
+                        <div className="text-2xl font-bold">{wpm || 0} <span className="text-sm text-gray-500">WPM</span></div>
+                    </div>
+
+                    <div className="flex flex-col items-center">
+                        <div className="text-gray-500 text-sm uppercase tracking-wider">Accuracy</div>
+                        <div className="text-2xl font-bold">{accuracy || 0}<span className="text-sm text-gray-500">%</span></div>
+                    </div>
+                </div>
+
+                <div className="flex items-center space-x-4">
+                    <button
+                        onClick={restartTest}
+                        className="flex items-center space-x-1 text-blue-500 hover:text-blue-700 transition-colors"
+                    >
+                        <Redo size={18} />
+                        <span>Restart</span>
+                    </button>
+
+                    <button className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-colors">
+                        <Settings size={18} />
+                        <span>Settings</span>
+                    </button>
+                </div>
             </div>
-            <div className="flex flex-col justify-center items-center">
-                <div className="relative w-3/4 h-80 bg-slate-400 rounded-md p-4 font-sans overflow-auto text-3xl shadow-md shadow-gray-600/50">
-                    <div
-                        ref={textContainerRef}
-                        className={`transition-all duration-300 p-2 leading-normal tracking-widest text-black text-4xl ${!started ? "blur-sm" : "blur-none"}`}>
-                        {charStates.map(({ char, isCorrect, isTyped }, index) => (
+
+            {/* Text Display Area */}
+            <div className="relative w-full h-64 bg-white rounded-lg border border-gray-200 shadow-lg overflow-auto mb-4">
+                <div
+                    ref={sentenceRef}
+                    className={`p-6 leading-relaxed text-3xl transition-all duration-300 ${!started ? "blur-sm select-none" : "blur-none"}`}
+                >
+                    {charStates.map(({ char, isCorrect, isTyped }, index) => {
+                        const isCurrent = index === input.length; // Identify the next character to be typed
+                        return (
                             <span
                                 key={index}
+                                ref={isCurrent ? currentCharRef : null} // Attach ref to the current character
                                 className={
                                     isTyped
-                                        ? (isCorrect ? "text-gray-500" : "text-red-500")
-                                        : "text-black"
+                                        ? (isCorrect ? "text-gray-400" : "text-red-500 bg-red-100")
+                                        : "text-gray-800"
                                 }
                             >
                                 {char}
                             </span>
-                        ))}
-                    </div>
-                    {/* Button Overlay */}
-                    {!started && (
+                        );
+                    })}
+                </div>
+
+                {/* Start Button Overlay */}
+                {!started && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-50">
                         <button
                             onClick={() => {
                                 setStarted(true);
@@ -131,47 +195,59 @@ const TypingTest = () => {
                                 setWpm(null);
                                 setAccuracy(null);
                             }}
-                            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  text-white 
-                            px-4 py-2 rounded-md text-lg  border border-black bg-gray-700 hover:bg-gray-600 font-bold hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition-duration-200"
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg 
+                                      transform transition duration-200 hover:-translate-y-1 hover:shadow-lg"
                         >
-                            Click Here to Start
-                        </button>
-                    )}
-                </div>
-                <input
-                    type="text"
-                    className="mt-4 w-3/4 p-2 border rounded-md text-xl"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    disabled={!started || timer === 0}
-                    placeholder="Start typing here..."
-                />
-                <div className="flex flex-row justify-center items-center mt-4 w-1/2 h-12 bg-slate-400 rounded-md
-                shadow-md shadow-gray-600/50">
-                    <div className="mx-4 flex items-center">
-                        <span
-                            className="cursor-pointer"
-                            onClick={() => setTimer(60)}>
-                            <Redo className="mr-4" />
-                        </span>
-                        {timer}
-                    </div>
-                    <div className="mx-4"><Settings /></div>
-                </div>
-                {timer === 0 && (
-                    <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center bg-black bg-opacity-50 text-white text-6xl font-bold">
-                        <p>Test Over!</p>
-                        <p className="mt-4">WPM: {finalWpm ?? wpm}</p>
-                        <button
-                            onClick={restartTest}
-                            className="border-2 border-white rounded-md p-2 mt-4"
-                        >Retake Test
+                            Start Typing Test
                         </button>
                     </div>
                 )}
             </div>
+
+            {/* Input Field */}
+            <input
+                ref={inputRef}
+                type="text"
+                className="w-full p-4 border border-gray-300 rounded-lg text-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all mb-4"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                disabled={!started || timer === 0}
+                placeholder={started ? "Type here..." : "Click 'Start' to begin the test"}
+                autoComplete="off"
+                autoFocus
+            />
+
+            {/* Test Completion Overlay */}
+            {timer === 0 && (
+                <div className="fixed inset-0 bg-black bg-opacity-70 flex flex-col justify-center items-center z-50">
+                    <div className="bg-white rounded-xl p-8 max-w-md w-full text-center">
+                        <div className="inline-flex justify-center items-center w-16 h-16 rounded-full bg-blue-100 text-blue-600 mb-4">
+                            <BarChart size={32} />
+                        </div>
+                        <h2 className="text-3xl font-bold mb-2">Test Complete!</h2>
+                        <div className="flex justify-center space-x-8 my-6">
+                            <div className="flex flex-col">
+                                <span className="text-gray-500 text-sm">Your Speed</span>
+                                <span className="text-4xl font-bold">{finalWpm ?? wpm}</span>
+                                <span className="text-gray-500 text-sm">WPM</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-gray-500 text-sm">Accuracy</span>
+                                <span className="text-4xl font-bold">{accuracy}</span>
+                                <span className="text-gray-500 text-sm">%</span>
+                            </div>
+                        </div>
+                        <button
+                            onClick={restartTest}
+                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg w-full transition-colors"
+                        >
+                            Take Another Test
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
-    )
-}
+    );
+};
 
 export default TypingTest;
