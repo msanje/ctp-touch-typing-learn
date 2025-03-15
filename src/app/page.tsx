@@ -1,23 +1,79 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { lorem } from "../helpers/paragraph";
+import { useEffect, useRef, useState } from "react";
+import { lorem, story } from "../helpers/paragraph";
 import Image from "next/image";
 import { checkWpm } from "../helpers/wpm";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export default function Home() {
   const originalText = lorem;
   const [userInput, setUserInput] = useState("");
   const [currentError, setCurrentError] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(60);
+  const [selectedTime, setSelectedTime] = useState<number>(60);
+  const [timeLeft, setTimeLeft] = useState<number>(selectedTime);
   const [timerStarted, setTimerStarted] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const [wpmScore, setWpmScore] = useState(0);
-  const [textSize, setTextSize] = useState<number>(2)
+  const [textSize, setTextSize] = useState<number>(2);
+  const sentenceRef = useRef<HTMLDivElement | null>(null);
+  const lastScrollWordsRef = useRef(0);
+  const { data: session } = useSession();
+  const user = session?.user;
+
+  const handleTimeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedTime(parseInt(event.target.value, 10));
+  }
+
+  const startTest = () => {
+    setTimeLeft(selectedTime);
+    setTimerStarted(true);
+  }
+
+  const wordsPerScroll = {
+    2: 20,
+    3: 15,
+    4: 10,
+    5: 5,
+  } as { [key: number]: number };
+
+  const wordsToScroll = wordsPerScroll[textSize] || 20;
+
+  const getScrollAmount = (size: number) => {
+    switch (size) {
+      case 2:
+        return 40;
+      case 3:
+        return 50;
+      case 4:
+        return 60;
+      case 5:
+        return 80;
+      default:
+        return 40;
+    }
+  };
+
+  useEffect(() => {
+    const wordsTyped = userInput.trim().split(/\s+/).length;
+    console.log("Checking Scroll - Words Typed:", wordsTyped);
+
+    if (wordsTyped > 0 && wordsTyped % wordsToScroll === 0 && lastScrollWordsRef.current !== wordsTyped) {
+      console.log("Scrolling by:", getScrollAmount(textSize));
+      sentenceRef.current?.scrollBy({
+        top: getScrollAmount(textSize),
+        behavior: "smooth",
+      });
+      lastScrollWordsRef.current = wordsTyped;
+    }
+  }, [userInput, textSize]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!timerStarted) setTimerStarted(true);
+    if (!timerStarted) {
+      setTimerStarted(true);
+      setTimeLeft(selectedTime);
+    }
     if (isDisabled) return;
 
     const value = e.target.value;
@@ -40,10 +96,14 @@ export default function Home() {
   const restartTest = () => {
     setUserInput("");
     setCurrentError(false);
-    setTimeLeft(60);
+    setTimeLeft(selectedTime);
     setTimerStarted(false);
     setIsDisabled(false);
     setWpmScore(0);
+
+    if (sentenceRef.current) {
+      sentenceRef.current.scrollTo({ top: 0, behavior: "instant" });
+    }
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
@@ -51,9 +111,9 @@ export default function Home() {
   };
 
   const handleSliderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const textSize = parseInt(event.target.value);
+    const textSize = parseInt(event.target.value, 10);
     setTextSize(textSize);
-  }
+  };
 
   useEffect(() => {
     if (!timerStarted) return;
@@ -80,34 +140,63 @@ export default function Home() {
         className={`transition-all duration-300 ${isDisabled ? "blur-sm" : ""}`}
       >
         {/* Title */}
-        <h1 className="text-5xl font-extrabold text-gray-800 mb-4">
-          Test Your Typing Speed
+        <h1 className="text-5xl font-extrabold text-gray-800 mb-4 text-center">
+          Test your Typing speed
         </h1>
 
-        <Link className="text-blue-500 text-2xl underline" href={"/learn"}>Learn</Link>
-        <Link className="text-blue-500 text-2xl underline ml-4" href={"/lessons"}>Lessons</Link>
+        <div className="flex flex-row justify-around my-4">
+          <Link
+            className="text-blue-500 text-2xl underline" href={"/learn"}>
+            Learn
+          </Link>
+          <Link
+            className="text-blue-500 text-2xl underline ml-4" href={"/lessons"}>Lessons
+          </Link>
+          <span
+            onClick={() => restartTest()}
+            className="text-blue-500 text-2xl underline ml-4 cursor-pointer">Restart
+          </span>
+        </div>
 
         {/* Timer */}
-        <div className="flex flex-row justify-between items-center bg-yellow-300 p-4 rounded-lg shadow-md mb-6">
-          <div className="flex flex-row items-center">
+        <div className="flex flex-wrap justify-between items-center bg-yellow-300 p-5 rounded-xl shadow-lg mb-6">
+          {/* Left Section: Timer & Dropdown */}
+          <div className="flex items-center gap-6 flex-wrap">
             <Image
               src={"/timer.svg"}
               alt="stop-watch"
-              width={60}
-              height={60}
-              className="mr-4"
+              width={50}
+              height={50}
+              className="ml-2"
             />
-            <p className="text-2xl font-semibold text-gray-800">
+            <div className="flex items-center gap-4">
+              <label className="text-lg font-medium text-gray-900">Select Time:</label>
+              <select
+                value={selectedTime}
+                onChange={handleTimeChange}
+                className="px-4 py-2 border border-gray-400 rounded-lg text-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                disabled={timerStarted}
+              >
+                <option value={60}>60 s</option>
+                <option value={300}>5 Mins</option>
+              </select>
+            </div>
+            <p className="text-2xl font-bold text-gray-900">
               Time Left: <span className="text-red-600">{timeLeft}s</span>
             </p>
           </div>
-          <p className="text-4xl text-black ml-8 pr-4">WPM Score: {wpmScore}</p>
+
+          {/* Right Section: WPM Score */}
+          <p className="text-4xl font-extrabold text-gray-900 pr-4">WPM: {wpmScore}</p>
         </div>
 
         {/* Typing Content Box */}
-        <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-4xl border border-gray-200">
+        <div
+          ref={sentenceRef}
+          className="bg-white shadow-lg rounded-xl p-6 w-full max-w-4xl border border-gray-200 overflow-y-auto h-64">
           {/* Paragraph */}
-          <p className={`text-${textSize}xl h-56 overflow-hidden leading-relaxed text-gray-700`}>
+          <p
+            className={`text-${textSize}xl h-56 leading-relaxed text-gray-700`}>
             {/* Typed characters */}
             <span className="text-gray-400">
               {originalText.slice(0, userInput.length)}
@@ -124,7 +213,9 @@ export default function Home() {
             </span>
 
             {/* Remaining characters */}
-            <span>{originalText.slice(userInput.length + 1)}</span>
+            <span>
+              {originalText.slice(userInput.length + 1)}
+            </span>
           </p>
         </div>
 
@@ -166,21 +257,28 @@ export default function Home() {
       </div>
 
       {/* WPM Overlay */}
-      {isDisabled && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
-          <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-            <h2 className="text-4xl font-extrabold text-gray-800">
-              Your WPM: {wpmScore}
-            </h2>
-            <button
-              onClick={restartTest}
-              className="mt-6 px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition"
-            >
-              Restart Test
-            </button>
+      {
+        isDisabled && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
+            <div className="bg-white p-8 rounded-lg shadow-lg text-center">
+              <h2 className="text-4xl font-extrabold text-gray-800">
+                Your WPM: {wpmScore}
+              </h2>
+              {!user && (
+                <div>
+
+                </div>
+              )}
+              <button
+                onClick={restartTest}
+                className="mt-6 px-6 py-3 bg-blue-500 text-white rounded-lg font-semibold hover:bg-blue-600 transition"
+              >
+                Restart Test
+              </button>
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 }

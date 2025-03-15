@@ -19,6 +19,8 @@ const Progress = () => {
             } catch (error) {
                 setError((error as Error).message);
                 setLoading(false);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -33,9 +35,13 @@ const Progress = () => {
                 const response = await fetch(`/api/progress?userId=${userId}`);
                 if (!response.ok) throw new Error(`Error: ${response.status}`);
                 const data = await response.json();
+                console.log("fetchProgress result: ", data)
                 setProgress(data.progress || []);
             } catch (error) {
                 setError((error as Error).message);
+                setLoading(false);
+            } finally {
+                setLoading(false);
             }
         };
 
@@ -44,7 +50,18 @@ const Progress = () => {
 
     if (loading) return <p>Loading progress...</p>;
     if (error) return <p>Error: {error}</p>;
-    if (progress.length === 0) return <p>No progress found.</p>;
+    if (progress.length === 0) {
+        return (
+            <div className="text-center">
+                <p className="text-gray-600">
+                    You haven't started any lessons yet.
+                </p>
+                <a href="/lessons" className="text-blue-500 underline mt-2 inline-block">
+                    Start Your first lesson
+                </a>
+            </div>
+        )
+    }
 
     return (
         <div>

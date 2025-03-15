@@ -36,7 +36,7 @@ export default function SignOutPage() {
                         Cancel
                     </button>
                     <button
-                        onClick={handleSignOut}
+                        onClick={() => handleSignOut()}
                         className="flex-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
                         disabled={loading}
                     >
@@ -44,6 +44,6 @@ export default function SignOutPage() {
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     )
 }

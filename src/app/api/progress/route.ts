@@ -45,6 +45,9 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const userId = url.searchParams.get('userId');
 
+    console.log("userId api/progress GET route: ", userId);
+    console.log("typeof userId api/progress GET route", typeof userId)
+
     if (!userId) {
         return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
     }
@@ -53,15 +56,15 @@ export async function GET(req: Request) {
         // Fetch progress for the given userId
         const progress = await db.progress.findMany({
             where: {
-                userId: userId, // Ensure the userId is a number
+                userId: userId,
             },
             include: {
                 lesson: true,
             },
-        });
+        }) || [];
 
         if (progress.length === 0) {
-            return NextResponse.json({ message: 'No progress found for this user' }, { status: 204 });
+            return NextResponse.json({ progress: [], message: 'You have not started any lessons yet.' }, { status: 200 });
         }
 
         const exercises = await db.exercise.findMany({
@@ -77,10 +80,10 @@ export async function GET(req: Request) {
             exercises
         }
 
-        return NextResponse.json(responseData);
-    } catch (error) {
-        console.error(error);
-        return NextResponse.json({ error: 'Failed to fetch progress' }, { status: 500 });
+        return NextResponse.json({ progress }, { status: 200 });
+    } catch (error: any) {
+        console.error("Error fetching progress: ", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 

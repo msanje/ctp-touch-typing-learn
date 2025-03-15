@@ -1,9 +1,10 @@
-"use client"
-
 import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation"
+import { redirect } from "next/navigation"
 import Link from "next/link";
-import { useState } from "react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { getServerSession } from "next-auth";
+import { options } from "@/app/api/auth/[...nextauth]/options";
+import UserDropdown from "./UserDropdown";
 
 type User = {
     id?: string | null | undefined;
@@ -16,9 +17,10 @@ type Props = {
     user: User,
 }
 
-export default function Navbar({ user }: Props) {
-    const [open, setOpen] = useState<boolean>(false)
-    const router = useRouter()
+export default async function Navbar() {
+    // Fetch user session on the server
+    const session = await getServerSession(options);
+    const user = session?.user;
 
     const handleSignOut = async () => {
         try {
@@ -26,7 +28,7 @@ export default function Navbar({ user }: Props) {
         } catch (error) {
             console.error('Sign out error:', error)
         } finally {
-            router.push('/')
+            redirect('/')
         }
     }
 
@@ -39,13 +41,13 @@ export default function Navbar({ user }: Props) {
 
             {/* Navigation Links */}
             <div className="flex items-center space-x-8">
-                <a
+                {/* <a
                     href="/typing-tutor"
                     className="relative px-3 py-2 text-xl font-bold text-gray-700 hover:text-blue-600 transition-colors duration-200 group"
                 >
                     Typing tutor
                     <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-                </a>
+                </a> */}
 
                 <a
                     href="/typing-test"
@@ -69,61 +71,41 @@ export default function Navbar({ user }: Props) {
                     Progresss
                     <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
                 </a>
+                <a
+                    href="/lessons"
+                    className="relative px-3 py-2 text-xl font-bold text-gray-700 hover:text-blue-600 transition-colors duration-200 group"
+                >
+                    Lessons
+                    <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
+                </a>
             </div>
 
             {/* User Profile Section */}
-            <div className="relative" onClick={() => setOpen(!open)}>
-                <div
-                    className="flex items-center space-x-3 bg-white px-3 py-2 rounded-lg cursor-pointer hover:bg-gray-50"
-                >
-                    {/* Circle with Initial */}
-                    <div className="w-8 h-8 bg-teal-700 rounded-full flex items-center justify-center">
-                        <span className="text-white font-medium">{user?.name?.charAt(0).toUpperCase()}</span>
-                    </div>
-
-                    {/* Progress tracker */}
-                    <div className="flex items-center space-x-2 px-6">
-                        <span className="text-gray-700 font-medium">4</span>
-                        <div className="w-6 h-6 bg-yellow-400 rounded-full"></div>
-                    </div>
+            {session ? (<UserDropdown user={session?.user} />
+            ) : (
+                <div className="flex flex-row items-center px-4 py-2 rounded-md border mr-4 border-black bg-blue-700 hover:bg-blue-600 text-white font-bold text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition-duration-200">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger className="text-xl">
+                            Hey! Log in
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="flex flex-col items-center">
+                            <DropdownMenuItem
+                                className="flex flex-row w-full items-center mx-4 text-center px-4 py-2 rounded-md border mr-4 border-black bg-blue-700 hover:bg-blue-600 text-white font-bold text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition-duration-200">
+                                <Link href={'/signup'}>
+                                    Sign UP
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                className="flex flex-row w-full items-center mx-4 text-center px-4 py-2 rounded-md border mr-4 border-black bg-blue-700 hover:bg-blue-600 text-white font-bold text-sm hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition-duration-200">
+                                <Link href={'/signin'}>
+                                    Sign IN
+                                </Link>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
-
-                {/* Popup Menu */}
-                {
-                    open && <div className="absolute right-0 top-full mt-2 w-48 bg-red-700 rounded-lg shadow-lg border border-gray-200">
-                        <div className="p-3">
-                            <div className="flex items-center space-x-3 mb-3">
-                                <div className="w-10 h-10 bg-teal-700 rounded-full flex items-center justify-center">
-                                    <span className="text-white text-lg font-medium">
-                                        {user?.name?.charAt(0).toUpperCase()}
-                                    </span>
-                                </div>
-                                <div>
-                                    <div className="font-medium text-gray-900">{user?.name}</div>
-                                    <div className="text-sm text-gray-600">{user?.email}</div>
-                                </div>
-                            </div>
-                            <hr className="my-2" />
-                            <ul className="space-y-2">
-                                <li className="text-gray-700 hover:bg-gray-50 px-3 py-2 rounded cursor-pointer">
-                                    <Link href="/profile">Profile</Link>
-                                </li>
-                                <li className="text-gray-700 hover:bg-gray-50 px-3 py-2 rounded cursor-pointer">
-                                    Settings
-                                </li>
-                                <li className="px-3 py-2 rounded cursor-pointer">
-                                    <button
-                                        onClick={handleSignOut}
-                                        className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors font-medium"
-                                    >
-                                        Sign Out
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                }
-            </div>
+            )}
         </nav >
     )
 }

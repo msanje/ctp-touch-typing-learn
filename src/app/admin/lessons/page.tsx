@@ -1,4 +1,4 @@
-import AdminLessonForm from '@/components/AdminLessons/page'
+import AdminLessonForm from '@/components/AdminLessonForm'
 
 const page = () => {
     return <div>

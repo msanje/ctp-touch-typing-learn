@@ -12,9 +12,6 @@ export default async function LearnPage() {
     }
 
     return <div>
-        <section className="flex flex-col gap-6">
-            <Navbar user={session?.user} />
-        </section>
         <LearnInput user={session?.user} />
     </div>
 }
