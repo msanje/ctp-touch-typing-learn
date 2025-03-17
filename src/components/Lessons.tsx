@@ -59,18 +59,15 @@ const Lessons = () => {
     if (error) return <div className="text-center text-red-500 py-6">{error}</div>;
 
     const totalExercises = lessons.reduce((acc, { exercises }) => acc + (exercises?.length || 0), 0);
-    const completedExerciseSet = new Set(
-        completedExercises?.exercises?.map(({ lessonId, index }) => `${lessonId}-${index}`) || []
-    );
 
     return (
         <div className="mx-auto py-6 px-64 bg-gradient-to-b bg-blue-200">
             <ProgressOverview
                 totalExercises={totalExercises}
-                completedExercises={completedExercises?.exercises?.length || 0}
+                completedExercises={completedExercises}
                 totalLessons={lessons.length}
             />
-            <LessonsList lessons={lessons} completedExerciseSet={completedExerciseSet} />
+            <LessonsList lessons={lessons} completedExercises={completedExercises} />
         </div>
     );
 };

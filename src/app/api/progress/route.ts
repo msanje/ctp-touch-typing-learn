@@ -1,3 +1,4 @@
+import { lessons } from '@/helpers/lessons';
 import { db } from "@/lib/index";
 import { NextResponse } from "next/server";
 
@@ -18,6 +19,7 @@ export async function POST(req: Request) {
             where: {
                 userId: user.id,
                 lessonId,
+                exerciseId
 
             }
         });

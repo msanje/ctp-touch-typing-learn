@@ -37,14 +37,14 @@ type ProgressData = {
     exercises: {
         id: number;
         lessonId: number;
-        index: number;
+        exerciseIndex: number;
         content: string;
     }[];
 };
 
 type Exercise = {
     id: number;
-    index: number;
+    exerciseIndex: number;
     lessonId: number;
     title: string;
     exercise: Exercise[];
@@ -64,8 +64,6 @@ const ViewLessons = () => {
     const [userId, setUserId] = useState<String | null>(null); // current logged in user
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-
-    console.log("lessons from ViewLessons: ", lessons)
 
     useEffect(() => {
         const fetchLessons = async () => {
@@ -107,7 +105,7 @@ const ViewLessons = () => {
 
     const completedExerciseSet = new Set(
         completedExercises?.exercises?.map(
-            (exercise) => `${exercise.lessonId}-${exercise.index}`
+            (exercise) => `${exercise.lessonId}-${exercise.exerciseIndex}`
         )
     );
 
@@ -138,9 +136,8 @@ const ViewLessons = () => {
                     {lessons.length > 0 ? (
                         <Accordion type="single" collapsible>
                             {lessons.map(({ id, title, exercises }) => {
-                                console.log("id: ", id, "title: ", title, "exercises: ", exercises);
                                 const completedCount = exercises.filter((exercise) =>
-                                    completedExerciseSet.has(`${exercise.lessonId}-${exercise.index}`)
+                                    completedExerciseSet.has(`${exercise.lessonId}-${exercise.exerciseIndex}`)
                                 ).length;
 
                                 return (
@@ -159,8 +156,9 @@ const ViewLessons = () => {
                                         <AccordionContent>
                                             <ul className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-60 overflow-y-auto">
                                                 {exercises.map((exercise) => {
+
                                                     const isCompleted = completedExerciseSet.has(
-                                                        `${exercise.lessonId}-${exercise.index}`
+                                                        `${exercise.lessonId}-${exercise.exerciseIndex}`
                                                     );
 
                                                     return (
@@ -182,7 +180,7 @@ const ViewLessons = () => {
                                                                     className={`flex-1 font-medium ${isCompleted ? "text-green-700" : "text-gray-700"
                                                                         }`}
                                                                 >
-                                                                    Exercise {exercise.id}
+                                                                    Exercise {(exercise.exerciseIndex) + 1}
                                                                 </span>
                                                             </li>
                                                         </Link>

@@ -1,6 +1,6 @@
 export type Exercise = {
     id: number;
-    index: number;
+    exerciseIndex: number;
     content: string;
     lessonId: number;
 };
@@ -13,23 +13,14 @@ export type Lesson = {
 
 export type LessonsState = Lesson[];
 
-export type ProgressData = {
-    progress: ({
-        lesson: {
-            id: number;
-            title: string;
-        };
-    } & {
+export type CompletedExerciseItem = {
+    lesson: {
         id: number;
-        userId: number;
-        lessonId: number;
-        exerciseIndex: number;
-        completed: boolean;
-    })[];
-    exercises: {
-        id: number;
-        lessonId: number;
-        index: number;
-        content: string;
-    }[];
+        title: string;
+    };
+    exercisesCompleted: number[];
 };
+
+export type ProgressData = {
+    progress: CompletedExerciseItem[];
+}

@@ -15,8 +15,6 @@ export default function ExercisePage({ user }: { user: User }) {
     const { lessonId, exerciseId } = params;
     const router = useRouter();
 
-    console.log("lessonId: ", lessonId, "exerciseId: ", exerciseId);
-
     const [activeKey, setActiveKey] = useState("");
     const [userInput, setUserInput] = useState<string>("");
     const [currentError, setCurrentError] = useState(false);
@@ -66,7 +64,6 @@ export default function ExercisePage({ user }: { user: User }) {
         if (nextExercise) {
             router.push(`/lessons/${nextExercise.lessonId}/${nextExercise.exerciseId}`);
         } else {
-            console.log("No more exercise available.");
             setIsDisabled(true);
             return;
         }

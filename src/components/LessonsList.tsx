@@ -1,18 +1,32 @@
 import Link from 'next/link';
 import { Book, CheckCircle, Circle } from 'lucide-react';
-import { Lesson } from '@/types/ComoponentTypes';
+import { CompletedExerciseItem, Lesson, ProgressData } from '@/types/ComoponentTypes';
 
 type LessonsListProps = {
     lessons: Lesson[];
-    completedExerciseSet: Set<string>;
+    completedExercises: ProgressData | null;
 };
 
-const LessonsList: React.FC<LessonsListProps> = ({ lessons, completedExerciseSet = new Set() }) => {
+const LessonsList: React.FC<LessonsListProps> = ({ lessons, completedExercises }) => {
+
+    // Create a Set for fast lookup: `${lessonId}-${exerciseIndex}`
+    const completedExerciseSet = new Set<string>();
+
+    if (completedExercises?.progress) {
+        completedExercises.progress.forEach(
+            ({ lesson, exercisesCompleted }: CompletedExerciseItem) => {
+                exercisesCompleted.forEach((exerciseIndex) => {
+                    completedExerciseSet.add(`${lesson.id}-${exerciseIndex}`)
+                });
+            }
+        );
+    }
+
     return (
         <div className="space-y-6">
             {lessons.map(({ id, title, exercises }) => {
-                const completedCount = exercises.filter((exercise: any) =>
-                    completedExerciseSet.has(`${exercise.lessonId}-${exercise.id}`)
+                const completedCount = exercises.filter(
+                    (exercise) => completedExerciseSet.has(`${exercise.lessonId}-${exercise.exerciseIndex}`)
                 ).length;
 
                 return (
@@ -38,13 +52,14 @@ const LessonsList: React.FC<LessonsListProps> = ({ lessons, completedExerciseSet
                         <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {exercises.map((exercise) => {
                                 const isCompleted = completedExerciseSet.has(
-                                    `${exercise.lessonId}-${exercise.id}`
+                                    `${exercise.lessonId}-${exercise.exerciseIndex + 1}`
                                 );
+
 
                                 return (
                                     <Link
                                         key={exercise.id}
-                                        href={`/lessons/${exercise.lessonId}/${exercise.id}`}
+                                        href={`/lessons/${exercise.lessonId}/${exercise.exerciseIndex + 1}`}
                                         className='cursor-pointer'
                                     >
                                         <li
@@ -60,7 +75,7 @@ const LessonsList: React.FC<LessonsListProps> = ({ lessons, completedExerciseSet
                                                     ? "text-green-700"
                                                     : "text-gray-700"}`}
                                             >
-                                                Exercise {exercise.id}
+                                                Exercise {exercise.exerciseIndex + 1}
                                             </span>
                                         </li>
                                     </Link>

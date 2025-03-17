@@ -28,6 +28,8 @@ const Progress = () => {
     const [error, setError] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
 
+    console.log("exercises Progress.tsx: ", exercises);
+
     useEffect(() => {
         const fetchUserId = async () => {
             try {
@@ -111,7 +113,8 @@ const Progress = () => {
         const title = item.lesson.title;
         const completedCount = item.exercisesCompleted.length;
         const lessonExercises = exercises.filter((ex) => ex.lessonId === lessonId);
-        const totalExercises = 6; // Assuming each lesson has 6 exercises
+        // TOD: We need to get the total number of exersises from the backend.
+        const totalExercises = 7;
         const percentage = Math.round((completedCount / totalExercises) * 100);
 
         return {

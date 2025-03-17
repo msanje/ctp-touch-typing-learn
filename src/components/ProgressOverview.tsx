@@ -1,9 +1,10 @@
 // components/ProgressOverview.tsx
+import { ProgressData } from "@/types/ComoponentTypes";
 import React from "react";
 
 type ProgressOverviewProps = {
     totalExercises: number;
-    completedExercises: number;
+    completedExercises: ProgressData | null;
     totalLessons: number;
 };
 
@@ -12,11 +13,15 @@ const ProgressOverview: React.FC<ProgressOverviewProps> = ({
     completedExercises,
     totalLessons,
 }) => {
+    const completedCount = completedExercises ? completedExercises.progress.reduce(
+        (acc, item) => acc + item.exercisesCompleted.length, 0
+    ) : 0;
+
     return (
         <div className="bg-white p-6 rounded-xl shadow-sm mb-8">
             <div className="grid grid-cols-3 gap-6 text-center">
                 <StatBox label="Total Exercises" value={totalExercises} color="text-blue-600" />
-                <StatBox label="Completed" value={completedExercises} color="text-green-600" />
+                <StatBox label="Completed" value={completedCount} color="text-green-600" />
                 <StatBox label="Lessons" value={totalLessons} color="text-purple-600" />
             </div>
         </div>
