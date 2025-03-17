@@ -19,6 +19,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
+import { fetchUserId } from "@/helpers/fetchUserId";
 
 type ProgressData = {
     progress: ({
@@ -61,6 +62,10 @@ const ViewLessons = () => {
     const [lessons, setLessons] = useState<LessonsState>([]);
     const [completedExercises, setCompletedExercises] = useState<ProgressData | null>(null);
     const [userId, setUserId] = useState<String | null>(null); // current logged in user
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
+
+    console.log("lessons from ViewLessons: ", lessons)
 
     useEffect(() => {
         const fetchLessons = async () => {
@@ -69,9 +74,6 @@ const ViewLessons = () => {
 
             setLessons(data);
         }
-
-        // TODO: needs to be removed/used
-        setUserId("f7411d0b-3d69-47ba-94ac-30645c2860e2");
 
         const fetchCompletedExercises = async () => {
             const response = await fetch(`/api/progress?userId=${userId}`);
@@ -85,6 +87,23 @@ const ViewLessons = () => {
             fetchCompletedExercises();
         }
     }, [userId])
+
+    useEffect(() => {
+        const getUserId = async () => {
+            try {
+                const id = await fetchUserId();
+                setUserId(id);
+            } catch (error) {
+                setError((error as Error).message);
+                setLoading(false);
+            } finally {
+                setError("");
+                setLoading(false);
+            }
+        }
+
+        getUserId();
+    }, [])
 
     const completedExerciseSet = new Set(
         completedExercises?.exercises?.map(
@@ -119,6 +138,7 @@ const ViewLessons = () => {
                     {lessons.length > 0 ? (
                         <Accordion type="single" collapsible>
                             {lessons.map(({ id, title, exercises }) => {
+                                console.log("id: ", id, "title: ", title, "exercises: ", exercises);
                                 const completedCount = exercises.filter((exercise) =>
                                     completedExerciseSet.has(`${exercise.lessonId}-${exercise.index}`)
                                 ).length;
@@ -146,7 +166,7 @@ const ViewLessons = () => {
                                                     return (
                                                         <Link
                                                             key={exercise.id}
-                                                            href={`/lessons/${exercise.lessonId}/${exercise.index}`}
+                                                            href={`/lessons/${exercise.lessonId}/${exercise.id}`}
                                                             className="cursor-pointer"
                                                         >
                                                             <li
@@ -162,7 +182,7 @@ const ViewLessons = () => {
                                                                     className={`flex-1 font-medium ${isCompleted ? "text-green-700" : "text-gray-700"
                                                                         }`}
                                                                 >
-                                                                    Exercise {exercise.index + 1}
+                                                                    Exercise {exercise.id}
                                                                 </span>
                                                             </li>
                                                         </Link>

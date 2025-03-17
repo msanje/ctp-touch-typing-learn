@@ -19,8 +19,6 @@ const TypingTest = () => {
     // ref for the current character element
     const currentCharRef = useRef<HTMLSpanElement | null>(null);
 
-    console.log("started: ", started);
-
     // Starting the timer when test begins
     useEffect(() => {
         if (started) {
@@ -56,8 +54,6 @@ const TypingTest = () => {
         setTimer(60);
         setStarted(false);
         setWpm(null);
-
-        console.log("hello from restartTest")
 
         if (sentenceRef.current) {
             sentenceRef.current.scrollTo({ top: 0, behavior: "auto" })
@@ -124,12 +120,13 @@ const TypingTest = () => {
     }, [input, sentence]);
 
     return (
+
         <div className="flex flex-col justify-center items-center pt-6 max-w-5xl mx-auto px-4 bg-gradient-to-b from-blue-200 to-white">
-            <h1 className="text-6xl font-extrabold bg-gradient-to-r from-blue-700 via-purple-600 to-pink-500 bg-clip-text text-transparent mb-3 tracking-tight drop-shadow-md">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-blue-600 mb-3 text-center -mt-4 tracking-tight leading-tight drop-shadow-md ">
                 Typing Certification Test
             </h1>
             <h3 className="mb-2 text-xl text-gray-600 font-medium leading-relaxed max-w-2xl mx-auto text-center">
-                Take a <span className="font-semibold text-blue-600">1-minute test</span> to certify your typing speed.
+                Take a <span className="font-semibold text-gray-600">1-minute test</span> to certify your typing speed.
             </h3>
             <h4 className="text-lg mb-2 font-semibold text-purple-600 text-center">
                 English for Beginners

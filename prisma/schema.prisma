@@ -17,20 +17,22 @@ model Lesson {
   id        Int        @id @default(autoincrement())
   title     String     @unique
   exercises Exercise[]
-
-  Progress Progress[]
+  Progress  Progress[]
 }
 
 model Exercise {
-  id       Int    @id @default(autoincrement())
-  index    Int
-  content  String
-  lessonId Int
-  lesson   Lesson @relation(fields: [lessonId], references: [id])
+  id            Int        @id @default(autoincrement())
+  exerciseIndex Int
+  content       String
+  lessonId      Int
+  lesson        Lesson     @relation(fields: [lessonId], references: [id])
+  Progress      Progress[]
+
+  @@unique([lessonId, exerciseIndex])
 }
 
 model User {
-  id String @id @default(uuid())
+  id       String     @id @default(uuid())
   username String     @unique
   email    String     @unique
   password String
@@ -38,13 +40,16 @@ model User {
 }
 
 model Progress {
-  id            Int     @id @default(autoincrement())
-  userId        String
-  lessonId      Int
-  user          User    @relation(fields: [userId], references: [id])
-  lesson        Lesson  @relation(fields: [lessonId], references: [id])
-  exerciseIndex Int
-  completed     Boolean @default(false)
+  id         Int      @id @default(autoincrement())
+  userId     String
+  lessonId   Int
+  exerciseId Int
+  completed  Boolean  @default(false)
+  timestamp  DateTime @default(now())
 
-  @@unique([userId, lessonId])
+  user     User     @relation(fields: [userId], references: [id])
+  lesson   Lesson   @relation(fields: [lessonId], references: [id])
+  exercise Exercise @relation(fields: [exerciseId], references: [id])
+
+  @@unique([userId, lessonId, exerciseId])
 }

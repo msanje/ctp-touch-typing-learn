@@ -44,7 +44,6 @@ type LessonsState = Lesson[];
 const Page = ({ }) => {
     const [lessons, setLessons] = useState<LessonsState>([]);
     const [completedExercises, setCompletedExercises] = useState<ProgressData | null>(null);
-    // const [userId, setUserId] = useState<number>(4); // current logged in user
     const { data: session } = useSession();
     const [userId, setUserId] = useState<string | undefined>();
 

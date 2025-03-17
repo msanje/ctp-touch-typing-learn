@@ -3,8 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
     try {
-        const { email, lessonId, exerciseIndex, completed } = await req.json();
-
+        const { userId, email, lessonId, exerciseId, completed } = await req.json();
         // Fetch the user ID based on the email
         const user = await db.user.findUnique({
             where: { email },
@@ -15,23 +14,25 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        const progress = await db.progress.upsert({
+        const existingProgress = await db.progress.findFirst({
             where: {
-                userId_lessonId: {
-                    userId: user.id, // Use the fetched user ID
-                    lessonId,
-                },
-            },
-            update: {
-                exerciseIndex,
-                completed,
-            },
-            create: {
-                userId: user.id, // Use the fetched user ID
+                userId: user.id,
                 lessonId,
-                exerciseIndex,
-                completed,
-            },
+
+            }
+        });
+
+        if (existingProgress) {
+            return NextResponse.json({ message: "Exercise already completed" }, { status: 200 });
+        }
+
+        const progress = await db.progress.create({
+            data: {
+                userId: user.id,
+                lessonId,
+                exerciseId,
+                completed
+            }
         });
 
         return NextResponse.json({ message: "Progress updated successfully", progress });
@@ -44,9 +45,6 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
     const url = new URL(req.url);
     const userId = url.searchParams.get('userId');
-
-    console.log("userId api/progress GET route: ", userId);
-    console.log("typeof userId api/progress GET route", typeof userId)
 
     if (!userId) {
         return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
@@ -61,26 +59,25 @@ export async function GET(req: Request) {
             include: {
                 lesson: true,
             },
-        }) || [];
+        });
 
         if (progress.length === 0) {
             return NextResponse.json({ progress: [], message: 'You have not started any lessons yet.' }, { status: 200 });
         }
 
-        const exercises = await db.exercise.findMany({
-            where: {
-                lessonId: {
-                    in: progress.map(p => p.lessonId)
-                }
+        // Group progress by lesson
+        const groupedProgress = progress.reduce((acc, entry) => {
+            if (!acc[entry.lessonId]) {
+                acc[entry.lessonId] = {
+                    lesson: entry.lesson,
+                    exercisesCompleted: [],
+                };
             }
-        });
+            acc[entry.lessonId].exercisesCompleted.push(entry.exerciseId);
+            return acc;
+        }, {} as Record<number, { lesson: any; exercisesCompleted: number[] }>);
 
-        const responseData = {
-            progress,
-            exercises
-        }
-
-        return NextResponse.json({ progress }, { status: 200 });
+        return NextResponse.json({ progress: Object.values(groupedProgress) }, { status: 200 });
     } catch (error: any) {
         console.error("Error fetching progress: ", error);
         return NextResponse.json({ error: error.message }, { status: 500 });

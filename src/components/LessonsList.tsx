@@ -12,7 +12,7 @@ const LessonsList: React.FC<LessonsListProps> = ({ lessons, completedExerciseSet
         <div className="space-y-6">
             {lessons.map(({ id, title, exercises }) => {
                 const completedCount = exercises.filter((exercise: any) =>
-                    completedExerciseSet.has(`${exercise.lessonId}-${exercise.index}`)
+                    completedExerciseSet.has(`${exercise.lessonId}-${exercise.id}`)
                 ).length;
 
                 return (
@@ -38,13 +38,13 @@ const LessonsList: React.FC<LessonsListProps> = ({ lessons, completedExerciseSet
                         <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {exercises.map((exercise) => {
                                 const isCompleted = completedExerciseSet.has(
-                                    `${exercise.lessonId}-${exercise.index}`
+                                    `${exercise.lessonId}-${exercise.id}`
                                 );
 
                                 return (
                                     <Link
                                         key={exercise.id}
-                                        href={`/lessons/${exercise.lessonId}/${exercise.index}`}
+                                        href={`/lessons/${exercise.lessonId}/${exercise.id}`}
                                         className='cursor-pointer'
                                     >
                                         <li
@@ -60,7 +60,7 @@ const LessonsList: React.FC<LessonsListProps> = ({ lessons, completedExerciseSet
                                                     ? "text-green-700"
                                                     : "text-gray-700"}`}
                                             >
-                                                Exercise {exercise.index + 1}
+                                                Exercise {exercise.id}
                                             </span>
                                         </li>
                                     </Link>

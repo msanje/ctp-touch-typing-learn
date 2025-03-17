@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import KeyboardComponent from './KeyboardComponent';
 import ViewLessons from './ViewLessons';
 import { User } from '@/types/User';
+import { fetchUserId } from '@/helpers/fetchUserId';
 
 export default function LearnInput({ user }: { user: User }) {
     const [activeKey, setActiveKey] = useState('');
@@ -16,6 +17,8 @@ export default function LearnInput({ user }: { user: User }) {
     const [lessonTitle, setLessonTitle] = useState<string>("");
     const [currentLessonIndex, setCurrentLessonIndex] = useState<number>(0);
     const [userId, setUserId] = useState<String | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
     interface Lesson {
         id: number;
@@ -38,11 +41,23 @@ export default function LearnInput({ user }: { user: User }) {
             }
         };
 
-        // TODO: needs to be removed/used
-        setUserId("f7411d0b-3d69-47ba-94ac-30645c2860e2");
+        const getUserId = async () => {
+            try {
+                const id = await fetchUserId();
+                setUserId(id);
+            } catch (error) {
+                setError((error as Error).message);
+                setLoading(false);
+            } finally {
+                setError("");
+                setLoading(false);
+            }
+        }
 
+        getUserId();
         fetchLessons();
     }, [])
+
 
     useEffect(() => {
         // fetch exercises from the backend
@@ -106,7 +121,7 @@ export default function LearnInput({ user }: { user: User }) {
 
         try {
             // Update user progress via API route
-            const response = await fetch('/api/progress', { // Adjust the path if your API route is different
+            const response = await fetch('/api/progress', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
