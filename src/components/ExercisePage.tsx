@@ -8,6 +8,7 @@ import { fetchUserId } from "@/helpers/fetchUserId";
 import { User } from "@/types/User";
 import Link from "next/link";
 import { Button } from "./ui/button";
+import { getNextExercise, getPrevExercise } from "@/utils/lessonNavigator";
 
 export default function ExercisePage({ user }: { user: User }) {
     const params = useParams<{ lessonId: string; exerciseId: string }>()
@@ -30,6 +31,12 @@ export default function ExercisePage({ user }: { user: User }) {
     const [error, setError] = useState<string>("")
     const [loading, setLoading] = useState<boolean>(false);
     const [completed, setCompleted] = useState(false);
+
+    const currentLessonId = parseInt(lessonId);
+    const currentExerciesId = parseInt(exerciseId);
+
+    const next = getNextExercise(currentLessonId, currentExerciesId);
+    const prev = getPrevExercise(currentLessonId, currentExerciesId);
 
     useEffect(() => {
         const getUserId = async () => {
@@ -54,8 +61,15 @@ export default function ExercisePage({ user }: { user: User }) {
             return;
         }
 
-        const nextexerciseId = parseInt(exerciseId) + 1;
-        router.push(`/lessons/${lessonId}/${nextexerciseId}`);
+        const nextExercise = getNextExercise(parseInt(lessonId), parseInt(exerciseId));
+
+        if (nextExercise) {
+            router.push(`/lessons/${nextExercise.lessonId}/${nextExercise.exerciseId}`);
+        } else {
+            console.log("No more exercise available.");
+            setIsDisabled(true);
+            return;
+        }
 
         try {
             const response = await fetch('/api/progress', {
@@ -191,9 +205,23 @@ export default function ExercisePage({ user }: { user: User }) {
                 </div>
             </div>
 
-            <Link href={`/lessons/${lessonId}/${parseInt(exerciseId) + 1}`} className="mt-4 inline-block px-6 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-300">
-                Next
-            </Link>
+            <div className="flex flex-row justify-between w-52">
+                {
+                    prev && (
+                        <Link href={`/lessons/${prev.lessonId}/${prev.exerciseId}`} className="mt-4 inline-block px-6 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-300">
+                            Prev
+                        </Link>
+                    )
+                }
+
+                {
+                    next && (
+                        <Link href={`/lessons/${next.lessonId}/${next.exerciseId}`} className="mt-4 inline-block px-6 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-300">
+                            Next
+                        </Link>
+                    )
+                }
+            </div>
 
             {/* Show the "Next Exercise" button when exercise is completed */}
             {isDisabled && (

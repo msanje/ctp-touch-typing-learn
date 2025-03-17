@@ -12,7 +12,7 @@ export async function GET(
 
     const lessonIdNum = parseInt(lessonId, 10);
     // we are doing this because we can't rely on exerciseId which is global(autoincrement's) not based on the lesson that it belongs to.
-    const exerciseIndexNum = parseInt(exerciseId, 10);
+    const exerciseIndexNum = parseInt(exerciseId, 10) - 1;
 
     const lesson = await db.lesson.findUnique({
         where: { id: lessonIdNum }
