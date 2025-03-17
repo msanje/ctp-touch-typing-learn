@@ -27,7 +27,9 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "prisma/deleteUser.js"
+    "prisma/deleteUser.js",
+    "prisma/seed/index.mjs",
+    "prisma/seed.mjs"
   ],
   "exclude": ["node_modules"]
 }
