@@ -42,18 +42,21 @@ export default async function Navbar() {
             </div>
 
             {/* Navigation Links */}
-            <div className="flex items-center space-x-10">
-                {['Typing Test', 'Learn', 'Progress', 'Lessons'].map((item) => (
-                    <Link
-                        key={item}
-                        href={`/${item.toLowerCase().replace(/\s/g, '-')}`}
-                        className="relative px-4 py-2 text-lg font-semibold text-gray-700 hover:text-blue-600 transition-colors duration-200 group"
-                    >
-                        {item}
-                        <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-                    </Link>
-                ))}
-            </div>
+            {
+                session?.user &&
+                <div className="flex items-center space-x-10">
+                    {['Typing Test', 'Learn', 'Progress', 'Lessons'].map((item) => (
+                        <Link
+                            key={item}
+                            href={`/${item.toLowerCase().replace(/\s/g, '-')}`}
+                            className="relative px-4 py-2 text-lg font-semibold text-gray-700 hover:text-blue-600 transition-colors duration-200 group"
+                        >
+                            {item}
+                            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
+                        </Link>
+                    ))}
+                </div>
+            }
 
             {/* User Profile Section */}
             {session ? (
