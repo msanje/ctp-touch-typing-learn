@@ -6,6 +6,7 @@ import Image from "next/image";
 import { checkWpm } from "../helpers/wpm";
 import { useSession } from "next-auth/react";
 import { RotateCcw } from "lucide-react";
+import Link from "next/link";
 
 const TypingTestBasic = () => {
     const originalText = lorem;
@@ -213,9 +214,21 @@ const TypingTestBasic = () => {
                             {wpmScore} <span className="text-lg text-gray-500">WPM</span>
                         </div>
                         {!user && (
-                            <p className="text-gray-600 text-sm mb-5">
-                                Create an account to save your results and track your progress!
-                            </p>
+                            <>
+                                <p className="text-gray-600 text-sm mb-5">
+                                    Create an account to save your results and track your progress!
+                                </p>
+                                <Link
+                                    href={"/signup"}
+                                    className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center gap-2"
+                                >
+                                    <span>Sign Up</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                    </svg>
+                                </Link>
+                                <br />
+                            </>
                         )}
                         <button
                             onClick={restartTest}

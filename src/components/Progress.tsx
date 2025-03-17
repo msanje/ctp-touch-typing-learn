@@ -23,8 +23,6 @@ const Progress = () => {
     const [error, setError] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
 
-    console.log("exercises Progress.tsx: ", exercises);
-
     useEffect(() => {
         const fetchUserId = async () => {
             try {

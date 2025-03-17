@@ -69,14 +69,15 @@ const SignInForm = ({ }) => {
 
             {error && <p className="text-red-500">{error}</p>}
 
+            {/* Add Google Signin */}
             {/* Sign in with GitHub */}
-            <button
+            {/* <button
                 onClick={handleGitHubSignIn}
                 disabled={loading}
                 className="bg-gray-200 hover:bg-gray-300 text-black font-bold py-2 px-4 rounded-md w-full"
             >
                 Sign In with GitHub
-            </button>
+            </button> */}
         </div>
     )
 }

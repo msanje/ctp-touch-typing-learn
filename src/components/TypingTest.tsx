@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 const TypingTest = () => {
     const [started, setStarted] = useState<boolean>(false);
-    const [timer, setTimer] = useState(10);
+    const [timer, setTimer] = useState(60);
     const [input, setInput] = useState("");
     const [wpm, setWpm] = useState<number | null>(0);
     const [accuracy, setAccuracy] = useState<number | null>(0);
