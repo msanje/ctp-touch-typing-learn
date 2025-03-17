@@ -158,6 +158,7 @@ const Page = ({ }) => {
 
                                 <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {exercises.map((exercise) => {
+                                        // TODO: Verify whether this works as intended
                                         const isCompleted = completedExerciseSet.has(
                                             `${exercise.lessonId}-${exercise.index}`
                                         );

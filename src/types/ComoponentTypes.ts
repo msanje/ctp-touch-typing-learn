@@ -24,3 +24,11 @@ export type CompletedExerciseItem = {
 export type ProgressData = {
     progress: CompletedExerciseItem[];
 }
+
+export type ProgressItem = {
+    lesson: {
+        id: number;
+        title: string;
+    };
+    exercisesCompleted: number[];
+}

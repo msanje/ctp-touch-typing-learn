@@ -21,7 +21,6 @@ export default function ExercisePage({ user }: { user: User }) {
     const [timerStarted, setTimerStarted] = useState(false);
     const [isDisabled, setIsDisabled] = useState(false);
     const [exerciseContent, setExerciseContent] = useState<string>("");
-    const [progress, setProgress] = useState<number>(0);
     const [countdown, setCountdown] = useState<number | null>(null);
     const [wpm, setwpm] = useState<number>(0);
     const [typos, setTypos] = useState<number>(0);

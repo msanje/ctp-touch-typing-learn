@@ -1,14 +1,9 @@
 "use client";
 
+import { ProgressItem } from "@/types/ComoponentTypes";
 import { useEffect, useState } from "react";
 
-type ProgressItem = {
-    lesson: {
-        id: number;
-        title: string;
-    };
-    exercisesCompleted: number[];
-}
+
 
 type Exercise = {
     id: string;

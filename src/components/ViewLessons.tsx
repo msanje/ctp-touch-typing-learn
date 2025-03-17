@@ -20,27 +20,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import { fetchUserId } from "@/helpers/fetchUserId";
-
-type ProgressData = {
-    progress: ({
-        lesson: {
-            id: number;
-            title: string;
-        };
-    } & {
-        id: number;
-        userId: number;
-        lessonId: number;
-        exerciseIndex: number;
-        completed: boolean;
-    })[];
-    exercises: {
-        id: number;
-        lessonId: number;
-        exerciseIndex: number;
-        content: string;
-    }[];
-};
+import { ProgressData, ProgressItem } from "@/types/ComoponentTypes";
 
 type Exercise = {
     id: number;
@@ -64,50 +44,41 @@ const ViewLessons = () => {
     const [userId, setUserId] = useState<String | null>(null); // current logged in user
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+    const [progress, setProgress] = useState<ProgressItem[]>([]);
 
     useEffect(() => {
-        const fetchLessons = async () => {
-            const response = await fetch('/api/lessons');
-            const data: LessonsState = await response.json();
-
-            setLessons(data);
-        }
-
-        const fetchCompletedExercises = async () => {
-            const response = await fetch(`/api/progress?userId=${userId}`);
-            const data: ProgressData = await response.json();
-
-            setCompletedExercises(data);
-        };
-
-        if (userId != null) {
-            fetchLessons();
-            fetchCompletedExercises();
-        }
-    }, [userId])
-
-    useEffect(() => {
-        const getUserId = async () => {
+        const fetchAllData = async () => {
             try {
                 const id = await fetchUserId();
                 setUserId(id);
+
+                const lessonsResponse = await fetch('/api/lessons');
+                const lessonsData: LessonsState = await lessonsResponse.json();
+                setLessons(lessonsData);
+
+                const progressResponse = await fetch(`/api/progress?userId=${id}`);
+                const progressData: ProgressData = await progressResponse.json();
+                setCompletedExercises(progressData);
+
             } catch (error) {
                 setError((error as Error).message);
-                setLoading(false);
             } finally {
-                setError("");
                 setLoading(false);
             }
-        }
+        };
 
-        getUserId();
-    }, [])
+        fetchAllData();
+    }, []);
 
     const completedExerciseSet = new Set(
-        completedExercises?.exercises?.map(
-            (exercise) => `${exercise.lessonId}-${exercise.exerciseIndex}`
+        completedExercises?.progress.flatMap((progressItem) =>
+            progressItem.exercisesCompleted.map(
+                (exerciseIndex) => `${progressItem.lesson.id}-${exerciseIndex - 1}`
+            )
         )
     );
+
+    console.log("completedExercisesSet: ", completedExerciseSet)
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-gray-50 min-h-screen">
