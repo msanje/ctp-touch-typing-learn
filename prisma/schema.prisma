@@ -32,24 +32,36 @@ model Exercise {
 }
 
 model User {
-  id       String     @id @default(uuid())
-  username String     @unique
-  email    String     @unique
-  password String
-  progress Progress[]
+  id               String             @id @default(uuid())
+  username         String             @unique
+  email            String             @unique
+  password         String
+  progress         Progress[]
+  TypingTestResult TypingTestResult[]
 }
 
 model Progress {
-  id         Int      @id @default(autoincrement())
-  userId     String
-  lessonId   Int
-  exerciseId Int
-  completed  Boolean  @default(false)
-  timestamp  DateTime @default(now())
+  id               Int      @id @default(autoincrement())
+  userId           String
+  lessonId         Int
+  exerciseId       Int
+  completed        Boolean  @default(false)
+  wpm              Int?
+  accuracy         Float?
+  lessThanTwoTypos Boolean?
+  timestamp        DateTime @default(now())
 
   user     User     @relation(fields: [userId], references: [id])
   lesson   Lesson   @relation(fields: [lessonId], references: [id])
   exercise Exercise @relation(fields: [exerciseId], references: [id])
+}
 
-  @@unique([userId, lessonId, exerciseId])
+model TypingTestResult {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  wpm       Int
+  accuracy  Float
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }

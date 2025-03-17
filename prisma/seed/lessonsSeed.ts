@@ -1,18 +1,7 @@
-// prisma/seed.ts
-
-const { PrismaClient } = require("@prisma/client");
+import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-async function main() {
-    // Create a test user
-    const user = await prisma.user.create({
-        data: {
-            username: "testuser",
-            email: "test@example.com",
-            password: "hashed_password_would_go_here" // In production, use proper password hashing
-        }
-    });
-
+export async function seedLessons() {
     // Lesson 1 - F, J
     const lesson1 = await prisma.lesson.create({
         data: {
@@ -138,31 +127,4 @@ async function main() {
             },
         },
     });
-
-    // Create some sample progress records
-    // Add completed exercises for first lesson
-    const exercises1 = await prisma.exercise.findMany({
-        where: { lessonId: lesson1.id }
-    });
-
-    // Create progress records for the first 6 exercises of lesson 1
-    for (let i = 0; i < 6; i++) {
-        await prisma.progress.create({
-            data: {
-                userId: user.id,
-                lessonId: lesson1.id,
-                exerciseId: exercises1[i].id,
-                completed: true
-            }
-        });
-    }
 }
-
-main()
-    .catch((e) => {
-        console.error(e);
-        process.exit(1);
-    })
-    .finally(async () => {
-        await prisma.$disconnect();
-    });
