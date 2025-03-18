@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { RotateCcw } from "lucide-react";
 import Link from "next/link";
 
+
 const TypingTestBasic = () => {
     const originalText = lorem;
     const [userInput, setUserInput] = useState("");
@@ -17,12 +18,16 @@ const TypingTestBasic = () => {
     const [timerStarted, setTimerStarted] = useState(false);
     const [isDisabled, setIsDisabled] = useState(false);
     const [wpmScore, setWpmScore] = useState(0);
+    const [accuracy, setAccuracy] = useState(0);
+    const [correctKeyStrokes, setCorrectKeystrokes] = useState(0);
+    const [incorrectKeyStrokes, setIncorrectKeystrokes] = useState(0);
     const [textSize, setTextSize] = useState<number>(2);
     const sentenceRef = useRef<HTMLDivElement | null>(null);
-    // NEW: A ref for the current character element
     const currentCharRef = useRef<HTMLSpanElement | null>(null);
     const { data: session } = useSession();
     const user = session?.user;
+    const [typingTestResults, setTypingTestResults] = useState<TypingTestResponse | null>(null);
+    const [error, setError] = useState<string>("");
 
     const handleTimeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedTime(parseInt(event.target.value, 10));
@@ -33,7 +38,22 @@ const TypingTestBasic = () => {
         setTimerStarted(true);
     };
 
-    // Remove old scroll logic and use scrollIntoView on current character
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const fetchWpm = async () => {
+            try {
+                const response = await fetch(`/api/wpm?userId=${user.id}`);
+                if (!response.ok) throw new Error("Failed to fetch WPM results.");
+                setTypingTestResults(await response.json());
+            } catch (error) {
+                setError((error as Error).message);
+            }
+        };
+
+        fetchWpm();
+    }, [user?.id])
+
     useEffect(() => {
         currentCharRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, [userInput]);
@@ -48,6 +68,15 @@ const TypingTestBasic = () => {
         const value = e.target.value;
         const normalizedOriginal = originalText.trim();
 
+        const newCharIndex = value.length - 1;
+        if (newCharIndex >= 0) {
+            if (value[newCharIndex] === normalizedOriginal[newCharIndex]) {
+                setCorrectKeystrokes(prev => prev + 1);
+            } else {
+                setIncorrectKeystrokes(prev => prev + 1);
+            }
+        }
+
         if (normalizedOriginal.startsWith(value)) {
             setCurrentError(false);
         } else {
@@ -57,9 +86,17 @@ const TypingTestBasic = () => {
         setUserInput(value);
     };
 
+    const calculateAccuracy = () => {
+        const totalKeystrokes = correctKeyStrokes + incorrectKeyStrokes;
+        const calculateAccuracy = totalKeystrokes > 0 ? Math.round((correctKeyStrokes / totalKeystrokes) * 100) : 0;
+        setAccuracy(calculateAccuracy);
+        return calculateAccuracy;
+    }
+
     const calculateWPM = () => {
         const wordsPerMinute = checkWpm(userInput.length, 1);
         setWpmScore(wordsPerMinute);
+        calculateAccuracy();
     };
 
     const restartTest = () => {
@@ -69,6 +106,9 @@ const TypingTestBasic = () => {
         setTimerStarted(false);
         setIsDisabled(false);
         setWpmScore(0);
+        setAccuracy(0);
+        setCorrectKeystrokes(0);
+        setIncorrectKeystrokes(0);
 
         if (sentenceRef.current) {
             sentenceRef.current.scrollTo({ top: 0, behavior: "instant" });
@@ -83,6 +123,40 @@ const TypingTestBasic = () => {
         const newTextSize = parseInt(event.target.value, 10);
         setTextSize(newTextSize);
     };
+
+    const saveWpmScore = async (wordsPerMinute: number, accuracy: number) => {
+        try {
+            const userId = user?.id;
+
+            const response = await fetch("/api/wpm", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    userId,
+                    wpm: wordsPerMinute,
+                    accuracy: accuracy,
+                }),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log("Typing test result saved successfully: ", result);
+            } else {
+                const errorData = await response.json();
+                console.error("Error saving typing test result: ", errorData.error);
+            }
+        } catch (error) {
+            console.error("Error making request: ", error);
+        }
+    };
+
+    useEffect(() => {
+        if (isDisabled) {
+            saveWpmScore(wpmScore, accuracy);
+        }
+    }, [wpmScore, accuracy, isDisabled]);
 
     useEffect(() => {
         if (!timerStarted) return;
@@ -138,6 +212,7 @@ const TypingTestBasic = () => {
                             <RotateCcw className="w-6 h-6" />
                         </button>
                         WPM: <span className="text-green-600">{wpmScore}</span>
+                        HIGHEST WPM: <span className="text-green-600">{typingTestResults?.highestWpm.wpm || 0}</span>
                     </div>
                 </div>
 
@@ -212,6 +287,9 @@ const TypingTestBasic = () => {
                         <h2 className="text-3xl font-bold text-gray-900 mb-2">Your Speed</h2>
                         <div className="text-5xl font-extrabold text-blue-600 mb-5">
                             {wpmScore} <span className="text-lg text-gray-500">WPM</span>
+                        </div>
+                        <div className="text-2xl font-bold text-green-600 mb-5">
+                            {accuracy}% <span className="text-lg text-gray-500">Accuracy</span>
                         </div>
                         {!user && (
                             <>

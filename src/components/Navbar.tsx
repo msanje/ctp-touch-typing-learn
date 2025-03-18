@@ -1,5 +1,3 @@
-import { signOut } from "next-auth/react";
-import { redirect } from "next/navigation"
 import Link from "next/link";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { getServerSession } from "next-auth";
@@ -13,24 +11,9 @@ type User = {
     image?: string | null | undefined;
 } | undefined
 
-type Props = {
-    user: User,
-}
-
 export default async function Navbar() {
     // Fetch user session on the server
     const session = await getServerSession(options);
-    const user = session?.user;
-
-    const handleSignOut = async () => {
-        try {
-            await signOut({ redirect: false });
-        } catch (error) {
-            console.error('Sign out error:', error);
-        } finally {
-            redirect('/');
-        }
-    };
 
     return (
         <nav className="flex items-center justify-between px-16 py-4 bg-white border-b border-gray-200 shadow-sm">
