@@ -5,7 +5,7 @@ type CompletePageProps = {
     isCompleted: boolean;
 };
 
-const CompletePage: React.FC<CompletePageProps> = ({ exercise, isCompleted }) => {
+const CompletePage: React.FC<CompletePageProps> = () => {
     return (
         <div>
             <h1>Hello World.</h1>

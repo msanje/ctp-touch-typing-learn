@@ -2,12 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from 'next/navigation'
-import KeyboardComponent from "@/components/KeyboardComponent";
 import ResultsModal from "@/components/ResultsModal";
 import { fetchUserId } from "@/helpers/fetchUserId";
 import { User } from "@/types/User";
 import Link from "next/link";
-import { Button } from "./ui/button";
 import { getNextExercise, getPrevExercise } from "@/utils/lessonNavigator";
 
 export default function ExercisePage({ user }: { user: User }) {
@@ -16,18 +14,84 @@ export default function ExercisePage({ user }: { user: User }) {
     const router = useRouter();
 
     const [activeKey, setActiveKey] = useState("");
-    const [userInput, setUserInput] = useState<string>("");
     const [currentError, setCurrentError] = useState(false);
     const [timerStarted, setTimerStarted] = useState(false);
     const [isDisabled, setIsDisabled] = useState(false);
     const [exerciseContent, setExerciseContent] = useState<string>("");
-    const [countdown, setCountdown] = useState<number | null>(null);
-    const [wpm, setwpm] = useState<number>(0);
-    const [typos, setTypos] = useState<number>(0);
-    const [userId, setUserId] = useState<String | null>(null);
+    const [userId, setUserId] = useState<string | null>(null);
     const [error, setError] = useState<string>("")
     const [loading, setLoading] = useState<boolean>(false);
     const [completed, setCompleted] = useState(false);
+    const [correctKeyStrokes, setCorrectKeystrokes] = useState(0);
+    const [incorrectKeyStrokes, setIncorrectKeystrokes] = useState(0);
+    const [userInput, setUserInput] = useState("");
+    // TODO: Verify whether we need this
+    // const [timeElapsed, setTimeElapsed] = useState(0);
+    const [wpm, setWpm] = useState(0);
+    const [expectedTimeInSeconds, setExpectedTimeInSeconds] = useState<number>(0);
+
+    const [speed, setSpeed] = useState<boolean>(false);
+    const [accuracy, setAccuracy] = useState<boolean>(false);
+    const [lessThenTwoTypos, setLessThenTwoTypos] = useState<boolean>(false);
+
+    // TODO: Stying the active key better using this
+    console.log("active key: ", activeKey)
+    // TODO: Setting expected time to completed the exercises, setting wpm using this
+    console.log("expectedTimeInSeconds: ", expectedTimeInSeconds)
+
+    // TODO: use error 
+    console.log("error: ", error);
+
+    // TODO: Verify whether we need this.
+    console.log("correctKeyStrokes: ", correctKeyStrokes)
+
+    // TODO: Add logic to this for check whether speed over 28 for individual exercises
+    setWpm(28);
+
+    useEffect(() => {
+        if (exerciseContent) {
+            const length = exerciseContent.length;
+            const baseTime = 10;
+            const additionalTimePerChar = 0.5;
+
+            const calculatedTime = baseTime + (length * additionalTimePerChar);
+
+            setExpectedTimeInSeconds(calculatedTime);
+        } else {
+            setExpectedTimeInSeconds(0);
+        }
+    }, [exerciseContent])
+
+    // TODO: Verify whether we need this
+    // useEffect(() => {
+    //     if (timeElapsed > 0) {
+    //         const minutes = timeElapsed / 60;
+    //         const wordsTyped = correctKeyStrokes / 5;
+    //         const currentWPM = Math.round(wordsTyped / minutes);
+    //         setWpm(currentWPM);
+    //     }
+    // }, [timeElapsed, correctKeyStrokes]);
+
+    useEffect(() => {
+        if (wpm >= 28) {
+            setSpeed(true);
+        } else {
+            setSpeed(false);
+        }
+
+        if (incorrectKeyStrokes === 0 && completed) {
+            setAccuracy(true)
+        } else {
+            setAccuracy(false);
+        }
+
+        if (incorrectKeyStrokes < 2 && completed) {
+            setLessThenTwoTypos(true);
+        } else {
+            setLessThenTwoTypos(false);
+        }
+
+    }, [wpm, incorrectKeyStrokes, completed])
 
     const currentLessonId = parseInt(lessonId);
     const currentExerciesId = parseInt(exerciseId);
@@ -79,6 +143,9 @@ export default function ExercisePage({ user }: { user: User }) {
                     lessonId: parseInt(lessonId),
                     exerciseId: parseInt(exerciseId),
                     completed: false,
+                    speed,
+                    accuracy,
+                    lessThenTwoTypos
                 }),
             });
 
@@ -102,6 +169,10 @@ export default function ExercisePage({ user }: { user: User }) {
         setCurrentError(false);
         setActiveKey("");
         setTimerStarted(false);
+
+        setCorrectKeystrokes(0);
+        setIncorrectKeystrokes(0);
+        setCompleted(false); // To reset completion
     };
 
     useEffect(() => {
@@ -122,11 +193,32 @@ export default function ExercisePage({ user }: { user: User }) {
         fetchExercise();
     }, [lessonId, exerciseId]);
 
+    // TODO: Verify whether we need this
+    // useEffect(() => {
+    //     if (completed && timeElapsed > 0) {
+    //         const calculatedWPM = Math.round((userInput.split(' ').length / timeElapsed) * 60);
+    //         setWpm(calculatedWPM);
+
+    //         // Set speed based on calculated WPM
+    //         setSpeed(calculatedWPM > 28);
+    //     }
+    // }, [completed, timeElapsed, userInput]);
+
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!timerStarted) setTimerStarted(true);
         if (isDisabled) return;
 
         const value = e.target.value;
+        const normalizedOriginal = exerciseContent.trim();
+
+        const index = value.length - 1;
+        if (index >= 0) {
+            if (value[index] === normalizedOriginal[index]) {
+                setCorrectKeystrokes(prev => prev + 1);
+            } else {
+                setIncorrectKeystrokes(prev => prev + 1);
+            }
+        }
 
         if (exerciseContent.startsWith(value)) {
             setCurrentError(false);
@@ -157,9 +249,13 @@ export default function ExercisePage({ user }: { user: User }) {
         };
     }, []);
 
-    return (
+
+    return (loading ? (
+        <div>
+            loading.....
+        </div >) : (
         <div className="flex flex-col items-center justify-center h-screen w-full bg-gradient-to-b from-blue-100 to-gray-200">
-            <div className={`transition-all duration-300 bg-white shadow-lg rounded-xl p-8 w-full max-w-3xl border border-gray-300`}>
+            <div className={`transition-all duration-300 bg-white shadow-lg rounded-xl p-8 w-full max-w-3xl border border-gray-300`} >
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-800 mb-6 text-center">
                     Lesson {lessonId} - Exercise {exerciseId}
                 </h1>
@@ -199,7 +295,7 @@ export default function ExercisePage({ user }: { user: User }) {
                         autoFocus
                     />
                 </div>
-            </div>
+            </div >
 
             <div className="flex flex-row justify-between w-52">
                 {
@@ -220,11 +316,14 @@ export default function ExercisePage({ user }: { user: User }) {
             </div>
 
             {/* Show the "Next Exercise" button when exercise is completed */}
-            {isDisabled && (
-                <ResultsModal wpm={wpm} typos={typos} onTryAgain={handleTryAgain} onNext={handleNext} />
-            )}
+            {
+                isDisabled && (
+                    <ResultsModal wpm={wpm} typos={incorrectKeyStrokes} onTryAgain={handleTryAgain} onNext={handleNext} speed={speed} accuracy={accuracy} lessThenTwoTypos={lessThenTwoTypos} />
+                )
+            }
             {/* TODO: Need to style this KeyboardComponent better */}
             {/* <KeyboardComponent activeKey={activeKey} /> */}
-        </div>
+        </div >
+    )
     );
 }

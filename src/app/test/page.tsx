@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 
 const Page = () => {
     const [userId, setUserId] = useState<string | null>(null);
-    const [error, setError] = useState<String | null>(null);
-    const { data: session, status } = useSession();
+    const [error, setError] = useState<string | null>(null);
+    const { data: session } = useSession();
 
     useEffect(() => {
         const fetchUserId = async () => {

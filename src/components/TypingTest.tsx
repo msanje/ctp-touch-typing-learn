@@ -2,7 +2,9 @@
 
 import { lorem } from "@/helpers/paragraph";
 import { checkWpm } from "@/helpers/wpm";
+import { TypingTestResponse } from "@/types";
 import { Redo, Settings, BarChart, Clock } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const TypingTest = () => {
@@ -10,14 +12,27 @@ const TypingTest = () => {
     const [timer, setTimer] = useState(60);
     const [input, setInput] = useState("");
     const [wpm, setWpm] = useState<number | null>(0);
-    const [accuracy, setAccuracy] = useState<number | null>(0);
+    const [accuracy, setAccuracy] = useState<number>(0);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
     const [currentError, setCurrentError] = useState<boolean>(false);
-    const [finalWpm, setFinalWpm] = useState<number | null>(null);
-    const [sentence, setSentence] = useState(lorem);
+    const [finalWpm, setFinalWpm] = useState<number>(0);
+    const sentence = lorem;
     const sentenceRef = useRef<HTMLDivElement | null>(null);
     // ref for the current character element
     const currentCharRef = useRef<HTMLSpanElement | null>(null);
+    const [correctKeyStrokes, setCorrectKeystrokes] = useState(0);
+    const [incorrectKeyStrokes, setIncorrectKeystrokes] = useState(0);
+    const [typingTestResults, setTypingTestResults] = useState<TypingTestResponse | null>(null);
+    const [error, setError] = useState<string>("");
+    const { data: session } = useSession();
+    const user = session?.user;
+
+    console.log("wpm, accuracy: ", wpm, accuracy);
+    console.log("finalWpm: ", finalWpm);
+
+    // TODO: Use this error somewhere
+    console.log("error: ", error);
+    console.log("currentError: ", currentError);
 
     // Starting the timer when test begins
     useEffect(() => {
@@ -26,7 +41,6 @@ const TypingTest = () => {
                 setTimer((prev) => {
                     if (prev <= 1) {
                         clearInterval(intervalRef.current!);
-                        calculateWPM();
                         return 0;
                     }
                     return prev - 1;
@@ -65,7 +79,6 @@ const TypingTest = () => {
         const handleClickOutside = (event: MouseEvent) => {
             if (sentenceRef.current && !sentenceRef.current.contains(event.target as Node) && event.target !== document.querySelector("input")) {
                 setStarted(false);
-                calculateWPM();
             }
         }
 
@@ -73,40 +86,82 @@ const TypingTest = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    // trigger recalculation of wpm when input updates
-    useEffect(() => {
-        if (started) {
-            calculateWPM();
-        }
-    }, [input]);
-
     useEffect(() => {
         currentCharRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, [input]);
+
+    useEffect(() => {
+        if (!user?.id) return;
+
+        const fetchWpm = async () => {
+            try {
+                const response = await fetch(`/api/wpm?userId=${user.id}`);
+                if (!response.ok) throw new Error("Failed to fetch WPM results.");
+                setTypingTestResults(await response.json());
+            } catch (error) {
+                setError((error as Error).message);
+            }
+        };
+
+        fetchWpm();
+    }, [user?.id])
+
+    const saveWpmScore = async (wordsPerMinute: number, accuracy: number) => {
+        try {
+            const userId = user?.id;
+
+            const response = await fetch("/api/wpm", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    userId,
+                    wpm: wordsPerMinute,
+                    accuracy: accuracy,
+                }),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log("Typing test result saved successfully: ", result);
+            } else {
+                const errorData = await response.json();
+                console.error("Error saving typing test result: ", errorData.error);
+            }
+        } catch (error) {
+            console.error("Error making request: ", error);
+        }
+    };
+
+    useEffect(() => {
+        const wordsPerMinute = checkWpm(input.length, 1);
+        setWpm(wordsPerMinute);
+
+        const totalKeystrokes = correctKeyStrokes + incorrectKeyStrokes;
+        const calculateAccuracy = totalKeystrokes > 0 ? Math.round((correctKeyStrokes / totalKeystrokes) * 100) : 0;
+        setAccuracy(calculateAccuracy);
+    }, [input, correctKeyStrokes, incorrectKeyStrokes])
 
     // triggering recalculation of wpm when the timer ends
     useEffect(() => {
         if (timer === 0) {
             const wordsPerMinute = checkWpm(input.length, 1);
             setFinalWpm(wordsPerMinute);
+
+            const totalKeystrokes = correctKeyStrokes + incorrectKeyStrokes;
+            const calculateAccuracy = totalKeystrokes > 0 ? Math.round((correctKeyStrokes / totalKeystrokes) * 100) : 0;
+            setAccuracy(calculateAccuracy);
+
+            // console.log("before: ", finalWpm, accuracy);
+            // saveWpmScore(finalWpm, accuracy);
+            // console.log("after: ", finalWpm, accuracy);
+
+            console.log("before version two: ", finalWpm, accuracy);
+            saveWpmScore(wordsPerMinute, calculateAccuracy);
+            console.log("after version two: ", finalWpm, accuracy);
         }
     }, [timer]);
-
-    const calculateWPM = () => {
-        const wordsPerMinute = checkWpm(input.length, 1);
-
-        if (timer === 0) {
-            setFinalWpm(wordsPerMinute);
-        } else {
-            setWpm(wordsPerMinute);
-        }
-
-        // Calculate accuracy (placeholder - implement actual logic)
-        // This is just an example, you'd need to implement the actual accuracy calculation
-        const totalChars = input.length;
-        const correctChars = input.split('').filter((char, idx) => char === sentence[idx]).length;
-        setAccuracy(totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0);
-    };
 
     const charStates = useMemo(() => {
         const cleanedSentence = sentence.trim().replace(/\s+/g, " ");
@@ -118,6 +173,35 @@ const TypingTest = () => {
             return { char, isCorrect, isTyped };
         });
     }, [input, sentence]);
+
+    const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        const normalizedOriginal = sentence.trim();
+
+        const newCharIndex = value.length - 1;
+        if (newCharIndex >= 0) {
+            if (value[newCharIndex] === normalizedOriginal[newCharIndex]) {
+                setCorrectKeystrokes(prev => prev + 1);
+            } else {
+                setIncorrectKeystrokes(prev => prev + 1);
+            }
+        }
+
+        if (normalizedOriginal.startsWith(value)) {
+            setCurrentError(false);
+        } else {
+            setCurrentError(true);
+        }
+
+        setInput(value);
+    }
+
+    const handleStart = () => {
+        setStarted(true);
+        setInput("");
+        setWpm(null);
+        setAccuracy(0);
+    }
 
     return (
 
@@ -146,6 +230,10 @@ const TypingTest = () => {
                     <div className="flex flex-col items-center">
                         <div className="text-gray-500 text-sm uppercase tracking-wider">Accuracy</div>
                         <div className="text-2xl font-bold">{accuracy || 0}<span className="text-sm text-gray-500">%</span></div>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <div className="text-gray-500 text-sm uppercase tracking-wider">HIGHEST WPM</div>
+                        <div className="text-2xl font-bold">{typingTestResults?.highestWpm?.wpm || 0}<span className="text-sm text-gray-500 ml-1">WPM</span></div>
                     </div>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -177,7 +265,7 @@ const TypingTest = () => {
                 {!started && (
                     <div className="absolute inset-0 flex items-center justify-center bg-gray-100 bg-opacity-10">
                         <button
-                            onClick={() => { setStarted(true); setInput(""); setWpm(null); setAccuracy(null); }}
+                            onClick={handleStart}
                             className="fixed bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transform transition duration-200 hover:-translate-y-1 hover:shadow-lg">
                             Start Typing Test
                         </button>
@@ -186,7 +274,7 @@ const TypingTest = () => {
             </div>
 
             {/* Input Field */}
-            <input ref={inputRef} type="text" className="w-full p-4 border border-gray-300 rounded-lg text-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all mb-4" value={input} onChange={(e) => setInput(e.target.value)} disabled={!started || timer === 0} placeholder={started ? "Type here..." : "Click 'Start' to begin the test"} autoComplete="off" autoFocus />
+            <input ref={inputRef} type="text" className="w-full p-4 border border-gray-300 rounded-lg text-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all mb-4" value={input} onChange={handleInput} disabled={!started || timer === 0} placeholder={started ? "Type here..." : "Click 'Start' to begin the test"} autoComplete="off" autoFocus />
 
             {/* Test Completion Overlay */}
             {timer === 0 && (
@@ -204,7 +292,9 @@ const TypingTest = () => {
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-gray-500 text-sm">Accuracy</span>
-                                <span className="text-4xl font-bold">{accuracy}</span>
+                                <span className="text-4xl font-bold">
+                                    {accuracy}
+                                </span>
                                 <span className="text-gray-500 text-sm">%</span>
                             </div>
                         </div>

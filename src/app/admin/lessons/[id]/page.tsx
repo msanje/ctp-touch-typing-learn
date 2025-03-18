@@ -34,7 +34,7 @@ export default function LessonDetails() {
             <ul>
                 {exercises.map((exercise) => (
                     <li key={exercise.id} className="p-2">
-                        <strong>Exercise {exercise.index + 1}:</strong> {exercise.content}
+                        <strong>Exercise {exercise.exerciseIndex + 1}:</strong> {exercise.content}
                     </li>
                 ))}
             </ul>

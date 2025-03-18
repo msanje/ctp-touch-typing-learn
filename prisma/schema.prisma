@@ -46,8 +46,8 @@ model Progress {
   lessonId         Int
   exerciseId       Int
   completed        Boolean  @default(false)
-  wpm              Int?
-  accuracy         Float?
+  speed            Boolean?
+  accuracy         Boolean? // checking whether there were any typo
   lessThanTwoTypos Boolean?
   timestamp        DateTime @default(now())
 

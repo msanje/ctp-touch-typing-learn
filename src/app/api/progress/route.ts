@@ -1,10 +1,22 @@
-import { lessons } from '@/helpers/lessons';
 import { db } from "@/lib/index";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
     try {
-        const { userId, email, lessonId, exerciseId, completed } = await req.json();
+        const {
+            email,
+            lessonId,
+            exerciseId,
+            completed,
+            accuracy,
+            speed,
+            lessThanTwoTypos
+        } = await req.json();
+
+        console.log(" accuracy, speed, lessThanTwoTypos: ", accuracy,
+            speed,
+            lessThanTwoTypos)
+
         // Fetch the user ID based on the email
         const user = await db.user.findUnique({
             where: { email },
@@ -33,7 +45,10 @@ export async function POST(req: Request) {
                 userId: user.id,
                 lessonId,
                 exerciseId,
-                completed
+                completed,
+                accuracy,
+                speed,
+                lessThanTwoTypos
             }
         });
 
@@ -77,12 +92,22 @@ export async function GET(req: Request) {
             }
             acc[entry.lessonId].exercisesCompleted.push(entry.exerciseId);
             return acc;
-        }, {} as Record<number, { lesson: any; exercisesCompleted: number[] }>);
+        }, {} as Record<number, {
+            lesson: {
+                id: number;
+                title: string;
+            }; exercisesCompleted: number[]
+        }>);
 
         return NextResponse.json({ progress: Object.values(groupedProgress) }, { status: 200 });
-    } catch (error: any) {
-        console.error("Error fetching progress: ", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error fetching progress: ", error);
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        } else {
+            console.error("Unknown error fetching progress: ", error);
+            return NextResponse.json({ error: "Unknown error occured." }, { status: 500 });
+        }
     }
 }
 

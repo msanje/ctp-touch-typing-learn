@@ -63,9 +63,14 @@ export async function GET(req: Request) {
         }
 
         return NextResponse.json({ typingTestResults, highestWpm }, { status: 200 });
-    } catch (error: any) {
-        console.error("Error fetching typing test results: ", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            console.error("Error fetching typing test results: ", error);
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        } else {
+            console.error("Unknown error fetching typing test results: ", error);
+            return NextResponse.json({ error: "Unknown error occured" }, { status: 500 });
+        }
     }
 }
 

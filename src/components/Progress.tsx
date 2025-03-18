@@ -1,6 +1,7 @@
 "use client";
 
 import { ProgressItem } from "@/types/ComoponentTypes";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 
@@ -10,10 +11,6 @@ type Exercise = {
     lessonId: number;
     index: number;
     content: string;
-};
-
-type ResponseData = {
-    progress: ProgressItem[];
 };
 
 const Progress = () => {
@@ -92,10 +89,10 @@ const Progress = () => {
     if (progress.length === 0) {
         return (
             <div className="mt-20 text-center">
-                <p className="text-gray-600">You haven't started any lessons yet.</p>
-                <a href="/lessons" className="text-blue-500 underline mt-2 inline-block">
+                <p className="text-gray-600">You haven&apos;t started any lessons yet.</p>
+                <Link href="/lessons" className="text-blue-500 underline mt-2 inline-block">
                     Start Your First Lesson
-                </a>
+                </Link>
             </div>
         );
     }

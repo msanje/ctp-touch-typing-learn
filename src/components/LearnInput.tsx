@@ -16,9 +16,13 @@ export default function LearnInput({ user }: { user: User }) {
     const [exercises, setExercises] = useState<string[]>([]);
     const [lessonTitle, setLessonTitle] = useState<string>("");
     const [currentLessonIndex, setCurrentLessonIndex] = useState<number>(0);
-    const [userId, setUserId] = useState<String | null>(null);
+    const [userId, setUserId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+
+    // TODO: use these
+    console.log("error: ", error);
+    console.log("loading: ", loading);
 
     interface Lesson {
         id: number;

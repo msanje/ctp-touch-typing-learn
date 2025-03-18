@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react"
 
 type ResultsModalProps = {
@@ -5,9 +6,12 @@ type ResultsModalProps = {
     typos: number;
     onTryAgain: () => void;
     onNext: () => void;
+    speed: boolean;
+    accuracy: boolean;
+    lessThenTwoTypos: boolean;
 }
 
-export default function ResultsModal({ wpm, typos, onTryAgain, onNext }: ResultsModalProps) {
+export default function ResultsModal({ wpm, typos, onTryAgain, onNext, speed, accuracy, lessThenTwoTypos }: ResultsModalProps) {
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-white rounded-lg shadow-lg p-8 w-[90%] max-w-md text-center border-2 border-gray-200">
@@ -18,15 +22,15 @@ export default function ResultsModal({ wpm, typos, onTryAgain, onNext }: Results
                 {/* Achievements */}
                 <div className="flex justify-center space-x-6 mt-6">
                     <div className="flex flex-col items-center">
-                        {/* <img src="/icons/star.png" alt="star" className="w-12 h-12" /> */}
+                        <Image src={`${lessThenTwoTypos ? "/star_gold.svg" : "/star_gray.svg"}`} alt="star" className="w-12 h-12" />
                         <p className="text-green-500 text-sm font-semibold">less than 2 typos</p>
                     </div>
                     <div className="flex flex-col items-center">
-                        {/* <img src="/icons/smile.png" alt="smile" className="w-12 h-12" /> */}
+                        <Image src={`${accuracy ? "/bullseye_gold.svg" : "/bullseye_gray.svg"}`} alt="smile" className="w-12 h-12" />
                         <p className="text-orange-500 text-sm font-semibold">exercise without typos</p>
                     </div>
                     <div className="flex flex-col items-center">
-                        {/* <img src="/icons/bolt.png" alt="bolt" className="w-12 h-12" /> */}
+                        <Image src={`${speed ? "/thunder_gold.svg" : "/thunder_gray.svg"}`} alt="bolt" className="w-12 h-12" />
                         <p className="text-purple-500 text-sm font-semibold">speed more than 28 WPM</p>
                     </div>
                 </div>
@@ -39,12 +43,18 @@ export default function ResultsModal({ wpm, typos, onTryAgain, onNext }: Results
                     >
                         Try again
                     </button>
-                    <button
-                        onClick={onNext}
-                        className="px-6 py-2 text-lg font-semibold text-white bg-yellow-400 border-2 border-yellow-500 rounded-lg hover:bg-yellow-500 transition-all shadow-md"
-                    >
-                        Next
-                    </button>
+                    {
+                        speed || accuracy || lessThenTwoTypos ? (
+                            <button
+                                onClick={onNext}
+                                className="px-6 py-2 text-lg font-semibold text-white bg-yellow-400 border-2 border-yellow-500 rounded-lg hover:bg-yellow-500 transition-all shadow-md"
+                            >
+                                Next
+                            </button>
+                        ) : (
+                            <></>
+                        )
+                    }
                 </div>
             </div>
         </div>

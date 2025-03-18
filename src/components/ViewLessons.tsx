@@ -20,7 +20,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import { fetchUserId } from "@/helpers/fetchUserId";
-import { ProgressData, ProgressItem } from "@/types/ComoponentTypes";
+import { ProgressData } from "@/types/ComoponentTypes";
 
 type Exercise = {
     id: number;
@@ -41,10 +41,14 @@ type LessonsState = Lesson[];
 const ViewLessons = () => {
     const [lessons, setLessons] = useState<LessonsState>([]);
     const [completedExercises, setCompletedExercises] = useState<ProgressData | null>(null);
-    const [userId, setUserId] = useState<String | null>(null); // current logged in user
+    const [userId, setUserId] = useState<string | null>(null); // current logged in user
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
-    const [progress, setProgress] = useState<ProgressItem[]>([]);
+
+    // TODO: use these state variables in the component
+    console.log("userId: ", userId);
+    console.log("error: ", error);
+    console.log("loading: ", loading);
 
     useEffect(() => {
         const fetchAllData = async () => {

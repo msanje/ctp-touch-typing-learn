@@ -1,10 +1,10 @@
 // components/ProgressOverview.tsx
-import { ProgressData } from "@/types/ComoponentTypes";
+import { ProgressResponse } from "@/types/GlobalTypes";
 import React from "react";
 
 type ProgressOverviewProps = {
     totalExercises: number;
-    completedExercises: ProgressData | null;
+    completedExercises: ProgressResponse | null;
     totalLessons: number;
 };
 
@@ -16,6 +16,8 @@ const ProgressOverview: React.FC<ProgressOverviewProps> = ({
     const completedCount = completedExercises ? completedExercises.progress.reduce(
         (acc, item) => acc + item.exercisesCompleted.length, 0
     ) : 0;
+
+    console.log("completedExercises blue: ", completedExercises);
 
     return (
         <div className="bg-white p-6 rounded-xl shadow-sm mb-8">

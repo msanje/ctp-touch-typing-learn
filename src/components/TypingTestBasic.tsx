@@ -7,6 +7,7 @@ import { checkWpm } from "../helpers/wpm";
 import { useSession } from "next-auth/react";
 import { RotateCcw } from "lucide-react";
 import Link from "next/link";
+import { TypingTestResponse } from "@/types";
 
 
 const TypingTestBasic = () => {
@@ -29,13 +30,11 @@ const TypingTestBasic = () => {
     const [typingTestResults, setTypingTestResults] = useState<TypingTestResponse | null>(null);
     const [error, setError] = useState<string>("");
 
+    // TODO: Use this error in the component
+    console.log("error: ", error)
+
     const handleTimeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedTime(parseInt(event.target.value, 10));
-    };
-
-    const startTest = () => {
-        setTimeLeft(selectedTime);
-        setTimerStarted(true);
     };
 
     useEffect(() => {
