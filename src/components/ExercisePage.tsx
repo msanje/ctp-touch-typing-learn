@@ -4,11 +4,10 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from 'next/navigation'
 import ResultsModal from "@/components/ResultsModal";
 import { fetchUserId } from "@/helpers/fetchUserId";
-import { User } from "@/types/User";
 import Link from "next/link";
 import { getNextExercise, getPrevExercise } from "@/utils/lessonNavigator";
 
-export default function ExercisePage({ user }: { user: User }) {
+export default function ExercisePage({ user }: any) {
     const params = useParams<{ lessonId: string; exerciseId: string }>()
     const { lessonId, exerciseId } = params;
     const router = useRouter();

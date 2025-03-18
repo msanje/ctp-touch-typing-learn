@@ -30,14 +30,20 @@ export async function POST(req: Request) {
         const existingProgress = await db.progress.findFirst({
             where: {
                 userId: user.id,
-                lessonId,
                 exerciseId
 
             }
         });
 
         if (existingProgress) {
-            return NextResponse.json({ message: "Exercise already completed" }, { status: 200 });
+            // TODO: Get the type for this
+            const updates: any = {};
+
+            console.log("api/progress existingProgress: ", existingProgress);
+
+            if (accuracy && !existingProgress.accuracy)
+
+                return NextResponse.json({ message: "Exercise already completed" }, { status: 200 });
         }
 
         const progress = await db.progress.create({

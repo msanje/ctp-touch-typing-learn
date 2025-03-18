@@ -3,6 +3,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { getServerSession } from "next-auth";
 import { options } from "@/app/api/auth/[...nextauth]/options";
 import UserDropdown from "./UserDropdown";
+import Image from "next/image";
 
 export default async function Navbar() {
     // Fetch user session on the server
@@ -11,7 +12,8 @@ export default async function Navbar() {
     return (
         <nav className="flex items-center justify-between px-16 py-4 bg-white border-b border-gray-200 shadow-sm">
             {/* Logo */}
-            <div className="flex items-center">
+            <div className="flex items-center cursor-pointer">
+                <Image src={'/keystream_logo.svg'} width={100} height={100} alt="logo" />
                 <Link href="/">
                     <span className="text-4xl font-extrabold text-blue-600 tracking-tight">KEYSTREAM</span>
                 </Link>
