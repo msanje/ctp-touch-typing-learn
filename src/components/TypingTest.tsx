@@ -2,7 +2,7 @@
 
 import { lorem } from "@/helpers/paragraph";
 import { checkWpm } from "@/helpers/wpm";
-import { TypingTestResponse } from "@/types";
+import { TypingTestResponse } from "@/types/GlobalTypes";
 import { Redo, Settings, BarChart, Clock } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -26,6 +26,8 @@ const TypingTest = () => {
     const [error, setError] = useState<string>("");
     const { data: session } = useSession();
     const user = session?.user;
+
+    console.log("typingTestResults: ", typingTestResults);
 
     console.log("wpm, accuracy: ", wpm, accuracy);
     console.log("finalWpm: ", finalWpm);

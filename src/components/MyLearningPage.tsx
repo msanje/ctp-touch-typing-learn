@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import ProgressOverview from "../components/ProgressOverview";
 import LessonCard from "../components/LessonCard";
-import { ProgressResponse } from "@/types/GlobalTypes";
+import { ProgressData } from "@/types/GlobalTypes";
 
 type Lesson = {
     id: number;
@@ -12,7 +12,7 @@ type Lesson = {
 
 const MyLearningPage = () => {
     const [lessons, setLessons] = useState<Lesson[]>([]);
-    const [completedExercises, setCompletedExercises] = useState<ProgressResponse | null>(null);
+    const [completedExercises, setCompletedExercises] = useState<ProgressData | null>(null);
 
     useEffect(() => {
         const fetchLessons = async () => {

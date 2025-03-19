@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
         if (existingProgress) {
             // TODO: Get the type for this
-            const updates: any = {};
+            // const updates: any = {};
 
             console.log("api/progress existingProgress: ", existingProgress);
 

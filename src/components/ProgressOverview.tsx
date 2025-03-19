@@ -1,10 +1,10 @@
 // components/ProgressOverview.tsx
-import { ProgressResponse } from "@/types/GlobalTypes";
+import { ProgressData, } from "@/types/GlobalTypes";
 import React from "react";
 
 type ProgressOverviewProps = {
     totalExercises: number;
-    completedExercises: ProgressResponse | null;
+    completedExercises: ProgressData | null;
     totalLessons: number;
 };
 

@@ -20,7 +20,7 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import { fetchUserId } from "@/helpers/fetchUserId";
-import { ProgressData } from "@/types/ComoponentTypes";
+import { ProgressData } from "@/types/GlobalTypes";
 
 type Exercise = {
     id: number;

@@ -7,7 +7,7 @@ import { checkWpm } from "../helpers/wpm";
 import { useSession } from "next-auth/react";
 import { RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { TypingTestResponse } from "@/types";
+import { TypingTestResponse } from "@/types/GlobalTypes";
 
 
 const TypingTestBasic = () => {

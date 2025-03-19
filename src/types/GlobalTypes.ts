@@ -1,67 +1,45 @@
-export type Lesson = {
+export interface LessonsType {
     id: number;
     title: string;
-    exercises: Exercise[]
-    Progress: Progress[]
+    exercises: Exercise[];
 }
 
-export type Exercise = {
+export interface Exercise {
     id: number;
     exerciseIndex: number;
     content: string;
     lessonId: number;
+}
+
+export interface ProgressData {
+    progress: Progress[];
+}
+
+export interface Progress {
     lesson: Lesson;
-    Progress: Progress[]
+    exercisesCompleted: number[];
 }
 
-export type User = {
-    id: string;
-    username: string;
-    email: string;
-    password: Progress[];
-    TypingTestResult: TypingTestResult[];
-}
-
-export type Progress = {
+export interface Lesson {
     id: number;
+    title: string;
+}
 
-    userId: string;
-    lessonId: number;
-    exerciseId: number;
-    completed: boolean;
-    speed: boolean | null;
-    accuracy: boolean | null;
-    lessThanTwoTypos: boolean | null;
-    timestamp: string;
-    user: User;
-    lesson: Lesson;
-    exercise: Exercise;
-};
+export interface UserType {
+    id?: string | undefined;
+    name?: string | null | undefined;
+    email?: string | null | undefined;
+}
 
-export type TypingTestResult = {
+export interface TypingTestResponse {
+    typingTestResults: HighestWpm[];
+    highestWpm: HighestWpm;
+}
+
+export interface HighestWpm {
     id: number;
     userId: string;
     wpm: number;
     accuracy: number;
-    timestamp: string;
-    user: User;
-};
-
-export type ProgressResponse = {
-    progress: {
-        lesson: {
-            id: number;
-            title: string;
-        };
-        exercisesCompleted: number[];
-    }[];
-};
-
-
-
-// API Response specific types
-// TODO: Complete this
-
-export type LessonsResponse = Lesson[];
-
-export type TypingTestResultsResponse = TypingTestResult[];
+    timestamp: Date;
+}

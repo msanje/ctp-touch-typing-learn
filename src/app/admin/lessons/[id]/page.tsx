@@ -1,5 +1,6 @@
 "use client"
 
+// TODO: Verify whether we need this page. 
 // app/admin/lessons/[id]/page.tsx
 import { useEffect, useState } from "react";
 import { Lesson, Exercise } from "@prisma/client";

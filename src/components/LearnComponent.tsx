@@ -32,7 +32,7 @@ const LearnComponent = () => {
                     <li>Do not rush when you just started learning. Speed up only when your fingers hit the right keys out of habit.</li>
                     <li>Take your time when typing to avoid mistakes. The speed will pick up as you progress.</li>
                     <li>Always scan the text a word or two in advance.</li>
-                    <li>If you're having trouble typing, use a keyboard test to determine if it's a software or hardware issue.</li>
+                    <li>If you&apos;re having trouble typing, use a keyboard test to determine if it&apos;s a software or hardware issue.</li>
                     <li>Pass all typing lessons at Ratatype. It will help you get above the average typing speed.</li>
                 </ul>
             </section>
@@ -43,7 +43,7 @@ const LearnComponent = () => {
                     Fingers Motion
                 </h2>
                 <div className="max-w-3xl mx-auto space-y-4 text-lg md:text-xl text-gray-700">
-                    <p>Don't look at the keys when you type. Just slide your fingers around until they find the home row marking.</p>
+                    <p>Don&apos;t look at the keys when you type. Just slide your fingers around until they find the home row marking.</p>
                     <p>Limit your hand and finger movement only to what is necessary to press a specific key. Keep your hands and fingers close to the base position.</p>
                     <p>Pay attention to ring fingers and little fingers, since they are considerably underdeveloped.</p>
                 </div>
@@ -131,14 +131,14 @@ const LearnComponent = () => {
             <section className="py-12 bg-white shadow-md rounded-lg mx-4 md:mx-0 text-center">
                 <h2 className="text-4xl font-bold text-gray-800 mb-6">Take Care of Yourself</h2>
                 <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                    Take a break if you feel distracted easily and are making a lot of mistakes. It's more productive to come back when you feel refreshed.
+                    Take a break if you feel distracted easily and are making a lot of mistakes. It&apos;s more productive to come back when you feel refreshed.
                 </p>
             </section>
 
             {/* Call to Action Section */}
             <section className="py-12 text-center">
                 <h2 className="text-3xl md:text-4xl font-semibold text-gray-800 mb-6">
-                    It's Time to Get Some Practice
+                    It&apos;s Time to Get Some Practice
                 </h2>
                 <div className="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-6">
                     <Link href="/lessons">

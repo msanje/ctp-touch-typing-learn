@@ -6,11 +6,14 @@ import ResultsModal from "@/components/ResultsModal";
 import { fetchUserId } from "@/helpers/fetchUserId";
 import Link from "next/link";
 import { getNextExercise, getPrevExercise } from "@/utils/lessonNavigator";
+import { UserType } from "@/types/GlobalTypes";
 
-export default function ExercisePage({ user }: any) {
+export default function ExercisePage({ user }: { user: UserType }) {
     const params = useParams<{ lessonId: string; exerciseId: string }>()
     const { lessonId, exerciseId } = params;
     const router = useRouter();
+
+    console.log("user: ", user);
 
     const [activeKey, setActiveKey] = useState("");
     const [currentError, setCurrentError] = useState(false);
@@ -33,19 +36,14 @@ export default function ExercisePage({ user }: any) {
     const [accuracy, setAccuracy] = useState<boolean>(false);
     const [lessThenTwoTypos, setLessThenTwoTypos] = useState<boolean>(false);
 
-    // TODO: Stying the active key better using this
-    console.log("active key: ", activeKey)
-    // TODO: Setting expected time to completed the exercises, setting wpm using this
-    console.log("expectedTimeInSeconds: ", expectedTimeInSeconds)
-
-    // TODO: use error 
-    console.log("error: ", error);
-
-    // TODO: Verify whether we need this.
-    console.log("correctKeyStrokes: ", correctKeyStrokes)
-
-    // TODO: Add logic to this for check whether speed over 28 for individual exercises
-    setWpm(28);
+    useEffect(() => {
+        // TODO: Use all these in the component
+        setWpm(28);
+        console.log("activeKey: ", activeKey);
+        console.log("error: ", error);
+        console.log("correctKeyStrokes: ", correctKeyStrokes)
+        console.log("expectedTimeInSeconds: ", expectedTimeInSeconds);
+    }, [])
 
     useEffect(() => {
         if (exerciseContent) {
@@ -120,6 +118,9 @@ export default function ExercisePage({ user }: any) {
             console.error("User ID is not available yet.");
             return;
         }
+
+        // TODO: Verify this works as intented: if exercise not completed progress doesn't get updated.
+        if (!completed) return;
 
         const nextExercise = getNextExercise(parseInt(lessonId), parseInt(exerciseId));
 

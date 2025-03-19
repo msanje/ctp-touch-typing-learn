@@ -22,15 +22,15 @@ export default function ResultsModal({ wpm, typos, onTryAgain, onNext, speed, ac
                 {/* Achievements */}
                 <div className="flex justify-center space-x-6 mt-6">
                     <div className="flex flex-col items-center">
-                        <Image src={`${lessThenTwoTypos ? "/star_gold.svg" : "/star_gray.svg"}`} alt="star" className="w-12 h-12" />
+                        <Image src={`${lessThenTwoTypos ? "/star_gold.svg" : "/star_gray.svg"}`} alt="star" width={100} height={100} />
                         <p className="text-green-500 text-sm font-semibold">less than 2 typos</p>
                     </div>
                     <div className="flex flex-col items-center">
-                        <Image src={`${accuracy ? "/bullseye_gold.svg" : "/bullseye_gray.svg"}`} alt="smile" className="w-12 h-12" />
+                        <Image src={`${accuracy ? "/bullseye_gold.svg" : "/bullseye_gray.svg"}`} alt="smile" width={100} height={100} />
                         <p className="text-orange-500 text-sm font-semibold">exercise without typos</p>
                     </div>
                     <div className="flex flex-col items-center">
-                        <Image src={`${speed ? "/thunder_gold.svg" : "/thunder_gray.svg"}`} alt="bolt" className="w-12 h-12" />
+                        <Image src={`${speed ? "/thunder_gold.svg" : "/thunder_gray.svg"}`} alt="bolt" width={100} height={100} />
                         <p className="text-purple-500 text-sm font-semibold">speed more than 28 WPM</p>
                     </div>
                 </div>

@@ -1,10 +1,8 @@
 "use client";
 
-import { ProgressItem } from "@/types/ComoponentTypes";
+import { Progress as ProgressType } from "@/types/GlobalTypes";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
-
 
 type Exercise = {
     id: string;
@@ -14,7 +12,7 @@ type Exercise = {
 };
 
 const Progress = () => {
-    const [progress, setProgress] = useState<ProgressItem[]>([]);
+    const [progress, setProgress] = useState<ProgressType[]>([]);
     const [exercises, setExercises] = useState<Exercise[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -44,31 +42,29 @@ const Progress = () => {
                 const response = await fetch(`/api/progress?userId=${userId}`);
                 if (!response.ok) throw new Error(`Error: ${response.status}`);
                 const data = await response.json();
-                setProgress(data.progress || []);
+                const progressData: ProgressType[] = data.progress || [];
+                setProgress(progressData);
 
-                // Create exercises array from progress data
                 const allExercises: Exercise[] = [];
-                data.progress.forEach((item: ProgressItem) => {
+
+                progressData.forEach((item) => {
                     const lessonId = item.lesson.id;
-                    // Create exercise objects for each completed exercise
-                    item.exercisesCompleted.forEach((exerciseIndex) => {
+                    item.exercisesCompleted.forEach((exerciseIndex: number) => {
                         allExercises.push({
                             id: `${lessonId}-${exerciseIndex}`,
                             lessonId: lessonId,
-                            index: exerciseIndex - 1, // Adjust index to be 0-based
-                            content: `Exercise ${exerciseIndex}`
+                            index: exerciseIndex - 1,
+                            content: `Exercise ${exerciseIndex}`,
                         });
                     });
 
-                    // Add placeholders for potentially incomplete exercises
-                    // Assuming each lesson has 6 exercises based on the sample data
                     for (let i = 1; i <= 6; i++) {
                         if (!item.exercisesCompleted.includes(i)) {
                             allExercises.push({
                                 id: `${lessonId}-${i}`,
                                 lessonId: lessonId,
                                 index: i - 1,
-                                content: `Exercise ${i}`
+                                content: `Exercise ${i}`,
                             });
                         }
                     }
@@ -97,14 +93,12 @@ const Progress = () => {
         );
     }
 
-    // Group progress items by lessonId
     const lessons = progress.map((item) => {
         const lessonId = item.lesson.id;
         const title = item.lesson.title;
         const completedCount = item.exercisesCompleted.length;
         const lessonExercises = exercises.filter((ex) => ex.lessonId === lessonId);
-        // TOD: We need to get the total number of exersises from the backend.
-        const totalExercises = 7;
+        const totalExercises = 7; // Ideally fetched from backend
         const percentage = Math.round((completedCount / totalExercises) * 100);
 
         return {
@@ -113,7 +107,7 @@ const Progress = () => {
             totalExercises,
             completedCount,
             percentage,
-            exercises: lessonExercises
+            exercises: lessonExercises,
         };
     });
 
@@ -131,15 +125,21 @@ const Progress = () => {
                     </div>
                     <div className="grid grid-cols-4 gap-3">
                         {Array.from({ length: lesson.totalExercises }, (_, i) => i + 1).map((exerciseNum) => {
-                            const isCompleted = lesson.exercises.some(ex =>
-                                ex.lessonId === lesson.lessonId && ex.index === exerciseNum - 1 &&
-                                progress.find(p => p.lesson.id === lesson.lessonId)?.exercisesCompleted.includes(exerciseNum)
+                            const isCompleted = lesson.exercises.some(
+                                (ex) =>
+                                    ex.lessonId === lesson.lessonId &&
+                                    ex.index === exerciseNum - 1 &&
+                                    progress
+                                        .find((p) => p.lesson.id === lesson.lessonId)
+                                        ?.exercisesCompleted.includes(exerciseNum)
                             );
 
                             return (
                                 <div key={`${lesson.lessonId}-${exerciseNum}`} className="flex flex-col items-center p-2 border rounded-md">
                                     {isCompleted ? (
-                                        <span className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white">✓</span>
+                                        <span className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white">
+                                            ✓
+                                        </span>
                                     ) : (
                                         <span className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-600">
                                             {exerciseNum}
