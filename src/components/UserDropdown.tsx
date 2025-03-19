@@ -17,6 +17,7 @@ export default function UserDropdown({ user }: { user: User }) {
     const handleSignOut = async () => {
         await signOut({ redirect: false });
         router.push("/"); // Redirect after signing out
+        router.refresh();
     };
 
     return (
@@ -34,10 +35,10 @@ export default function UserDropdown({ user }: { user: User }) {
                     </Avatar>}
 
                     {/*TODO:  Progress tracker */}
-                    <div className="flex items-center space-x-2">
+                    {/* <div className="flex items-center space-x-2">
                         <span className="text-gray-800 font-medium">4</span>
                         <div className="w-5 h-5 bg-yellow-400 rounded-full"></div>
-                    </div>
+                    </div> */}
                 </button>
             </DropdownMenuTrigger>
 
@@ -74,9 +75,9 @@ export default function UserDropdown({ user }: { user: User }) {
                 </DropdownMenuItem>
 
                 <DropdownMenuItem>
-                    <button className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-800">
+                    <Link href={"/settings"} className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-800">
                         Settings
-                    </button>
+                    </Link>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem>
