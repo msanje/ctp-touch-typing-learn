@@ -2,6 +2,8 @@ import { db } from "@/lib/index";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+    console.log("hello from api/progress POST:")
+
     try {
         const {
             email,
@@ -12,10 +14,6 @@ export async function POST(req: Request) {
             speed,
             lessThanTwoTypos
         } = await req.json();
-
-        console.log(" accuracy, speed, lessThanTwoTypos: ", accuracy,
-            speed,
-            lessThanTwoTypos)
 
         // Fetch the user ID based on the email
         const user = await db.user.findUnique({
@@ -36,13 +34,7 @@ export async function POST(req: Request) {
         });
 
         if (existingProgress) {
-            // TODO: Get the type for this
-            // const updates: any = {};
-
-            console.log("api/progress existingProgress: ", existingProgress);
-
             if (accuracy && !existingProgress.accuracy)
-
                 return NextResponse.json({ message: "Exercise already completed" }, { status: 200 });
         }
 

@@ -54,53 +54,30 @@ const LearnComponent = () => {
                 <h2 className="text-3xl md:text-4xl font-semibold text-gray-800 text-center mb-6">
                     Home Row Position
                 </h2>
+
                 <div className="flex flex-row justify-between max-w-2xl mx-auto mb-6">
-                    {/* TODO: Eight of these for different HOME ROW Keys */}
-                    <div className="flex flex-row">
-                        <button
-                            className="m-2 bg-gray-300 w-14 h-14 md:w-16 md:h-16 rounded-lg hover:bg-gray-400 transition-colors"
-                        >
-                            A
-                        </button>
-                        <button
-                            className="m-2 bg-gray-300 w-14 h-14 md:w-16 md:h-16 rounded-lg hover:bg-gray-400 transition-colors"
-                        >
-                            S
-                        </button>
-                        <button
-                            className="m-2 bg-gray-300 w-14 h-14 md:w-16 md:h-16 rounded-lg hover:bg-gray-400 transition-colors"
-                        >
-                            D
-                        </button>
-                        <button
-                            className="m-2 bg-gray-300 w-14 h-14 md:w-16 md:h-16 rounded-lg hover:bg-gray-400 transition-colors"
-                        >
-                            F
-                        </button>
+                    <div className="flex flex-row space-x-3">
+                        {["A", "S", "D", "F"].map((key) => (
+                            <button
+                                key={key}
+                                className="w-14 h-14 md:w-16 md:h-16 bg-blue-100 text-gray-800 text-lg md:text-xl font-semibold rounded-xl shadow hover:bg-blue-200 active:scale-95 transition-all duration-150"
+                            >
+                                {key}
+                            </button>
+                        ))}
                     </div>
-                    <div className="flex flex-row">
-                        <button
-                            className="m-2 bg-gray-300 w-14 h-14 md:w-16 md:h-16 rounded-lg hover:bg-gray-400 transition-colors"
-                        >
-                            J
-                        </button>
-                        <button
-                            className="m-2 bg-gray-300 w-14 h-14 md:w-16 md:h-16 rounded-lg hover:bg-gray-400 transition-colors"
-                        >
-                            K
-                        </button>
-                        <button
-                            className="m-2 bg-gray-300 w-14 h-14 md:w-16 md:h-16 rounded-lg hover:bg-gray-400 transition-colors"
-                        >
-                            L
-                        </button>
-                        <button
-                            className="m-2 bg-gray-300 w-14 h-14 md:w-16 md:h-16 rounded-lg hover:bg-gray-400 transition-colors"
-                        >
-                            ;
-                        </button>
+                    <div className="flex flex-row space-x-3">
+                        {["J", "K", "L", ";"].map((key) => (
+                            <button
+                                key={key}
+                                className="w-14 h-14 md:w-16 md:h-16 bg-blue-100 text-gray-800 text-lg md:text-xl font-semibold rounded-xl shadow hover:bg-blue-200 active:scale-95 transition-all duration-150"
+                            >
+                                {key}
+                            </button>
+                        ))}
                     </div>
                 </div>
+
                 <div className="max-w-3xl mx-auto space-y-4 text-lg md:text-xl text-gray-700">
                     <p>
                         Curve your fingers a little and put them on the [A][S][D][F] and [J][K][L][;] keys, which are located in the middle row of the letter keys. This row is called the HOME ROW because you always start from these keys and always return to them.

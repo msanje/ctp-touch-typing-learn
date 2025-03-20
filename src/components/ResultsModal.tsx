@@ -9,15 +9,24 @@ type ResultsModalProps = {
     speed: boolean;
     accuracy: boolean;
     lessThenTwoTypos: boolean;
+    correctKeyStrokes: number;
 }
 
-export default function ResultsModal({ wpm, typos, onTryAgain, onNext, speed, accuracy, lessThenTwoTypos }: ResultsModalProps) {
+export default function ResultsModal({ wpm, typos, onTryAgain, onNext, speed, accuracy, lessThenTwoTypos, correctKeyStrokes }: ResultsModalProps) {
+    const accuracyInPercentage = Math.round((correctKeyStrokes / (correctKeyStrokes + typos)) * 100);
+
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-white rounded-lg shadow-lg p-8 w-[90%] max-w-md text-center border-2 border-gray-200">
                 {/* Header */}
                 <h2 className="text-3xl font-extrabold text-gray-800">Exercise Finished!</h2>
                 <p className="text-xl text-gray-600 mt-2">{wpm} wpm, {typos} typos</p>
+
+                {/* Additional Stats */}
+                <div className="mt-4">
+                    <p className="text-lg text-green-600 font-semibold">Correct Keystrokes: {correctKeyStrokes}</p>
+                    <p className="text-lg text-green-600 font-semibold">Accuracy: {accuracyInPercentage}</p>
+                </div>
 
                 {/* Achievements */}
                 <div className="flex justify-center space-x-6 mt-6">

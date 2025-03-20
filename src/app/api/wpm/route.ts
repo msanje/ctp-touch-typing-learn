@@ -5,8 +5,6 @@ export async function POST(req: Request) {
     try {
         const { userId, wpm, accuracy } = await req.json();
 
-        console.log("hello from api/wpm POST: userId, wpm, accuracy:", userId, wpm, accuracy);
-
         if (!userId) {
             return NextResponse.json({ error: "User ID is required" }, { status: 400 })
         }

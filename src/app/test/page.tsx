@@ -1,5 +1,7 @@
 "use client";
 
+import KeyboardComponent from "@/components/KeyboardComponent";
+import KeyboardStyled from "@/components/KeyboardStyled";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
@@ -29,12 +31,20 @@ const Page = () => {
 
     return (
         <div>
-            <h1>User ID</h1>
-            {error ? <p>Error: {error}</p> : <p>{userId ? `User ID: ${userId}` : "Loading..."}</p>}
-            <h1>User ID from useSession()</h1>
-            {error ? <p>Error: {error}</p> : <p>{session?.user ? `User ID: ${session?.user.id}` : "Loading..."}</p>}
-            {error ? <p>Error: {error}</p> : <p>{session?.user ? `User ID: ${session?.user.email}` : "Loading..."}</p>}
-            {error ? <p>Error: {error}</p> : <p>{session?.user ? `User ID: ${session?.user.name}` : "Loading..."}</p>}
+            {/* <div>
+                <h1>User ID</h1>
+                {error ? <p>Error: {error}</p> : <p>{userId ? `User ID: ${userId}` : "Loading..."}</p>}
+                <h1>User ID from useSession()</h1>
+                {error ? <p>Error: {error}</p> : <p>{session?.user ? `User ID: ${session?.user.id}` : "Loading..."}</p>}
+                {error ? <p>Error: {error}</p> : <p>{session?.user ? `User ID: ${session?.user.email}` : "Loading..."}</p>}
+                {error ? <p>Error: {error}</p> : <p>{session?.user ? `User ID: ${session?.user.name}` : "Loading..."}</p>}
+            </div> */}
+            <div>
+                <KeyboardComponent activeKey="" />
+            </div>
+            <div>
+                <KeyboardStyled />
+            </div>
         </div>
     )
 }
