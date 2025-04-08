@@ -32,10 +32,13 @@ model Exercise {
 }
 
 model User {
-  id               String             @id @default(uuid())
-  username         String             @unique
-  email            String             @unique
-  password         String
+  id       String @id @default(uuid())
+  username String @unique
+  email    String @unique
+  password String
+
+  certificate Certificate?
+
   progress         Progress[]
   TypingTestResult TypingTestResult[]
 }
@@ -64,4 +67,24 @@ model TypingTestResult {
   timestamp DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+model Certificate {
+  id         String   @id @default(uuid())
+  title String
+  issuedDate DateTime @default(now())
+  userId     String   @unique
+  isPaid     Boolean  @default(false)
+
+  user        User         @relation(fields: [userId], references: [id])
+  transaction Transaction?
+}
+
+model Transaction {
+  id            String      @id @default(uuid())
+  amount        Int
+  status        String // PENDING, SUCCESS, FAILED
+  date          DateTime    @default(now())
+  certificateId String      @unique
+  certificate   Certificate @relation(fields: [certificateId], references: [id])
 }

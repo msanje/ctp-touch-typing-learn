@@ -178,7 +178,7 @@ async function seedUsers() {
     data: {
       username: "testuser",
       email: "test@example.com",
-      password: "hashed_password_would_go_here",
+      password: "password",
     },
   });
   return user;
@@ -226,8 +226,36 @@ async function main() {
 
   // Seed Progress (pass users & lessons)
   console.log("✅ Progress Seeded");
-}
 
+  const certificateData = users.map((user, index) => ({
+    userId: user.id,
+    title: `Certificate of Completion for TOUCH TYPING`,
+    issuedDate: new Date(),
+  }));
+
+  await prisma.certificate.createMany({
+    data: certificateData,
+  });
+  console.log("✅ Certificates Seeded");
+
+  function random(...items) {
+    return items[Math.floor(Math.random() * items.length)];
+  }
+
+  const certificates = await prisma.certificate.findMany();
+
+  const transactionData = users.map((user, index) => ({
+    amount: Math.floor(Math.random() * 1000) + 100, // Random amount between 100 and 1100
+    status: random("SUCCESS", "PENDING", "FAILED"),
+    date: new Date(),
+    certificateId: certificates[index].id,
+  }));
+
+  await prisma.transaction.createMany({
+    data: transactionData,
+  });
+  console.log("✅ Transactions Seeded");
+}
 main()
   .then(() => {
     console.log("🌱 Database Seeding Completed Successfully.");

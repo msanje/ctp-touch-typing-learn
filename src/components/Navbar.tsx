@@ -10,12 +10,12 @@ export default async function Navbar() {
     const session = await getServerSession(options);
 
     return (
-        <nav className="flex items-center justify-between px-16 py-4 bg-white border-b border-gray-200 shadow-sm">
+        <nav className="flex items-center justify-between px-16 h-24 bg-white border-b border-gray-200 shadow-sm">
             {/* Logo */}
             <div className="flex items-center cursor-pointer">
                 <Image src={'/keystream_logo.svg'} width={100} height={100} alt="logo" />
                 <Link href="/">
-                    <span className="text-4xl font-extrabold text-blue-600 tracking-tight">KEYSTREAM</span>
+                    <span className="text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent tracking-widest drop-shadow-sm">KEYSTREAM</span>
                 </Link>
             </div>
 
