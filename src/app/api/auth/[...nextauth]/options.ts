@@ -2,7 +2,7 @@ import type { NextAuthOptions } from "next-auth";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "@/lib/index";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import "next-auth";
 
 declare module "next-auth" {
