@@ -172,36 +172,6 @@ async function seedLessons() {
   });
 }
 
-// Users seed function
-async function seedUsers() {
-  const user = await prisma.user.create({
-    data: {
-      username: "testuser",
-      email: "test@example.com",
-      password: "password",
-    },
-  });
-  return user;
-}
-
-// Progress seed function
-async function seedProgress(userId, lessonId) {
-  const exercises = await prisma.exercise.findMany({
-    where: { lessonId },
-  });
-
-  for (let i = 0; i < exercises.length; i++) {
-    await prisma.progress.create({
-      data: {
-        userId,
-        lessonId,
-        exerciseId: exercises[i].id,
-        completed: i % 2 === 0, // Random: mark even exercises as completed
-      },
-    });
-  }
-}
-
 // Main function
 async function main() {
   console.log("🌱 Starting Database Seeding...");
@@ -209,10 +179,6 @@ async function main() {
   // Seed Lessons
   await seedLessons();
   console.log("✅ Lessons Seeded");
-
-  // Seed Users
-  await seedUsers();
-  console.log("✅ Users Seeded");
 
   // Fetch lessons & users from DB
   const lessons = await prisma.lesson.findMany();
@@ -223,39 +189,8 @@ async function main() {
       await seedProgress(user.id, lesson.id);
     }
   }
-
-  // Seed Progress (pass users & lessons)
-  console.log("✅ Progress Seeded");
-
-  const certificateData = users.map((user, index) => ({
-    userId: user.id,
-    title: `Certificate of Completion for TOUCH TYPING`,
-    issuedDate: new Date(),
-  }));
-
-  await prisma.certificate.createMany({
-    data: certificateData,
-  });
-  console.log("✅ Certificates Seeded");
-
-  function random(...items) {
-    return items[Math.floor(Math.random() * items.length)];
-  }
-
-  const certificates = await prisma.certificate.findMany();
-
-  const transactionData = users.map((user, index) => ({
-    amount: Math.floor(Math.random() * 1000) + 100, // Random amount between 100 and 1100
-    status: random("SUCCESS", "PENDING", "FAILED"),
-    date: new Date(),
-    certificateId: certificates[index].id,
-  }));
-
-  await prisma.transaction.createMany({
-    data: transactionData,
-  });
-  console.log("✅ Transactions Seeded");
 }
+
 main()
   .then(() => {
     console.log("🌱 Database Seeding Completed Successfully.");

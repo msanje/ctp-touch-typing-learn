@@ -213,9 +213,6 @@ const TypingTestBasic = () => {
               Sharpen your typing skills, boost your speed, and enhance your
               accuracy with real-time feedback!
             </p>
-            {/* Remove this later */}
-            <p>Testing purposes</p>
-            <p>Testing purposes</p>
             {/* Timer and Controls */}
             <div className="bg-white p-5 rounded-xl shadow-lg mb-6 flex flex-wrap items-center justify-between gap-4 border border-gray-200">
               <div className="flex items-center gap-4">
@@ -245,7 +242,7 @@ const TypingTestBasic = () => {
                 WPM: <span className="text-green-600">{wpmScore}</span>
                 HIGHEST WPM:{" "}
                 <span className="text-green-600">
-                  {typingTestResults?.highestWpm.wpm || 0}
+                  {typingTestResults?.highestWpm?.wpm ?? 0}
                 </span>
               </div>
             </div>
