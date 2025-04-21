@@ -54,15 +54,6 @@ export async function POST(req: Request) {
       });
     }
 
-    /* if (existingProgress) {
-      if (accuracy && !existingProgress.accuracy)
-        return NextResponse.json(
-          { message: "Exercise already completed" },
-          { status: 200 },
-        );
-    }
-    */
-
     const progress = await db.progress.create({
       data: {
         userId: user.id,
@@ -97,17 +88,15 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const userId = url.searchParams.get("userId");
+  const includeMetrics = url.searchParams.get("detailed") === "true";
 
   if (!userId) {
     return NextResponse.json({ error: "User ID is required" }, { status: 400 });
   }
 
   try {
-    // Fetch progress for the given userId
     const progress = await db.progress.findMany({
-      where: {
-        userId: userId,
-      },
+      where: { userId },
       include: {
         lesson: true,
       },
@@ -120,26 +109,43 @@ export async function GET(req: Request) {
       );
     }
 
-    // Group progress by lesson
     const groupedProgress = progress.reduce(
       (acc, entry) => {
         if (!acc[entry.lessonId]) {
           acc[entry.lessonId] = {
-            lesson: entry.lesson,
+            lesson: {
+              id: entry.lesson.id,
+              title: entry.lesson.title,
+            },
             exercisesCompleted: [],
           };
         }
-        acc[entry.lessonId].exercisesCompleted.push(entry.exerciseId);
+
+        const exerciseData = includeMetrics
+          ? {
+              exerciseId: entry.exerciseId,
+              accuracy: entry.accuracy,
+              speed: entry.speed,
+              lessThenTwoTypos: entry.lessThenTwoTypos,
+            }
+          : entry.exerciseId;
+
+        acc[entry.lessonId].exercisesCompleted.push(exerciseData);
         return acc;
       },
       {} as Record<
         number,
         {
-          lesson: {
-            id: number;
-            title: string;
-          };
-          exercisesCompleted: number[];
+          lesson: { id: number; title: string };
+          exercisesCompleted: (
+            | number
+            | {
+                exerciseId: number;
+                accuracy: boolean | null;
+                speed: boolean | null;
+                lessThenTwoTypos: boolean | null;
+              }
+          )[];
         }
       >,
     );
@@ -149,15 +155,10 @@ export async function GET(req: Request) {
       { status: 200 },
     );
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Error fetching progress: ", error);
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    } else {
-      console.error("Unknown error fetching progress: ", error);
-      return NextResponse.json(
-        { error: "Unknown error occured." },
-        { status: 500 },
-      );
-    }
+    console.error("Error fetching progress: ", error);
+    return NextResponse.json(
+      { error: "Error fetching progress" },
+      { status: 500 },
+    );
   }
 }

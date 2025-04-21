@@ -70,7 +70,8 @@ const ViewLessons = () => {
   const completedExerciseSet = new Set(
     completedExercises?.progress.flatMap((progressItem) =>
       progressItem.exercisesCompleted.map(
-        (exerciseIndex) => `${progressItem.lesson.id}-${exerciseIndex - 1}`,
+        (exerciseIndex) =>
+          `${progressItem.lesson.id}-${exerciseIndex.exerciseId - 1}`,
       ),
     ),
   );
@@ -205,4 +206,3 @@ const ViewLessons = () => {
 };
 
 export default ViewLessons;
-

@@ -76,7 +76,11 @@ const Lessons = () => {
         completedExercises={completedExercises}
         totalLessons={lessons ? lessons.length : 0}
       />
-      <LessonsList lessons={lessons} completedExercises={completedExercises} />
+      <LessonsList
+        userId={userId}
+        lessons={lessons}
+        completedExercises={completedExercises}
+      />
     </div>
   );
 };
