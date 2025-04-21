@@ -90,25 +90,27 @@ export default function ResultsModal({
         <div className="flex justify-center space-x-4 mt-6">
           <button
             onClick={onTryAgain}
-            className="px-6 py-2 text-lg font-semibold text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-100 transition-all"
+            className="px-6 py-2 text-lg font-semibold text-blue-600 bg-blue-100 rounded-lg border-2 border-blue-200 border-transparent transition-all hover:border-blue-600 hover:bg-blue-200 hover:text-blue-800"
           >
-            Try again
+            Try Again
           </button>
+
           {speed || accuracy || lessThenTwoTypos ? (
             <>
-              <button
-                onClick={onNext}
-                className="px-6 py-2 text-lg font-semibold text-white bg-yellow-400 border-2 border-yellow-500 rounded-lg hover:bg-yellow-500 transition-all shadow-md"
-              >
-                Next
-              </button>
-              {lastExercise && (
+              {lastExercise ? (
                 <a
                   href="/complete"
                   className="px-6 py-2 text-lg font-semibold text-white bg-green-500 border-2 border-green-600 rounded-lg hover:bg-green-600 transition-all shadow-md"
                 >
                   Certification
                 </a>
+              ) : (
+                <button
+                  onClick={onNext}
+                  className="px-6 py-2 text-lg font-semibold text-white bg-yellow-400 border-2 border-yellow-500 rounded-lg hover:bg-yellow-500 transition-all shadow-md"
+                >
+                  Next
+                </button>
               )}
             </>
           ) : (
@@ -119,4 +121,3 @@ export default function ResultsModal({
     </div>
   );
 }
-

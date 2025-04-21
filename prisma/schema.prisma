@@ -51,7 +51,7 @@ model Progress {
   completed        Boolean  @default(false)
   speed            Boolean?
   accuracy         Boolean? // checking whether there were any typo
-  lessThanTwoTypos Boolean?
+  lessThenTwoTypos Boolean?
   timestamp        DateTime @default(now())
 
   user     User     @relation(fields: [userId], references: [id])
@@ -75,7 +75,7 @@ model Certificate {
   issuedDate DateTime @default(now())
   userId     String   @unique
   isPaid     Boolean  @default(false)
-
+  isCompleted Boolean @default(false)
   user        User         @relation(fields: [userId], references: [id])
   transaction Transaction?
 }

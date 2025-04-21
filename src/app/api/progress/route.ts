@@ -2,8 +2,6 @@ import { db } from "@/lib/index";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  console.log("hello from api/progress POST:");
-
   try {
     const {
       email,
@@ -12,16 +10,8 @@ export async function POST(req: Request) {
       completed,
       accuracy,
       speed,
-      lessThanTwoTypos,
+      lessThenTwoTypos,
     } = await req.json();
-
-    console.log("email: ", email);
-    console.log("lessonId: ", lessonId);
-    console.log("exerciseId: ", exerciseId);
-    console.log("completed: ", completed);
-    console.log("accuracy: ", accuracy);
-    console.log("speed: ", speed);
-    console.log("lessThanTwoTypos: ", lessThanTwoTypos);
 
     // Fetch the user ID based on the email
     const user = await db.user.findUnique({
@@ -32,6 +22,10 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+
+    console.log("userId: ", user.id);
+    console.log("lessonId: ", lessonId);
+    console.log("exerciseId: ", exerciseId);
 
     const existingProgress = await db.progress.findFirst({
       where: {
@@ -47,8 +41,9 @@ export async function POST(req: Request) {
       const updatedProgress = await db.progress.update({
         where: { id: existingProgress.id },
         data: {
-          accuracy,
-          lessThanTwoTypos,
+          accuracy: existingProgress.accuracy || accuracy,
+          lessThenTwoTypos: existingProgress.accuracy || accuracy,
+          speed: existingProgress.speed || speed,
           completed,
         },
       });
@@ -76,7 +71,7 @@ export async function POST(req: Request) {
         completed,
         accuracy,
         speed,
-        lessThanTwoTypos,
+        lessThenTwoTypos,
       },
     });
 
@@ -84,8 +79,14 @@ export async function POST(req: Request) {
       message: "Progress created successfully",
       progress,
     });
-  } catch (error) {
-    console.error("Error updating progress: ", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error updating progress: ", error);
+      console.error("Stack:", error.stack);
+    } else {
+      console.error("Unknown error updating progress:", error);
+    }
+
     return NextResponse.json(
       { error: "Error updating progress" },
       { status: 500 },

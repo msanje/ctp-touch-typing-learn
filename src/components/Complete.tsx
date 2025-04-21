@@ -10,7 +10,7 @@ const CompletePage: React.FC<CompletePageProps> = ({ isCompleted }) => {
     return (
       <div className="flex justify-center items-center h-[60vh]">
         <h2 className="text-2xl font-semibold">
-          You haven:apos;t completed all exercises yet!
+          You haven&apos;t completed all exercises yet!
         </h2>
       </div>
     );

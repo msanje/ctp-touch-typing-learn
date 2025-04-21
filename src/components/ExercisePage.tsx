@@ -5,7 +5,11 @@ import { useParams, useRouter } from "next/navigation";
 import ResultsModal from "@/components/ResultsModal";
 import { fetchUserId } from "@/helpers/fetchUserId";
 import Link from "next/link";
-import { getNextExercise, getPrevExercise } from "@/utils/lessonNavigator";
+import {
+  getCurrentExercise,
+  getNextExercise,
+  getPrevExercise,
+} from "@/utils/lessonNavigator";
 import { UserType } from "@/types/GlobalTypes";
 
 export default function ExercisePage({ user }: { user: UserType }) {
@@ -25,6 +29,8 @@ export default function ExercisePage({ user }: { user: UserType }) {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [completed, setCompleted] = useState(false);
+  const [progressSubmitted, setProgressSubmitted] = useState<boolean>(false);
+
   const [correctKeyStrokes, setCorrectKeystrokes] = useState(0);
   const [incorrectKeyStrokes, setIncorrectKeystrokes] = useState(0);
   const [userInput, setUserInput] = useState("");
@@ -69,6 +75,19 @@ export default function ExercisePage({ user }: { user: UserType }) {
   const prev = getPrevExercise(currentLessonId, currentExerciesId);
 
   useEffect(() => {
+    const currentExercise = getCurrentExercise(
+      currentLessonId,
+      currentExerciesId,
+    );
+
+    if (currentExercise?.lessonId == 7 && currentExercise.exerciseId == 7) {
+      setLastExercise(true);
+    }
+
+    console.log("currentExercise: ", currentExercise);
+  }, []);
+
+  useEffect(() => {
     const getUserId = async () => {
       try {
         const id = await fetchUserId();
@@ -86,7 +105,13 @@ export default function ExercisePage({ user }: { user: UserType }) {
   }, []);
 
   useEffect(() => {
-    if (!completed) return;
+    if (
+      !completed ||
+      userId === null ||
+      progressSubmitted === true ||
+      (speed === false && accuracy === false && lessThenTwoTypos === false)
+    )
+      return;
 
     const updateProgress = async () => {
       try {
@@ -96,11 +121,11 @@ export default function ExercisePage({ user }: { user: UserType }) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            userId: userId,
+            userId,
             email: user?.email,
             lessonId: parseInt(lessonId),
             exerciseId: parseInt(exerciseId),
-            completed: false,
+            completed,
             speed,
             accuracy,
             lessThenTwoTypos,
@@ -108,19 +133,22 @@ export default function ExercisePage({ user }: { user: UserType }) {
         });
 
         if (response.ok) {
-          console.log("Progress updated successfully.");
+          const data = await response.json();
+          console.log(data.message);
+          setProgressSubmitted(true);
         } else {
-          console.error("Failed to update progress.");
+          const errorBody = await response.json();
+          console.error("Failed to update progress:", errorBody);
           setIsDisabled(true);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         console.error("Error updating progress:", error);
         setIsDisabled(true);
       }
     };
 
     updateProgress();
-  }, [completed]);
+  }, [completed, userId, speed, accuracy, lessThenTwoTypos, progressSubmitted]);
 
   const handleNext = async () => {
     if (!userId) {
@@ -135,15 +163,7 @@ export default function ExercisePage({ user }: { user: UserType }) {
       parseInt(exerciseId),
     );
 
-    if (nextExercise?.lessonId == 7 && nextExercise?.exerciseId == 7) {
-      setLastExercise(true);
-    }
-
     if (nextExercise) {
-      if (lastExercise) {
-        router.push(`/complete`);
-      }
-
       router.push(
         `/lessons/${nextExercise.lessonId}/${nextExercise.exerciseId}`,
       );
@@ -164,6 +184,7 @@ export default function ExercisePage({ user }: { user: UserType }) {
     setCorrectKeystrokes(0);
     setIncorrectKeystrokes(0);
     setCompleted(false); // To reset completion
+    setProgressSubmitted(false);
   };
 
   useEffect(() => {
@@ -241,9 +262,14 @@ export default function ExercisePage({ user }: { user: UserType }) {
       const totalCharacters = userInput.length;
       const wordsTyped = totalCharacters / 5;
       const calculatedWPM = (wordsTyped / timeTakenInSeconds) * 60;
-      setWpm(Math.round(calculatedWPM));
+      const finalWpm = Math.round(calculatedWPM);
+
+      setWpm(finalWpm);
+      setSpeed(finalWpm >= 28);
+      setAccuracy(incorrectKeyStrokes === 0);
+      setLessThenTwoTypos(incorrectKeyStrokes < 2);
     }
-  }, [completed, startTime, endTime, userInput.length]);
+  }, [completed, startTime, endTime, userInput.length, incorrectKeyStrokes]);
 
   return loading ? (
     <div>loading.....</div>
