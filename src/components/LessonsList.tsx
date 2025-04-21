@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/Image";
+import Image from "next/image";
 import { Book, CheckCircle, Circle } from "lucide-react";
 import {
   ExerciseProgress,
