@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import ResultsModal from "@/components/ResultsModal";
 import { fetchUserId } from "@/helpers/fetchUserId";
@@ -20,6 +20,7 @@ export default function ExercisePage({ user }: { user: UserType }) {
   /* TODO: Set this to true is the nextexercise is the last exercise */
   const [lastExercise, setLastExercise] = useState<boolean>(false);
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const [activeKey, setActiveKey] = useState("");
   const [currentError, setCurrentError] = useState(false);
   const [timerStarted, setTimerStarted] = useState(false);
@@ -174,6 +175,8 @@ export default function ExercisePage({ user }: { user: UserType }) {
   };
 
   const handleTryAgain = async () => {
+    console.log("Hello from handleTryAgain");
+
     // Reset UI state
     setUserInput("");
     setIsDisabled(false);
@@ -185,6 +188,11 @@ export default function ExercisePage({ user }: { user: UserType }) {
     setIncorrectKeystrokes(0);
     setCompleted(false); // To reset completion
     setProgressSubmitted(false);
+
+    // to focus on the input element when try again is triggered
+    setTimeout(() => {
+      inputRef.current?.focus();
+    }, 50);
   };
 
   useEffect(() => {
@@ -306,6 +314,7 @@ export default function ExercisePage({ user }: { user: UserType }) {
 
         <div className="flex flex-col items-center mt-8 w-full">
           <input
+            ref={inputRef}
             type="text"
             value={userInput}
             onChange={handleInputChange}

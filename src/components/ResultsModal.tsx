@@ -1,5 +1,5 @@
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 type ResultsModalProps = {
   lastExercise: boolean;
@@ -24,9 +24,17 @@ export default function ResultsModal({
   lessThenTwoTypos,
   correctKeyStrokes,
 }: ResultsModalProps) {
+  const nextButtonRef = useRef<HTMLButtonElement>(null);
+
   const accuracyInPercentage = Math.round(
     (correctKeyStrokes / (correctKeyStrokes + typos)) * 100,
   );
+
+  useEffect(() => {
+    if ((speed || accuracy || lessThenTwoTypos) && nextButtonRef.current) {
+      nextButtonRef.current?.focus();
+    }
+  }, [speed, accuracy, lessThenTwoTypos]);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -106,6 +114,7 @@ export default function ResultsModal({
                 </a>
               ) : (
                 <button
+                  ref={nextButtonRef}
                   onClick={onNext}
                   className="px-6 py-2 text-lg font-semibold text-white bg-yellow-400 border-2 border-yellow-500 rounded-lg hover:bg-yellow-500 transition-all shadow-md"
                 >
