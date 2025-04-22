@@ -6,7 +6,6 @@
 // import { useRouter } from "next/navigation";
 // import { Exercise, Lesson } from "@/types/Lesson";
 
-
 // const AdminLessonForm: FC<{ lesson?: Lesson }> = ({ lesson }) => {
 //     const [title, setTitle] = useState<string>(lesson?.title || '');
 //     const [exercises, setExercises] = useState<string[]>(lesson?.exercises.map((ex: Exercise) => ex.content) || ['']); // Extract exercises content if updating
@@ -63,3 +62,4 @@
 // };
 
 // export default AdminLessonForm;
+

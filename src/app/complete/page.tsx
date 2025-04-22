@@ -3,6 +3,7 @@
 import Certificate from "@/components/Certificate";
 import CompletePage from "@/components/Complete";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function Page() {
   const [isCompleted, setIsCompleted] = useState<boolean | null>(null);
@@ -22,8 +23,12 @@ export default function Page() {
 
         const data = await res.json();
         setIsCompleted(data.isCompleted);
-      } catch (err) {
-        console.error("Error checking completion:", err);
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Error checking completion");
+        }
         setIsCompleted(false);
       }
     };

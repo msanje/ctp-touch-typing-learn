@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { TypingTestResponse } from "@/types/GlobalTypes";
+import toast from "react-hot-toast";
 
 const TypingTestBasic = () => {
   const originalText = lorem;
@@ -147,14 +148,17 @@ const TypingTestBasic = () => {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        console.log("Typing test result saved successfully: ", result);
+        toast.success("Typing test result saved");
       } else {
         const errorData = await response.json();
-        console.error("Error saving typing test result: ", errorData.error);
+        toast.error(errorData.error || "Something went wrong!");
       }
-    } catch (error) {
-      console.error("Error making request: ", error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Network error. Please try again.");
+      }
     }
   };
 

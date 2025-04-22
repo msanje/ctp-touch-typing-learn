@@ -20,8 +20,6 @@ const ProgressOverview: React.FC<ProgressOverviewProps> = ({
       )
     : 0;
 
-  console.log("completedExercises blue: ", completedExercises);
-
   return (
     <div className="bg-white p-6 rounded-xl shadow-sm mb-8">
       <div className="grid grid-cols-3 gap-6 text-center">

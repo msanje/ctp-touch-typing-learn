@@ -7,6 +7,7 @@ import {
   ProgressData,
 } from "@/types/GlobalTypes";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 type LessonsListProps = {
   userId: string | null;
@@ -39,8 +40,12 @@ const LessonsList: React.FC<LessonsListProps> = ({
         const res = await fetch(`/api/progress?userId=${userId}&detailed=true`);
         const data = await res.json();
         setCompletedExercisesWithProgress(data);
-      } catch (err) {
-        console.error("Failed to fetch progress data:", err);
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Failed to fetch progress data");
+        }
       }
     };
 

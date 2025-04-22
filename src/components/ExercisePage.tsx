@@ -11,17 +11,16 @@ import {
   getPrevExercise,
 } from "@/utils/lessonNavigator";
 import { UserType } from "@/types/GlobalTypes";
+import toast from "react-hot-toast";
 
 export default function ExercisePage({ user }: { user: UserType }) {
   const params = useParams<{ lessonId: string; exerciseId: string }>();
   const { lessonId, exerciseId } = params;
   const router = useRouter();
 
-  /* TODO: Set this to true is the nextexercise is the last exercise */
   const [lastExercise, setLastExercise] = useState<boolean>(false);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const [activeKey, setActiveKey] = useState("");
   const [currentError, setCurrentError] = useState(false);
   const [timerStarted, setTimerStarted] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
@@ -42,12 +41,6 @@ export default function ExercisePage({ user }: { user: UserType }) {
   const [speed, setSpeed] = useState<boolean>(false);
   const [accuracy, setAccuracy] = useState<boolean>(false);
   const [lessThenTwoTypos, setLessThenTwoTypos] = useState<boolean>(false);
-
-  useEffect(() => {
-    // We are using this in the Keyboard component for display the keys on the visual keyboard
-    // TODO: Complete this.
-    console.log("activeKey: ", activeKey);
-  }, []);
 
   useEffect(() => {
     if (wpm >= 28) {
@@ -84,8 +77,6 @@ export default function ExercisePage({ user }: { user: UserType }) {
     if (currentExercise?.lessonId == 7 && currentExercise.exerciseId == 7) {
       setLastExercise(true);
     }
-
-    console.log("currentExercise: ", currentExercise);
   }, []);
 
   useEffect(() => {
@@ -135,15 +126,21 @@ export default function ExercisePage({ user }: { user: UserType }) {
 
         if (response.ok) {
           const data = await response.json();
-          console.log(data.message);
+          toast.success(data.message);
           setProgressSubmitted(true);
         } else {
           const errorBody = await response.json();
-          console.error("Failed to update progress:", errorBody);
+          // toast.error("Failed to update progress: ");
+          toast.error(errorBody);
           setIsDisabled(true);
         }
       } catch (error: unknown) {
-        console.error("Error updating progress:", error);
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Error updating progress");
+        }
+        // toast.error(error)
         setIsDisabled(true);
       }
     };
@@ -153,7 +150,7 @@ export default function ExercisePage({ user }: { user: UserType }) {
 
   const handleNext = async () => {
     if (!userId) {
-      console.error("User ID is not available yet.");
+      toast.error("User ID is not available yet.");
       return;
     }
 
@@ -175,13 +172,10 @@ export default function ExercisePage({ user }: { user: UserType }) {
   };
 
   const handleTryAgain = async () => {
-    console.log("Hello from handleTryAgain");
-
     // Reset UI state
     setUserInput("");
     setIsDisabled(false);
     setCurrentError(false);
-    setActiveKey("");
     setTimerStarted(false);
 
     setCorrectKeystrokes(0);
@@ -208,7 +202,11 @@ export default function ExercisePage({ user }: { user: UserType }) {
           setIsDisabled(false);
         }
       } catch (error) {
-        console.error("Error fetching exercise: ", error);
+        if (error instanceof Error) {
+          toast.error(error.message);
+        } else {
+          toast.error("Error fetching exercise");
+        }
       }
     };
 
@@ -247,22 +245,7 @@ export default function ExercisePage({ user }: { user: UserType }) {
       setCompleted(true);
       setEndTime(Date.now());
     }
-
-    setActiveKey(value.slice(-1));
   };
-
-  const handleKeyDown = (e: KeyboardEvent) => setActiveKey(e.key);
-  const handleKeyUp = () => setActiveKey("");
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-  }, []);
 
   useEffect(() => {
     if (completed && startTime && endTime) {
@@ -368,8 +351,6 @@ export default function ExercisePage({ user }: { user: UserType }) {
           lessThenTwoTypos={lessThenTwoTypos}
         />
       )}
-      {/* TODO: Need to style this KeyboardComponent better */}
-      {/* <KeyboardComponent activeKey={activeKey} /> */}
     </div>
   );
 }

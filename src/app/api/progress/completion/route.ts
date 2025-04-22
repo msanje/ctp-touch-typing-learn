@@ -7,9 +7,6 @@ export async function GET() {
   try {
     const session = await getServerSession(options);
 
-    /* TODO: Session is returning null */
-    console.log("api/progress/completion: session", session);
-
     if (!session?.user) {
       return NextResponse.json({ iscompleted: false }, { status: 401 });
     }
@@ -26,10 +23,6 @@ export async function GET() {
 
     const isCompleted =
       completedExercises === totalExercises && totalExercises > 0;
-
-    console.log("totalExercises: ", totalExercises);
-    console.log("completedExercises: ", completedExercises);
-    console.log("isCompleted: ", isCompleted);
 
     return NextResponse.json({ isCompleted });
   } catch (error) {

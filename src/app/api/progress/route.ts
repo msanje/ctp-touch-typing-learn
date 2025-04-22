@@ -23,10 +23,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    console.log("userId: ", user.id);
-    console.log("lessonId: ", lessonId);
-    console.log("exerciseId: ", exerciseId);
-
     const existingProgress = await db.progress.findFirst({
       where: {
         userId: user.id,
@@ -34,8 +30,6 @@ export async function POST(req: Request) {
         exerciseId,
       },
     });
-
-    console.log("existingProgress: ", existingProgress);
 
     if (existingProgress) {
       const updatedProgress = await db.progress.update({

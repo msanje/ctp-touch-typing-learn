@@ -6,6 +6,7 @@ import { TypingTestResponse } from "@/types/GlobalTypes";
 import { Redo, Settings, BarChart, Clock } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useRef, useState } from "react";
+import toast from "react-hot-toast";
 
 const TypingTest = () => {
   const [started, setStarted] = useState<boolean>(false);
@@ -83,8 +84,6 @@ const TypingTest = () => {
   }, []);
 
   useEffect(() => {
-    console.log("sentence: ", sentence);
-
     currentCharRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "center",
@@ -124,14 +123,18 @@ const TypingTest = () => {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        console.log("Typing test result saved successfully: ", result);
+        // const result = await response.json();
+        toast.success("Typing test result saved.");
       } else {
         const errorData = await response.json();
-        console.error("Error saving typing test result: ", errorData.error);
+        toast.error(errorData.error || "Something went wrong!");
       }
-    } catch (error) {
-      console.error("Error making request: ", error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Network error. Please try again.");
+      }
     }
   };
 
@@ -160,13 +163,7 @@ const TypingTest = () => {
           : 0;
       setAccuracy(calculateAccuracy);
 
-      // console.log("before: ", finalWpm, accuracy);
-      // saveWpmScore(finalWpm, accuracy);
-      // console.log("after: ", finalWpm, accuracy);
-
-      console.log("before version two: ", finalWpm, accuracy);
       saveWpmScore(wordsPerMinute, calculateAccuracy);
-      console.log("after version two: ", finalWpm, accuracy);
     }
   }, [timer]);
 
@@ -194,7 +191,6 @@ const TypingTest = () => {
       if (value[newCharIndex] === normalizedOriginal[newCharIndex]) {
         setCorrectKeystrokes((prev) => prev + 1);
       } else {
-        console.log("hello from else");
         setIncorrectKeystrokes((prev) => prev + 1);
       }
     }
@@ -269,6 +265,7 @@ const TypingTest = () => {
               </button>
               <button className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-colors">
                 <Settings size={18} />
+                {/* TODO: use this for something */}
                 <span>Settings</span>
               </button>
             </div>
