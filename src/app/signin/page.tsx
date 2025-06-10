@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -11,6 +11,13 @@ const SignInForm = () => {
     const [loading, setLoading] = useState<boolean>(false)
     const [error, setError] = useState<string>('')
     const router = useRouter()
+    const { data: session } = useSession()
+
+    // Redirect if already signed in
+    if (session) {
+        router.push('/learn')
+        return null
+    }
 
     // Handle sign in with custom credentials
     const handleSignIn = async (e: React.FormEvent) => {
@@ -29,6 +36,7 @@ const SignInForm = () => {
         } else {
             // On successful sign-in, redirect to /learn
             router.push('/learn')
+            router.refresh() // Force a refresh to update the session
         }
 
         setLoading(false)

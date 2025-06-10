@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import {
   DropdownMenu,
@@ -6,14 +8,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getServerSession } from "next-auth";
-import { options } from "@/app/api/auth/[...nextauth]/options";
+import { useSession } from "next-auth/react";
 import UserDropdown from "./UserDropdown";
 import Image from "next/image";
 
-export default async function Navbar() {
-  // Fetch user session on the server
-  const session = await getServerSession(options);
+export default function Navbar() {
+  const { data: session } = useSession();
 
   return (
     <nav className="flex items-center justify-between px-16 h-24 bg-white border-b border-gray-200 shadow-sm">
@@ -52,7 +52,7 @@ export default async function Navbar() {
 
       {/* User Profile Section */}
       {session ? (
-        <UserDropdown user={session?.user} />
+        <UserDropdown user={session.user} />
       ) : (
         <DropdownMenu>
           <DropdownMenuTrigger className="text-lg font-semibold text-gray-700 hover:text-blue-600 transition-colors">

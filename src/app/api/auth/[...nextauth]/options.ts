@@ -8,16 +8,16 @@ import "next-auth";
 declare module "next-auth" {
   interface Session {
     user: {
-      id?: string
-      name?: string | null
-      email?: string | null
-    }
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+    };
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    id?: string
+    id?: string;
   }
 }
 
@@ -65,7 +65,11 @@ export const options: NextAuthOptions = {
           return null; // Passwords do not match
         }
 
-        return { id: matchingUser.id, username: matchingUser.username, email: matchingUser.email };
+        return {
+          id: matchingUser.id,
+          username: matchingUser.username,
+          email: matchingUser.email,
+        };
       },
     }),
   ],
@@ -81,10 +85,10 @@ export const options: NextAuthOptions = {
         token.id = user.id;
       }
       return token;
-    }
+    },
   },
   pages: {
     signIn: "/signin",
-    signOut: "/signout"
+    signOut: "/signout",
   },
 };
