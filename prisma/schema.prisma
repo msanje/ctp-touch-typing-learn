@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -57,6 +57,8 @@ model Progress {
   user     User     @relation(fields: [userId], references: [id])
   lesson   Lesson   @relation(fields: [lessonId], references: [id])
   exercise Exercise @relation(fields: [exerciseId], references: [id])
+
+  @@unique([userId, lessonId, exerciseId])
 }
 
 model TypingTestResult {
