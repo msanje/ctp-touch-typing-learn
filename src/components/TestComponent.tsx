@@ -1,207 +1,252 @@
-"use client";
-import Link from "next/link";
-import { useState } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useSession } from "next-auth/react";
-import UserDropdown from "./UserDropdown";
-import Image from "next/image";
+import React from "react";
+import toast from "react-hot-toast";
 
-export default function Navbar() {
-  const { data: session } = useSession();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+type CertificateProps = {
+  userName: string;
+  completionDate: string;
+  courseTitle?: string;
+  wpm?: number;
+  accuracy?: number;
+  certificateId?: string;
+  blurred?: boolean;
+  isPaid?: boolean;
+};
 
-  const navigationItems = [
-    "Typing Test",
-    "Learn",
-    "Progress",
-    "Lessons",
-    "Certificate",
-  ];
+const Certificate: React.FC<CertificateProps> = ({
+  userName,
+  completionDate,
+  courseTitle = "Advanced Touch Typing Mastery",
+  wpm = 80,
+  accuracy = 92,
+  certificateId = "KS-" + Math.random().toString(36).substr(2, 8).toUpperCase(),
+  blurred,
+  isPaid,
+}) => {
+  const certificateRef = React.useRef(null);
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+  console.log("Start -------- ");
+  console.log("userName: ", userName);
+  console.log("completionDate: ", completionDate);
+  console.log("courseTitle: ", courseTitle);
+  console.log("wpm: ", wpm);
+  console.log("accurary: ", accuracy);
+  console.log("certificateId: ", certificateId);
+  console.log("blurred: ", blurred);
+  console.log("isPaid: ", isPaid);
+  console.log("End ----------");
+
+  // THIS CERTIFICATEREF BEING NULL IS THE PROBLEM WITH GENERATING THE CERTIFICATE PDF's
+
+  console.log("certficiateRef from certificate component: ", certificateRef);
+
+  console.log(
+    "certficiateRef.current from certificate component: ",
+    certificateRef.current
+  );
+
+  console.log("userName from certificate component: ", userName);
+
+  const handleDownload = async () => {
+    if (!certificateRef.current) {
+      console.error(
+        "Error: Certificate element not found for PDF conversion. Ref is null."
+      );
+      toast.error("Certificate not ready for download. Please try again.");
+      return;
+    }
+
+    const loadingToastId = toast.loading("Generating PDF...");
+
+    try {
+      const html2pdf = (await import("html2pdf.js")).default;
+
+      console.log("Attempting to generate PDF from:", certificateRef.current);
+
+      html2pdf()
+        .from(certificateRef.current)
+        .set({
+          margin: 0,
+          filename: `${userName}_certificate.pdf`,
+          html2canvas: {
+            scale: 2,
+            useCORS: true,
+          },
+          jsPDF: {
+            unit: "mm",
+            format: "a4",
+            orientation: "portrait",
+          },
+        })
+        .save();
+      toast.dismiss(loadingToastId);
+      toast.success("Certificate downloaded successfully!");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.dismiss(loadingToastId);
+        toast.error(error.message);
+        console.error("Error generating PDF:", error);
+        toast.error("Failed to generate PDF. An unexpected error occurred.");
+      } else {
+        toast.error("Error checking completion or creating certificate.");
+      }
+    }
   };
 
   return (
-    <nav className="flex items-center justify-between px-4 md:px-16 h-24 bg-white border-b border-gray-200 shadow-sm relative">
-      {/* Logo */}
-      <div className="flex items-center cursor-pointer">
-        <Image
-          src={"/keystream_logo.svg"}
-          width={80}
-          height={80}
-          alt="logo"
-          className="md:w-[100px] md:h-[100px]"
-        />
-        <Link href="/">
-          <span className="text-2xl md:text-4xl font-extrabold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent tracking-widest drop-shadow-sm">
-            KEYSTREAM
-          </span>
-        </Link>
-      </div>
-
-      {/* Desktop Navigation Links */}
-      {session?.user && (
-        <div className="hidden xl:flex items-center space-x-10">
-          {navigationItems.map((item) => (
-            <Link
-              key={item}
-              href={`/${item.toLowerCase().replace(/\s/g, "-")}`}
-              className="relative px-4 py-2 text-lg font-semibold text-gray-700 hover:text-blue-600 transition-colors duration-200 group"
-            >
-              {item}
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200" />
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {/* Desktop User Profile Section */}
-      <div className="flex items-center space-x-4">
-        {session ? (
-          <UserDropdown user={session.user} />
-        ) : (
-          <DropdownMenu>
-            <DropdownMenuTrigger className="text-sm md:text-lg font-semibold text-gray-700 hover:text-blue-600 transition-colors">
-              Hey! Log in
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="p-2 shadow-md border rounded-lg">
-              <DropdownMenuItem>
-                <Link
-                  href="/signup"
-                  className="block w-full px-4 md:px-6 py-2 text-white bg-blue-600 hover:bg-blue-500 font-bold text-center rounded-md transition-all duration-200"
-                >
-                  Sign Up
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link
-                  href="/signin"
-                  className="block w-full px-4 md:px-6 py-2 text-white bg-gray-800 hover:bg-gray-700 font-bold text-center rounded-md transition-all duration-200"
-                >
-                  Sign In
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
-
-        {/* Mobile Hamburger Menu Button */}
-        <button
-          onClick={toggleMobileMenu}
-          className="xl:hidden flex flex-col items-center justify-center w-10 h-10 space-y-1 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors duration-200 z-50 relative"
-          aria-label="Toggle mobile menu"
-          type="button"
-        >
-          <span
-            className={`block w-6 h-0.5 bg-gray-700 transition-all duration-300 ${
-              isMobileMenuOpen ? "rotate-45 translate-y-1.5" : ""
-            }`}
-          />
-          <span
-            className={`block w-6 h-0.5 bg-gray-700 transition-all duration-300 ${
-              isMobileMenuOpen ? "opacity-0" : ""
-            }`}
-          />
-          <span
-            className={`block w-6 h-0.5 bg-gray-700 transition-all duration-300 ${
-              isMobileMenuOpen ? "-rotate-45 -translate-y-1.5" : ""
-            }`}
-          />
-        </button>
-      </div>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
+    <>
+      <div className="origin-top mx-auto w-fit">
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 xl:hidden"
-          onClick={toggleMobileMenu}
-        />
-      )}
+          className={blurred ? "blur-sm pointer-events-none select-none" : ""}
+        >
+          <div
+            ref={certificateRef}
+            className="relative bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-none shadow-none w-[210mm] max-h-[297mm] mx-auto overflow-hidden"
+          >
+            {/* Decorative Borders */}
+            <div className="absolute inset-4 border-4 border-double border-yellow-800 rounded-lg"></div>
+            <div className="absolute inset-6 border border-yellow-600 rounded-lg"></div>
 
-      {/* Mobile Menu */}
-      <div
-        className={`fixed top-24 right-0 w-80 bg-white border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out xl:hidden ${
-          isMobileMenuOpen ? "translate-x-0 z-50" : "translate-x-full -z-10"
-        }`}
-      >
-        <div className="flex flex-col p-6 space-y-4">
-          {/* Mobile Navigation Links */}
-          {session?.user && (
-            <div className="flex flex-col space-y-4 border-b border-gray-200 pb-4">
-              <h3 className="text-lg font-semibold text-gray-800">
-                Navigation
-              </h3>
-              {navigationItems.map((item) => (
-                <Link
-                  key={item}
-                  href={`/${item.toLowerCase().replace(/\s/g, "-")}`}
-                  className="block text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition-colors duration-200 py-3 px-2 rounded-md cursor-pointer"
-                  onClick={toggleMobileMenu}
-                >
-                  {item}
-                </Link>
-              ))}
+            {/* Corner Decorations */}
+            <div className="absolute top-8 left-8 w-16 h-16 border-l-4 border-t-4 border-yellow-800 rounded-tl-lg"></div>
+            <div className="absolute top-8 right-8 w-16 h-16 border-r-4 border-t-4 border-yellow-800 rounded-tr-lg"></div>
+            <div className="absolute bottom-8 left-8 w-16 h-16 border-l-4 border-b-4 border-yellow-800 rounded-bl-lg"></div>
+            <div className="absolute bottom-8 right-8 w-16 h-16 border-r-4 border-b-4 border-yellow-800 rounded-br-lg"></div>
+
+            {/* Main Content */}
+            <div className="relative z-10 text-center py-8 px-6">
+              {/* Header */}
+              <div className="mb-6">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-800 rounded-full mb-4">
+                  <span className="text-2xl font-bold text-white">KS</span>
+                </div>
+                <h1 className="text-2xl font-bold text-yellow-800 tracking-wider">
+                  KEYSTREAM ACADEMY
+                </h1>
+                <p className="text-sm text-gray-600 mt-1">
+                  Professional Typing Certification Program
+                </p>
+              </div>
+
+              {/* Certificate Title */}
+              <div className="mb-6">
+                <h2 className="text-4xl font-serif font-bold text-gray-800 mb-2">
+                  CERTIFICATE
+                </h2>
+                <h3 className="text-2xl font-serif text-gray-700">
+                  OF ACHIEVEMENT
+                </h3>
+              </div>
+
+              {/* Award Section */}
+              <div className="mb-6 space-y-4">
+                <p className="text-lg text-gray-700">This is to certify that</p>
+                <div className="border-b-2 border-yellow-800 pb-2 mb-6">
+                  <h4 className="text-3xl font-serif font-bold text-yellow-900 tracking-wide">
+                    {userName}
+                  </h4>
+                </div>
+                <p className="text-lg text-gray-700 max-w-2xl mx-auto leading-relaxed">
+                  has successfully completed the requirements for the
+                </p>
+                <h5 className="text-xl font-semibold text-yellow-800 my-4">
+                  {courseTitle}
+                </h5>
+                <p className="text-lg text-gray-700">
+                  and has demonstrated proficiency in touch typing skills
+                </p>
+              </div>
+
+              {/* Metrics */}
+              {(wpm || accuracy) && (
+                <div className="flex justify-center space-x-8 mb-6">
+                  {wpm && (
+                    <div className="text-center bg-white rounded-lg p-4 shadow-md border border-yellow-200">
+                      <div className="text-2xl font-bold text-yellow-800">
+                        {wpm}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Words Per Minute
+                      </div>
+                    </div>
+                  )}
+                  {accuracy && (
+                    <div className="text-center bg-white rounded-lg p-4 shadow-md border border-yellow-200">
+                      <div className="text-2xl font-bold text-yellow-800">
+                        {accuracy}%
+                      </div>
+                      <div className="text-sm text-gray-600">Accuracy</div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Signature Section */}
+              <div className="flex justify-between items-start px-8 gap-4 mt-6 pt-4">
+                <div className="w-1/3 text-left">
+                  <div className="border-b border-gray-400 w-40 mb-2"></div>
+                  <p className="text-sm text-gray-600">Date of Completion</p>
+                  <p className="font-semibold text-gray-800">
+                    {completionDate}
+                  </p>
+                </div>
+
+                <div className="w-1/3 text-center">
+                  {/* <div className="w-24 h-24 mx-auto mb-2 bg-yellow-100 rounded-full flex items-center justify-center border-2 border-yellow-800">
+                  <div className="text-xs text-yellow-800 font-bold transform -rotate-12">
+                    OFFICIAL
+                  </div>
+                </div> */}
+                  <div className="border-b border-gray-400 w-40 mb-2 mx-auto"></div>
+                  <p className="text-sm text-gray-600">Director</p>
+                  <p className="font-semibold text-gray-800">
+                    KeyStream Academy
+                  </p>
+                </div>
+
+                <div className="w-1/3 text-right">
+                  <div className="border-b border-gray-400 w-40 mb-2 ml-auto"></div>
+                  <p className="text-sm text-gray-600">Certificate ID</p>
+                  <p className="font-mono text-sm text-gray-800 break-words">
+                    {certificateId}
+                  </p>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="mt-6 border-t border-gray-300 text-xs text-gray-500">
+                <p>
+                  This certificate verifies the successful completion of touch
+                  typing proficiency requirements.
+                </p>
+                <p className="mt-1">
+                  Verify authenticity at keystream.com/verify/{certificateId}
+                </p>
+              </div>
+            </div>
+
+            {/* Watermark */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-5">
+              <div className="text-9xl font-bold text-yellow-800 transform rotate-45">
+                KEYSTREAM
+              </div>
+            </div>
+          </div>
+
+          {/* PDF Download Button */}
+          {isPaid && (
+            <div className="text-center mt-4">
+              <button
+                onClick={handleDownload}
+                className="mt-8 bg-yellow-800 text-white px-4 py-2 rounded hover:bg-yellow-700 transition cursor-pointer"
+              >
+                Download PDF
+              </button>
             </div>
           )}
-
-          {/* Mobile User Profile Section */}
-          <div className="flex flex-col space-y-4">
-            {session ? (
-              <div className="flex flex-col space-y-3">
-                <h3 className="text-lg font-semibold text-gray-800">Account</h3>
-                <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                  {session.user.image && (
-                    <Image
-                      src={session.user.image}
-                      alt="Profile"
-                      width={40}
-                      height={40}
-                      className="rounded-full"
-                    />
-                  )}
-                  <div>
-                    <p className="font-medium text-gray-800">
-                      {session.user.name}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      {session.user.email}
-                    </p>
-                  </div>
-                </div>
-                {/* Add any additional user menu items here if needed */}
-              </div>
-            ) : (
-              <div className="flex flex-col space-y-3">
-                <h3 className="text-lg font-semibold text-gray-800">
-                  Get Started
-                </h3>
-                <Link
-                  href="/signup"
-                  className="block w-full px-6 py-3 text-white bg-blue-600 hover:bg-blue-500 font-bold text-center rounded-md transition-all duration-200 cursor-pointer"
-                  onClick={toggleMobileMenu}
-                >
-                  Sign Up
-                </Link>
-                <Link
-                  href="/signin"
-                  className="block w-full px-6 py-3 text-white bg-gray-800 hover:bg-gray-700 font-bold text-center rounded-md transition-all duration-200 cursor-pointer"
-                  onClick={toggleMobileMenu}
-                >
-                  Sign In
-                </Link>
-              </div>
-            )}
-          </div>
         </div>
       </div>
-    </nav>
+    </>
   );
-}
+};
+
+export default Certificate;

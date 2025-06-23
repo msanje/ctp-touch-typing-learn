@@ -24,7 +24,7 @@ export async function GET() {
     const isCompleted =
       completedExercises === totalExercises && totalExercises > 0;
 
-    return NextResponse.json({ isCompleted });
+    return NextResponse.json({ isCompleted, userId });
   } catch (error) {
     console.error("Error in /api/progress/completion:", error);
     return NextResponse.json(
@@ -33,7 +33,7 @@ export async function GET() {
       },
       {
         status: 500,
-      },
+      }
     );
   }
 }

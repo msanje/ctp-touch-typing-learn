@@ -1,11 +1,17 @@
 import React from "react";
-import { Button } from "@/components/ui/button"; // Assuming you're using shadcn/ui
+import { Button } from "./ui/button";
+import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
 
 type CompletePageProps = {
   isCompleted: boolean;
 };
 
-const CompletePage: React.FC<CompletePageProps> = ({ isCompleted }) => {
+export const CompletePage: React.FC<CompletePageProps> = ({ isCompleted }) => {
+  // const userId = fetchUserId();
+  const session = useSession();
+  const userId = session.data?.user.id;
+
   if (!isCompleted) {
     return (
       <div className="flex justify-center items-center h-[60vh]">
@@ -15,6 +21,29 @@ const CompletePage: React.FC<CompletePageProps> = ({ isCompleted }) => {
       </div>
     );
   }
+
+  const buyCertificate = async () => {
+    try {
+      const res = await fetch("/api/certificate/buy", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Failed to purchase");
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Error buying certificate. Please try again later.");
+      }
+    }
+  };
 
   return (
     <div className="flex flex-col justify-center items-center text-center max-w-2xl mx-auto py-12 px-6">
@@ -29,12 +58,13 @@ const CompletePage: React.FC<CompletePageProps> = ({ isCompleted }) => {
           Want to showcase your achievement? Get your official certificate for
           just <span className="font-bold">₹199</span>.
         </p>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-6 py-3 rounded-lg transition-colors">
+        <Button
+          onClick={() => buyCertificate()}
+          className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-6 py-3 rounded-lg transition-colors"
+        >
           Buy Certificate
         </Button>
       </div>
     </div>
   );
 };
-
-export default CompletePage;

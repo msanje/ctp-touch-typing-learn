@@ -71,7 +71,7 @@ export default function ExercisePage({ user }: { user: UserType }) {
   useEffect(() => {
     const currentExercise = getCurrentExercise(
       currentLessonId,
-      currentExerciesId,
+      currentExerciesId
     );
 
     if (currentExercise?.lessonId == 7 && currentExercise.exerciseId == 7) {
@@ -157,12 +157,12 @@ export default function ExercisePage({ user }: { user: UserType }) {
 
     const nextExercise = getNextExercise(
       parseInt(lessonId),
-      parseInt(exerciseId),
+      parseInt(exerciseId)
     );
 
     if (nextExercise) {
       router.push(
-        `/lessons/${nextExercise.lessonId}/${nextExercise.exerciseId}`,
+        `/lessons/${nextExercise.lessonId}/${nextExercise.exerciseId}`
       );
     } else {
       setIsDisabled(true);
@@ -192,7 +192,7 @@ export default function ExercisePage({ user }: { user: UserType }) {
     const fetchExercise = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/lessons/${lessonId}/${exerciseId}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/lessons/${lessonId}/${exerciseId}`
         );
         if (res.ok) {
           const data = await res.json();

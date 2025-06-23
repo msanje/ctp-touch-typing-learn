@@ -50,3 +50,15 @@ export interface ExerciseProgress {
   speed: boolean;
   lessThenTwoTypos: boolean;
 }
+
+export type CertificateData = {
+  hasCertificate: boolean;
+  isPaid: boolean;
+  transactionStatus: string;
+  certificateId: string;
+  title: string;
+  issuedDate: string;
+  wpm: number | null;
+  accuracy: number | null;
+  userName: string;
+};

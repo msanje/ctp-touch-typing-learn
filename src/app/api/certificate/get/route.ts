@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { db } from "@/lib";
 import { getServerSession } from "next-auth";
 import { options } from "../../auth/[...nextauth]/options";
+import { NextResponse } from "next/server";
+import { db } from "@/lib";
 
 export async function GET() {
   try {
@@ -14,7 +14,12 @@ export async function GET() {
 
     const certificate = await db.certificate.findUnique({
       where: { userId },
-      include: { transaction: true },
+      include: { transaction: true, user: true },
+    });
+
+    const latestTest = await db.typingTestResult.findFirst({
+      where: { userId },
+      orderBy: { timestamp: "desc" },
     });
 
     if (!certificate) {
@@ -28,49 +33,17 @@ export async function GET() {
       hasCertificate: true,
       isPaid: certificate.isPaid,
       transactionStatus: certificate.transaction?.status || "PENDING",
+      certificateId: certificate.id,
+      title: certificate.title,
+      issuedDate: certificate.issuedDate,
+      userName: certificate.user.username,
+      wpm: latestTest?.wpm || null,
+      accuracy: latestTest?.accuracy || null,
     });
   } catch (err) {
     console.error(err);
     return NextResponse.json(
       { message: "Something went wrong." },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const userId = body.userId;
-
-    const certificate = await db.certificate.findUnique({
-      where: { userId },
-    });
-
-    if (!certificate) {
-      return NextResponse.json(
-        { message: "Certificate not found." },
-        { status: 404 }
-      );
-    }
-
-    await db.certificate.update({
-      where: { userId },
-      data: {
-        isPaid: true,
-        transaction: {
-          update: {
-            status: "SUCCESS",
-          },
-        },
-      },
-    });
-
-    return NextResponse.json({ message: "Payment marked as successful." });
-  } catch (err) {
-    console.error(err);
-    return NextResponse.json(
-      { message: "Failed to update payment status." },
       { status: 500 }
     );
   }
