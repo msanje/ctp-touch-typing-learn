@@ -88,7 +88,6 @@ export default function ExercisePage({ user }: { user: UserType }) {
         setError((error as Error).message);
         setLoading(false);
       } finally {
-        setError("");
         setLoading(false);
       }
     };
@@ -131,7 +130,7 @@ export default function ExercisePage({ user }: { user: UserType }) {
         } else {
           const errorBody = await response.json();
           // toast.error("Failed to update progress: ");
-          toast.error(errorBody);
+          toast.error(errorBody.message || "Failed to update progress");
           setIsDisabled(true);
         }
       } catch (error: unknown) {
