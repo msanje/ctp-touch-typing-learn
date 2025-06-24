@@ -62,3 +62,15 @@ export type CertificateData = {
   accuracy: number | null;
   userName: string;
 };
+
+export type TypingTestCertificateResponse = {
+  id: string;
+  userId: string;
+  wpm: number;
+  accuracy: number;
+  level: "BEGINNER" | "INTERMEDIATE" | "ADVANCED" | "EXPERT";
+  issuedDate: string;
+  user: {
+    username: string;
+  };
+};

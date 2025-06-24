@@ -9,6 +9,7 @@ import { RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { TypingTestResponse } from "@/types/GlobalTypes";
 import toast from "react-hot-toast";
+import { getTypingLevel, TypingLevel } from "@/helpers/getTypingLevel";
 
 const TypingTestBasic = () => {
   const originalText = lorem;
@@ -31,6 +32,53 @@ const TypingTestBasic = () => {
     useState<TypingTestResponse | null>(null);
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [typingLevel, setTypingLevel] = useState<TypingLevel | null>(null);
+
+  useEffect(() => {
+    if (wpmScore >= 30 && accuracy >= 85) {
+      const typingLevelResult = getTypingLevel(wpmScore, accuracy);
+      setTypingLevel(typingLevelResult);
+    }
+  }, [wpmScore]);
+
+  // TODO: make a post request to create typingtestcertificate
+  const createTypingTestCertificate = async () => {
+    try {
+      const userId = user?.id;
+
+      const response = await fetch("/api/typing-test/certificate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          wpm: wpmScore,
+          accuracy,
+          level: typingLevel,
+        }),
+      });
+
+      if (response.ok) {
+        toast.success("Typing test certificate created.");
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Something went wrong!");
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Network error. Please try again.");
+      }
+    }
+  };
+
+  useEffect(() => {
+    if (isDisabled && user && typingLevel) {
+      createTypingTestCertificate();
+    }
+  }, [isDisabled, user, typingLevel]);
 
   const handleTimeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedTime(parseInt(event.target.value, 10));
@@ -374,6 +422,10 @@ const TypingTestBasic = () => {
                 >
                   Try Again
                 </button>
+                <hr />
+                <Link href={"/typing-test-certificate"}>
+                  Get your Certificate
+                </Link>
               </div>
             </div>
           )}

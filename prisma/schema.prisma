@@ -39,8 +39,9 @@ model User {
 
   certificate Certificate?
 
-  progress         Progress[]
-  TypingTestResult TypingTestResult[]
+  progress          Progress[]
+  TypingTestResult  TypingTestResult[]
+  TypingCertificate TypingTestCertificate[]
 }
 
 model Progress {
@@ -72,21 +73,44 @@ model TypingTestResult {
 }
 
 model Certificate {
-  id         String   @id @default(uuid())
-  title String
-  issuedDate DateTime @default(now())
-  userId     String   @unique
-  isPaid     Boolean  @default(false)
-  isCompleted Boolean @default(false)
+  id          String       @id @default(uuid())
+  title       String
+  issuedDate  DateTime     @default(now())
+  userId      String       @unique
+  isPaid      Boolean      @default(false)
+  isCompleted Boolean      @default(false)
   user        User         @relation(fields: [userId], references: [id])
   transaction Transaction?
 }
 
+enum TypingLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+model TypingTestCertificate {
+  id         String      @id @default(uuid())
+  userId     String
+  wpm        Int
+  accuracy   Float
+  level      TypingLevel
+  issuedDate DateTime    @default(now())
+  user       User        @relation(fields: [userId], references: [id])
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
 model Transaction {
-  id            String      @id @default(uuid())
+  id            String            @id @default(uuid())
   amount        Int
-  status        String // PENDING, SUCCESS, FAILED
-  date          DateTime    @default(now())
-  certificateId String      @unique
-  certificate   Certificate @relation(fields: [certificateId], references: [id])
+  status        TransactionStatus
+  date          DateTime          @default(now())
+  certificateId String            @unique
+  certificate   Certificate       @relation(fields: [certificateId], references: [id])
 }
