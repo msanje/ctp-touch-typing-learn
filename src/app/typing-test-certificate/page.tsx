@@ -1,5 +1,6 @@
 "use client";
 
+import AuthModal from "@/components/AuthModal";
 // import Certificate from "@/components/Certificate";
 import Certificate from "@/components/TestComponent";
 import { TypingTestCertificateResponse } from "@/types/GlobalTypes";
@@ -8,15 +9,12 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function TypingTestCertificatePage() {
+  // const { data: session, status } = useSession();
   const { data: session } = useSession();
   const user = session?.user;
   const [certificate, setCertificate] =
     useState<TypingTestCertificateResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
-  console.log("user frontend: ", user);
-
-  console.log("certificate: ", certificate);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -26,11 +24,7 @@ export default function TypingTestCertificatePage() {
         const res = await fetch(
           `/api/typing-test/certificate?userId=${user?.id}`
         );
-        console.log("res frontent: ", res);
-
         const data = await res.json();
-
-        console.log("data frontend: ", data);
 
         if (!res.ok)
           throw new Error(data.error || "Failed to fetch certificate");
@@ -46,6 +40,15 @@ export default function TypingTestCertificatePage() {
     fetchCertificate();
   }, [user?.id]);
 
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <AuthModal />;
+      </div>
+    );
+  }
+
+  // if (status === "loading") return null;
   if (loading) return <p className="text-center mt-10">Loading Certificate</p>;
   if (!certificate) return <p className="text-center mt-10">No Certificate</p>;
 

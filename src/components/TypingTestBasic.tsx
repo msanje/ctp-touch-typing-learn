@@ -37,6 +37,45 @@ const TypingTestBasic = () => {
   const router = useRouter();
 
   useEffect(() => {
+    if (!user && wpmScore > 0 && typingLevel) {
+      localStorage.setItem(
+        "typing_test_result",
+        JSON.stringify({ wpm: wpmScore, accuracy, level: typingLevel })
+      );
+      localStorage.setItem("redirect_on_login", "true");
+    }
+  }, [user, wpmScore, accuracy, typingLevel]);
+
+  useEffect(() => {
+    if (user) {
+      const savedResult = localStorage.getItem("typing_test_result");
+      const shouldRedirect = localStorage.getItem("redirect_on_login");
+
+      if (savedResult) {
+        const { wpm, accuracy, level } = JSON.parse(savedResult);
+        // send to server
+        fetch("/api/typing-test/certificate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            wpm,
+            accuracy,
+            level,
+          }),
+        }).then(() => {
+          localStorage.removeItem("typing_test_result");
+          localStorage.removeItem("redirect_on_login");
+
+          if (shouldRedirect) router.push("/typing-test-certificate");
+        });
+      }
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (wpmScore >= 30 && accuracy >= 85) {
       const typingLevelResult = getTypingLevel(wpmScore, accuracy);
       setTypingLevel(typingLevelResult);
@@ -416,6 +455,26 @@ const TypingTestBasic = () => {
                       </svg>
                     </Link>
                     <br />
+                    <Link
+                      href={"/signin"}
+                      className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center gap-2"
+                    >
+                      <span>Sign In</span>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 7l5 5m0 0l-5 5m5-5H6"
+                        />
+                      </svg>
+                    </Link>
                   </>
                 )}
                 <button
@@ -425,7 +484,10 @@ const TypingTestBasic = () => {
                   Try Again
                 </button>
                 <hr />
-                <Link href={"/typing-test-certificate"}>
+                <Link
+                  className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center gap-2"
+                  href={"/typing-test-certificate"}
+                >
                   Get your Certificate
                 </Link>
               </div>
