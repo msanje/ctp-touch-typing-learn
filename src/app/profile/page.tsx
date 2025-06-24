@@ -1,11 +1,11 @@
-const Page = ({ }) => {
+import Profile from "@/components/Profile";
 
-    return (
-        <div>
-            <h1>Profile Page</h1>
-            {/* TODO: Do something in this page */}
-        </div>
-    );
+const Page = ({}) => {
+  return (
+    <div>
+      <Profile />
+    </div>
+  );
 };
 
 export default Page;
