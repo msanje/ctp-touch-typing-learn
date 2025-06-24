@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 
 type CertificateProps = {
@@ -16,6 +16,7 @@ const Certificate: React.FC<CertificateProps> = ({
   userName,
   completionDate,
   courseTitle = "Advanced Touch Typing Mastery",
+  // TODO: Get data from backend
   wpm = 80,
   accuracy = 92,
   certificateId = "KS-" + Math.random().toString(36).substr(2, 8).toUpperCase(),
@@ -23,28 +24,7 @@ const Certificate: React.FC<CertificateProps> = ({
   isPaid,
 }) => {
   const certificateRef = React.useRef(null);
-
-  console.log("Start -------- ");
-  console.log("userName: ", userName);
-  console.log("completionDate: ", completionDate);
-  console.log("courseTitle: ", courseTitle);
-  console.log("wpm: ", wpm);
-  console.log("accurary: ", accuracy);
-  console.log("certificateId: ", certificateId);
-  console.log("blurred: ", blurred);
-  console.log("isPaid: ", isPaid);
-  console.log("End ----------");
-
-  // THIS CERTIFICATEREF BEING NULL IS THE PROBLEM WITH GENERATING THE CERTIFICATE PDF's
-
-  console.log("certficiateRef from certificate component: ", certificateRef);
-
-  console.log(
-    "certficiateRef.current from certificate component: ",
-    certificateRef.current
-  );
-
-  console.log("userName from certificate component: ", userName);
+  const [pdfMode, setPdfMode] = useState(false);
 
   const handleDownload = async () => {
     if (!certificateRef.current) {
@@ -56,11 +36,12 @@ const Certificate: React.FC<CertificateProps> = ({
     }
 
     const loadingToastId = toast.loading("Generating PDF...");
+    setPdfMode(true);
+
+    await new Promise((r) => setTimeout(r, 100));
 
     try {
       const html2pdf = (await import("html2pdf.js")).default;
-
-      console.log("Attempting to generate PDF from:", certificateRef.current);
 
       html2pdf()
         .from(certificateRef.current)
@@ -78,17 +59,18 @@ const Certificate: React.FC<CertificateProps> = ({
           },
         })
         .save();
-      toast.dismiss(loadingToastId);
+
       toast.success("Certificate downloaded successfully!");
     } catch (error) {
       if (error instanceof Error) {
-        toast.dismiss(loadingToastId);
         toast.error(error.message);
         console.error("Error generating PDF:", error);
-        toast.error("Failed to generate PDF. An unexpected error occurred.");
       } else {
-        toast.error("Error checking completion or creating certificate.");
+        toast.error("Unexpected error during PDF generation.");
       }
+    } finally {
+      setPdfMode(false);
+      toast.dismiss(loadingToastId);
     }
   };
 
@@ -100,7 +82,7 @@ const Certificate: React.FC<CertificateProps> = ({
         >
           <div
             ref={certificateRef}
-            className="relative bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-none shadow-none w-[210mm] max-h-[297mm] mx-auto overflow-hidden"
+            className="relative bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-none shadow-none w-[210mm] h-[297mm] mx-auto overflow-hidden"
           >
             {/* Decorative Borders */}
             <div className="absolute inset-4 border-4 border-double border-yellow-800 rounded-lg"></div>
@@ -116,8 +98,14 @@ const Certificate: React.FC<CertificateProps> = ({
             <div className="relative z-10 text-center py-8 px-6">
               {/* Header */}
               <div className="mb-6">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-yellow-800 rounded-full mb-4">
-                  <span className="text-2xl font-bold text-white">KS</span>
+                <div className="mx-auto flex items-center justify-center w-20 h-20 bg-yellow-800 rounded-full mb-4">
+                  <span
+                    className={`text-2xl font-bold text-white ${
+                      pdfMode ? "pdf-mode" : ""
+                    }`}
+                  >
+                    KS
+                  </span>
                 </div>
                 <h1 className="text-2xl font-bold text-yellow-800 tracking-wider">
                   KEYSTREAM ACADEMY
@@ -140,10 +128,15 @@ const Certificate: React.FC<CertificateProps> = ({
               {/* Award Section */}
               <div className="mb-6 space-y-4">
                 <p className="text-lg text-gray-700">This is to certify that</p>
-                <div className="border-b-2 border-yellow-800 pb-2 mb-6">
-                  <h4 className="text-3xl font-serif font-bold text-yellow-900 tracking-wide">
+                <div className="flex flex-col items-center mb-6">
+                  <h4
+                    className={`text-3xl font-serif font-bold text-yellow-900 tracking-wide ${
+                      pdfMode ? "pdf-name" : ""
+                    }`}
+                  >
                     {userName}
                   </h4>
+                  <div className="h-[2px] w-full bg-yellow-900 mt-2"></div>
                 </div>
                 <p className="text-lg text-gray-700 max-w-2xl mx-auto leading-relaxed">
                   has successfully completed the requirements for the
@@ -158,62 +151,74 @@ const Certificate: React.FC<CertificateProps> = ({
 
               {/* Metrics */}
               {(wpm || accuracy) && (
-                <div className="flex justify-center space-x-8 mb-6">
-                  {wpm && (
-                    <div className="text-center bg-white rounded-lg p-4 shadow-md border border-yellow-200">
+                <div className="flex justify-center gap-8 mb-6">
+                  {wpm !== undefined && (
+                    <div className="flex flex-col items-center justify-center w-36 h-24 bg-white rounded-lg p-4 shadow-md border border-yellow-200">
                       <div className="text-2xl font-bold text-yellow-800">
                         {wpm}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 mt-1">
                         Words Per Minute
                       </div>
                     </div>
                   )}
-                  {accuracy && (
-                    <div className="text-center bg-white rounded-lg p-4 shadow-md border border-yellow-200">
+                  {accuracy !== undefined && (
+                    <div className="flex flex-col items-center justify-center w-36 h-24 bg-white rounded-lg p-4 shadow-md border border-yellow-200">
                       <div className="text-2xl font-bold text-yellow-800">
                         {accuracy}%
                       </div>
-                      <div className="text-sm text-gray-600">Accuracy</div>
+                      <div className="text-sm text-gray-600 mt-1">Accuracy</div>
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Signature Section */}
-              <div className="flex justify-between items-start px-8 gap-4 mt-6 pt-4">
-                <div className="w-1/3 text-left">
-                  <div className="border-b border-gray-400 w-40 mb-2"></div>
-                  <p className="text-sm text-gray-600">Date of Completion</p>
-                  <p className="font-semibold text-gray-800">
-                    {completionDate}
-                  </p>
-                </div>
+              <div className="flex justify-between items-start px-6">
+                <p className="text-base text-gray-700 leading-relaxed">
+                  This certificate is presented in recognition of outstanding
+                  dedication and consistent effort in mastering the art of touch
+                  typing. The recipient has demonstrated remarkable precision,
+                  speed, and attention to detail — key qualities essential for
+                  efficient and professional digital communication.
+                </p>
+              </div>
 
-                <div className="w-1/3 text-center">
-                  {/* <div className="w-24 h-24 mx-auto mb-2 bg-yellow-100 rounded-full flex items-center justify-center border-2 border-yellow-800">
-                  <div className="text-xs text-yellow-800 font-bold transform -rotate-12">
-                    OFFICIAL
+              <div className="flex flex-row justify-around">
+                {/* Signature Section */}
+                <div className="flex justify-between items-start px-8 gap-4 mt-6 pt-4">
+                  <div className="w-1/3 text-left">
+                    <div className="border-b border-gray-400 w-40 mb-2"></div>
+                    <p className="text-sm text-gray-600">Date of Completion</p>
+                    <p className="font-semibold text-gray-800">
+                      {completionDate}
+                    </p>
                   </div>
-                </div> */}
-                  <div className="border-b border-gray-400 w-40 mb-2 mx-auto"></div>
-                  <p className="text-sm text-gray-600">Director</p>
-                  <p className="font-semibold text-gray-800">
-                    KeyStream Academy
-                  </p>
-                </div>
 
-                <div className="w-1/3 text-right">
-                  <div className="border-b border-gray-400 w-40 mb-2 ml-auto"></div>
-                  <p className="text-sm text-gray-600">Certificate ID</p>
-                  <p className="font-mono text-sm text-gray-800 break-words">
-                    {certificateId}
-                  </p>
+                  <div className="w-1/3 text-center">
+                    <div className="w-16 h-16 mx-auto mb-2 bg-yellow-100 rounded-full flex items-center justify-center border border-yellow-800">
+                      <div className="text-[10px] text-yellow-800 font-bold transform -rotate-12">
+                        OFFICIAL
+                      </div>
+                    </div>
+                    <div className="border-b border-gray-400 w-40 mb-2 mx-auto"></div>
+                    <p className="text-sm text-gray-600">Director</p>
+                    <p className="font-semibold text-gray-800">
+                      KeyStream Academy
+                    </p>
+                  </div>
+
+                  <div className="w-1/3 text-right">
+                    <div className="border-b border-gray-400 w-40 mb-2 ml-auto"></div>
+                    <p className="text-sm text-gray-600">Certificate ID</p>
+                    <p className="font-mono text-sm text-gray-800 break-words">
+                      {certificateId}
+                    </p>
+                  </div>
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="mt-6 border-t border-gray-300 text-xs text-gray-500">
+              <div className="mt-2 border-t border-gray-300 text-xs text-gray-500">
                 <p>
                   This certificate verifies the successful completion of touch
                   typing proficiency requirements.

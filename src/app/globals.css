@@ -6,6 +6,30 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+@media screen {
+  .pdf-fix {
+    margin-top: 0 !important;
+    line-height: normal !important;
+  }
+}
+
+@media print {
+  .pdf-fix {
+    margin-top: -1.25rem !important;
+    line-height: 1 !important;
+  }
+}
+
+.pdf-mode {
+  margin-top: -1.25rem !important; /* same as -mt-5 */
+  line-height: 1 !important; /* same as leading-none */
+}
+
+.pdf-name {
+  font-weight: 700 !important;
+  margin-bottom: 0.5rem;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

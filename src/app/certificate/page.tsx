@@ -13,8 +13,6 @@ export default function Page() {
     useState<CertificateData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  console.log("certificateData from app/certificate page: ", certificateData);
-
   useEffect(() => {
     const checkCompletion = async () => {
       setIsLoading(true);

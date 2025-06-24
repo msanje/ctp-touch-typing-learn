@@ -27,7 +27,7 @@ export default function ResultsModal({
   const nextButtonRef = useRef<HTMLButtonElement>(null);
 
   const accuracyInPercentage = Math.round(
-    (correctKeyStrokes / (correctKeyStrokes + typos)) * 100,
+    (correctKeyStrokes / (correctKeyStrokes + typos)) * 100
   );
 
   useEffect(() => {
@@ -107,7 +107,8 @@ export default function ResultsModal({
             <>
               {lastExercise ? (
                 <a
-                  href="/complete"
+                  // href="/complete"
+                  href="/certificate"
                   className="px-6 py-2 text-lg font-semibold text-white bg-green-500 border-2 border-green-600 rounded-lg hover:bg-green-600 transition-all shadow-md"
                 >
                   Certification
