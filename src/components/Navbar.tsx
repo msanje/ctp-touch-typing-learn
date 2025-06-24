@@ -128,7 +128,7 @@ export default function Navbar() {
       {/* Mobile Menu */}
       <div
         className={`fixed top-24 right-0 w-80 bg-white border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out xl:hidden ${
-          isMobileMenuOpen ? "translate-x-0 z-50" : "-translate-x-full -z-10"
+          isMobileMenuOpen ? "translate-x-0 z-50" : "hidden"
         }`}
       >
         <div className="flex flex-col p-6 space-y-4">
