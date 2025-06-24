@@ -1,10 +1,12 @@
 "use client";
 
+import { getTypingLevel, TypingLevel } from "@/helpers/getTypingLevel";
 import { lorem } from "@/helpers/paragraph";
 import { checkWpm } from "@/helpers/wpm";
 import { TypingTestResponse } from "@/types/GlobalTypes";
 import { Redo, Settings, BarChart, Clock } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -27,6 +29,50 @@ const TypingTest = () => {
   const [error, setError] = useState<string>("");
   const { data: session } = useSession();
   const user = session?.user;
+  const [typingLevel, setTypingLevel] = useState<TypingLevel | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!wpm) return;
+
+    if (wpm >= 30 && accuracy >= 85) {
+      const typingLevelResult = getTypingLevel(wpm, accuracy);
+      setTypingLevel(typingLevelResult);
+    }
+  }, [wpm]);
+
+  const createTypingTestCertificate = async () => {
+    try {
+      const userId = user?.id;
+
+      const response = await fetch("/api/typing-test/certificate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          wpm: wpm,
+          accuracy,
+          level: typingLevel,
+        }),
+      });
+
+      if (response.ok) {
+        toast.success("Typing test certificate created.");
+        router.push("/typing-test-certificate");
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Something went wrong!");
+      }
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Network error. Please try again.");
+      }
+    }
+  };
 
   // Starting the timer when test begins
   useEffect(() => {
@@ -164,6 +210,10 @@ const TypingTest = () => {
       setAccuracy(calculateAccuracy);
 
       saveWpmScore(wordsPerMinute, calculateAccuracy);
+
+      if (wordsPerMinute >= 30 && calculateAccuracy >= 85) {
+        createTypingTestCertificate();
+      }
     }
   }, [timer]);
 
@@ -275,7 +325,9 @@ const TypingTest = () => {
           <div className="relative w-full h-64 bg-white rounded-lg border border-gray-200 shadow-lg overflow-auto mb-4">
             <div
               ref={sentenceRef}
-              className={`p-6 leading-relaxed text-3xl transition-all duration-300 ${!started ? "blur-sm select-none" : "blur-none"}`}
+              className={`p-6 leading-relaxed text-3xl transition-all duration-300 ${
+                !started ? "blur-sm select-none" : "blur-none"
+              }`}
             >
               {charStates.map(({ char, isCorrect, isTyped }, index) => {
                 const isCurrent = index === input.length;

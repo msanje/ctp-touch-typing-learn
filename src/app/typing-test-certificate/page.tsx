@@ -26,7 +26,11 @@ export default function TypingTestCertificatePage() {
         const res = await fetch(
           `/api/typing-test/certificate?userId=${user?.id}`
         );
+        console.log("res frontent: ", res);
+
         const data = await res.json();
+
+        console.log("data frontend: ", data);
 
         if (!res.ok)
           throw new Error(data.error || "Failed to fetch certificate");

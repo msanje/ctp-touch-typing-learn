@@ -5,10 +5,9 @@ export async function POST(req: Request) {
   try {
     const { userId, wpm, accuracy, level } = await req.json();
 
-    console.log("userId typing-test/certificate/route.ts: ", userId);
-    console.log("wpm typing-test/certificate/route.ts: ", wpm);
-    console.log("accuracy typing-test/certificate/route.ts: ", accuracy);
-    console.log("level typing-test/certificate/route.ts: ", level);
+    console.log("userId: ", userId);
+    console.log("wpm: ", wpm);
+    console.log("level: ", level);
 
     if (!userId) {
       return NextResponse.json(
@@ -33,10 +32,18 @@ export async function POST(req: Request) {
     });
 
     if (existing) {
-      return NextResponse.json(
-        { message: "Certificate already exists for this level." },
-        { status: 200 }
-      );
+      const updated = await db.typingTestCertificate.update({
+        where: { id: existing.id },
+        data: {
+          wpm,
+          accuracy,
+        },
+      });
+
+      return NextResponse.json({
+        message: "Certificate updated for this level.",
+        typingTestResult: updated,
+      });
     }
 
     const typingTestResult = await db.typingTestCertificate.create({
@@ -78,6 +85,9 @@ export async function GET(req: Request) {
     const typingTestCertificate = await db.typingTestCertificate.findFirst({
       where: {
         userId: userId,
+      },
+      orderBy: {
+        updatedAt: "desc",
       },
       include: {
         user: {

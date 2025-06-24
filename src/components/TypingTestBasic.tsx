@@ -10,6 +10,7 @@ import Link from "next/link";
 import { TypingTestResponse } from "@/types/GlobalTypes";
 import toast from "react-hot-toast";
 import { getTypingLevel, TypingLevel } from "@/helpers/getTypingLevel";
+import { useRouter } from "next/navigation";
 
 const TypingTestBasic = () => {
   const originalText = lorem;
@@ -33,6 +34,7 @@ const TypingTestBasic = () => {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [typingLevel, setTypingLevel] = useState<TypingLevel | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (wpmScore >= 30 && accuracy >= 85) {
@@ -41,7 +43,6 @@ const TypingTestBasic = () => {
     }
   }, [wpmScore]);
 
-  // TODO: make a post request to create typingtestcertificate
   const createTypingTestCertificate = async () => {
     try {
       const userId = user?.id;
@@ -61,6 +62,7 @@ const TypingTestBasic = () => {
 
       if (response.ok) {
         toast.success("Typing test certificate created.");
+        router.push("/typing-test-certificate");
       } else {
         const errorData = await response.json();
         toast.error(errorData.error || "Something went wrong!");
