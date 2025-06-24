@@ -11,6 +11,8 @@ import { TypingTestResponse } from "@/types/GlobalTypes";
 import toast from "react-hot-toast";
 import { getTypingLevel, TypingLevel } from "@/helpers/getTypingLevel";
 import { useRouter } from "next/navigation";
+import { Button } from "./ui/button";
+import { useAuthModal } from "@/hooks/useAuthModal";
 
 const TypingTestBasic = () => {
   const originalText = lorem;
@@ -35,6 +37,11 @@ const TypingTestBasic = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [typingLevel, setTypingLevel] = useState<TypingLevel | null>(null);
   const router = useRouter();
+  const { open, isOpen } = useAuthModal();
+
+  useEffect(() => {
+    console.log("isDisabled: ", isDisabled);
+  }, [isDisabled]);
 
   useEffect(() => {
     if (!user && wpmScore > 0 && typingLevel) {
@@ -428,14 +435,14 @@ const TypingTestBasic = () => {
                   {accuracy}%{" "}
                   <span className="text-lg text-gray-500">Accuracy</span>
                 </div>
-                {!user && (
+                {!user && !isOpen && (
                   <>
                     <p className="text-gray-600 text-sm mb-5">
                       Create an account to save your results and track your
                       progress!
                     </p>
-                    <Link
-                      href={"/signup"}
+                    <Button
+                      onClick={() => open("signup")}
                       className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center gap-2"
                     >
                       <span>Sign Up</span>
@@ -453,10 +460,10 @@ const TypingTestBasic = () => {
                           d="M13 7l5 5m0 0l-5 5m5-5H6"
                         />
                       </svg>
-                    </Link>
+                    </Button>
                     <br />
-                    <Link
-                      href={"/signin"}
+                    <Button
+                      onClick={() => open("signin")}
                       className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-300 ease-in-out flex items-center justify-center gap-2"
                     >
                       <span>Sign In</span>
@@ -474,7 +481,7 @@ const TypingTestBasic = () => {
                           d="M13 7l5 5m0 0l-5 5m5-5H6"
                         />
                       </svg>
-                    </Link>
+                    </Button>
                   </>
                 )}
                 <button

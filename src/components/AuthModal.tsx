@@ -3,23 +3,59 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
+import toast from "react-hot-toast";
 
 type AuthModalProps = {
   onClose?: () => void;
+  type: "signin" | "signup";
 };
 
-export default function AuthModal({ onClose }: AuthModalProps) {
+export default function AuthModal({
+  onClose,
+  type: initialType,
+}: AuthModalProps) {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [type, setType] = useState<"signin" | "signup">(initialType);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    if (type === "signup") {
+      if (password !== confirmPassword) {
+        setError("Passwords do not match.");
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      if (!res.ok) {
+        try {
+          const data = await res.json();
+          setError(data.message || "Failed to sign up.");
+        } catch (error) {
+          if (error instanceof Error) {
+            toast.error(error.message);
+          } else {
+            toast.error("Failed to sign up.");
+          }
+        }
+        setLoading(false);
+        return;
+      }
+    }
 
     const response = await signIn("credentials", {
       redirect: false,
@@ -30,10 +66,9 @@ export default function AuthModal({ onClose }: AuthModalProps) {
     if (response?.error) {
       setError("Invalid credentials. Please try again.");
     } else {
-      // TODO:
-      // onClose();
       router.push("/typing-test-certificate");
       router.refresh();
+      onClose?.();
     }
 
     setLoading(false);
@@ -47,7 +82,11 @@ export default function AuthModal({ onClose }: AuthModalProps) {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Sign In to View Certificate</h2>
+          <h2 className="text-xl font-semibold">
+            {type === "signin"
+              ? "Sign In to View Certificate"
+              : "Create an Account"}
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-800 font-bold text-xl"
@@ -74,6 +113,27 @@ export default function AuthModal({ onClose }: AuthModalProps) {
             required
           />
 
+          {type === "signup" && (
+            <>
+              <input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border border-gray-300 p-2 rounded"
+                required
+              />
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full border border-gray-300 p-2 rounded"
+                required
+              />
+            </>
+          )}
+
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
           <button
@@ -81,7 +141,13 @@ export default function AuthModal({ onClose }: AuthModalProps) {
             disabled={loading}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded font-semibold"
           >
-            {loading ? "Signing In..." : "Sign In"}
+            {loading
+              ? type === "signup"
+                ? "Signing Up..."
+                : "Signing In..."
+              : type === "signup"
+              ? "Sign Up"
+              : "Sign In"}
           </button>
         </form>
 
@@ -101,10 +167,13 @@ export default function AuthModal({ onClose }: AuthModalProps) {
 
         <div className="mt-4 text-center">
           <p className="text-sm">
-            New here?{" "}
-            <Link href="/signup" className="text-blue-600 hover:underline">
-              Sign Up
-            </Link>
+            <button
+              type="button"
+              onClick={() => setType(type === "signin" ? "signup" : "signin")}
+              className="text-blue-600 hover:underline"
+            >
+              {type === "signin" ? "Sign Up" : "Sign In"}
+            </button>
           </p>
         </div>
       </div>

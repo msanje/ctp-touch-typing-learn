@@ -6,6 +6,10 @@ export async function POST(req: NextRequest) {
   try {
     const { username, email, password } = await req.json();
 
+    console.log("username: ", username);
+    console.log("emal: ", email);
+    console.log("password: ", password);
+
     // Validate user input (example)
     if (!username || !email || !password) {
       return NextResponse.json(
@@ -18,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     if (exists) {
       return NextResponse.json(
-        { message: "Username already exists" },
+        { message: "Email already registered" },
         { status: 400 }
       );
     }
@@ -34,7 +38,10 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(
-      { message: "User registered.", user: { id: user.id, username: user.username, email: user.email } },
+      {
+        message: "User registered.",
+        user: { id: user.id, username: user.username, email: user.email },
+      },
       { status: 201, headers: { "Content-Type": "application/json" } }
     );
   } catch (error) {

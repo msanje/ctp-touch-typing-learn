@@ -43,7 +43,7 @@ export default function TypingTestCertificatePage() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <AuthModal />;
+        <AuthModal type={"signin"} />;
       </div>
     );
   }
