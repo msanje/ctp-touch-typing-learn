@@ -1,7 +1,11 @@
-const page = ({ }) => {
-    return <div>
-        <h1>Settings page</h1>
-    </div>
-}
+import Settings from "@/components/Settings";
 
-export default page
+const page = ({}) => {
+  return (
+    <div>
+      <Settings />
+    </div>
+  );
+};
+
+export default page;
