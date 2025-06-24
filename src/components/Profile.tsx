@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import {
-  User,
   Trophy,
-  Target,
   Calendar,
   Clock,
   Zap,
