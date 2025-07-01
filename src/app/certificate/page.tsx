@@ -106,6 +106,8 @@ export default function Page() {
       {/* TODO: Fetch attributes from backend */}
       {isCompleted && certificateData && (
         <Certificate
+          // TODO: use it - pass the right thing
+          type="COURSE"
           userName={certificateData!.userName}
           completionDate={new Date(
             certificateData!.issuedDate

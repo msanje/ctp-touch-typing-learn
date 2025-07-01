@@ -30,7 +30,12 @@ const TypingTest = () => {
   const { data: session } = useSession();
   const user = session?.user;
   const [typingLevel, setTypingLevel] = useState<TypingLevel | null>(null);
+  const [disabled, setDisabled] = useState<boolean>(false);
   const router = useRouter();
+
+  useEffect(() => {
+    console.log("disabled: ", disabled);
+  }, [disabled]);
 
   useEffect(() => {
     if (!wpm) return;
@@ -193,6 +198,7 @@ const TypingTest = () => {
       totalKeystrokes > 0
         ? Math.round((correctKeyStrokes / totalKeystrokes) * 100)
         : 0;
+
     setAccuracy(calculateAccuracy);
   }, [input, correctKeyStrokes, incorrectKeyStrokes]);
 
@@ -207,6 +213,7 @@ const TypingTest = () => {
         totalKeystrokes > 0
           ? Math.round((correctKeyStrokes / totalKeystrokes) * 100)
           : 0;
+
       setAccuracy(calculateAccuracy);
 
       saveWpmScore(wordsPerMinute, calculateAccuracy);
@@ -241,12 +248,45 @@ const TypingTest = () => {
       if (value[newCharIndex] === normalizedOriginal[newCharIndex]) {
         setCorrectKeystrokes((prev) => prev + 1);
       } else {
+        setDisabled(true);
         setIncorrectKeystrokes((prev) => prev + 1);
       }
     }
 
     setInput(value);
   };
+
+  // Handle backspace keydown
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      // if (e.key === "Backspace" && (!started || timer === 0 || disabled)) {
+      if (e.key === "Backspace") {
+        if (!disabled) {
+          // Prevent all backspace behavior if not disabled
+          e.preventDefault();
+          return;
+        }
+
+        const lastIndex = input.length - 1;
+        const expectedChar = sentence.trim()[lastIndex];
+        const typedChar = input[lastIndex];
+
+        if (typedChar !== expectedChar) {
+          e.preventDefault();
+          setInput((prev) => prev.slice(0, -1));
+          setDisabled(false);
+          setIncorrectKeystrokes((prev) => Math.max(prev - 1, 0));
+        } else {
+          // Don't allow deletion of correct characters
+          e.preventDefault();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+
+    return () => window.removeEventListener("keydown", handler);
+  }, [started, timer, disabled, input]);
 
   const handleStart = () => {
     setStarted(true);
@@ -369,12 +409,13 @@ const TypingTest = () => {
             className="w-full p-4 border border-gray-300 rounded-lg text-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all mb-4"
             value={input}
             onChange={handleInput}
-            disabled={!started || timer === 0}
+            // disabled={!started || timer === 0 || disabled}
             placeholder={
-              started ? "Type here..." : "Click 'Start' to begin the test"
+              started ? "Type here..." : "Click Start to begin the test"
             }
             autoComplete="off"
             autoFocus
+            readOnly={!started || timer === 0 || disabled}
           />
 
           {/* Test Completion Overlay */}

@@ -4,9 +4,12 @@ export function getTypingLevel(
   wpm: number,
   accuracy: number
 ): TypingLevel | null {
-  if (wpm >= 90 && accuracy >= 97) return "EXPERT";
-  if (wpm >= 60 && accuracy >= 95) return "ADVANCED";
+  if (accuracy < 85) return "BEGINNER";
+
+  if (wpm >= 100 && accuracy >= 97) return "EXPERT";
+  if (wpm >= 80 && accuracy >= 92) return "ADVANCED";
   if (wpm >= 50 && accuracy >= 90) return "INTERMEDIATE";
-  if (wpm >= 30 && accuracy >= 85) return "BEGINNER";
+  if (wpm >= 35 && accuracy >= 85) return "BEGINNER";
+
   return null;
 }

@@ -1,8 +1,8 @@
 "use client";
 
 import AuthModal from "@/components/AuthModal";
+import TypingTestCertificate from "@/components/TypingTestCertificate";
 // import Certificate from "@/components/Certificate";
-import Certificate from "@/components/TestComponent";
 import { TypingTestCertificateResponse } from "@/types/GlobalTypes";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -52,8 +52,11 @@ export default function TypingTestCertificatePage() {
   if (loading) return <p className="text-center mt-10">Loading Certificate</p>;
   if (!certificate) return <p className="text-center mt-10">No Certificate</p>;
 
+  // TODO: Conditional render TypingTestCertificate or
+  // Certificate (for the course completion)
+
   return (
-    <Certificate
+    <TypingTestCertificate
       userName={certificate.user.username}
       completionDate={new Date(certificate.issuedDate).toLocaleDateString()}
       wpm={certificate.wpm}

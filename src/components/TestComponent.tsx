@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 
+type CertificateType = "COURSE" | "TYPINGTEST";
+
 type CertificateProps = {
   userName: string;
   completionDate: string;
@@ -10,6 +12,7 @@ type CertificateProps = {
   certificateId?: string;
   blurred?: boolean;
   isPaid?: boolean;
+  type: CertificateType;
 };
 
 const Certificate: React.FC<CertificateProps> = ({
@@ -22,9 +25,13 @@ const Certificate: React.FC<CertificateProps> = ({
   certificateId = "KS-" + Math.random().toString(36).substr(2, 8).toUpperCase(),
   blurred,
   isPaid,
+  type,
 }) => {
   const certificateRef = React.useRef(null);
   const [pdfMode, setPdfMode] = useState(false);
+
+  // TODO: Remove this - use it
+  console.log("type: ", type);
 
   const handleDownload = async () => {
     if (!certificateRef.current) {
