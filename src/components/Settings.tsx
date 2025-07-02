@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   User,
   Keyboard,
@@ -11,10 +11,89 @@ import {
   Cog,
   Eye,
   EyeOff,
+  Pencil,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { useSession } from "next-auth/react";
+
+type UserCredentials = {
+  id: string;
+  username: string;
+  email: string;
+  password: string;
+};
 
 const Settings = () => {
+  const [isEditingUsername, setIsEditingUsername] = useState<boolean>(false);
+  const [isEditingEmail, setIsEditingEmail] = useState<boolean>(false);
+  const [isEditingPassword, setIsEditingPassword] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
+  const [userCredentials, setUserCredentials] =
+    useState<UserCredentials | null>(null);
+  const { data: session } = useSession();
+  const user = session?.user;
+
+  console.log("user: ", user);
+
+  console.log("userCredentials: ", userCredentials);
+
+  const settingsSchema = z.object({
+    username: z.string().min(8, "Username must be at least 8 characters long"),
+    email: z.string().email("Invalid email"),
+    password: z.string().min(8, "Password must be at least 8 characters long"),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(settingsSchema),
+  });
+
+  // - [ ] Form handling: react-hook-form
+  // - [ ] Validation: zod
+  // - [ ] API call: fetch with a centralized util
+  // - [ ] UI feedback: loading, disabled, error messages
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await fetch("/api/user");
+      const data = await res.json();
+      setUserCredentials(data);
+    };
+
+    fetchUser();
+  }, []);
+
+  const onSubmit = async (data: z.infer<typeof settingsSchema>) => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/updateuser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const { message } = await response.json();
+        alert(message || "Failed to update");
+        return;
+      }
+
+      alert("Update successful");
+      router.push("/signin");
+    } catch (error) {
+      alert("Error updating user");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4">
@@ -30,62 +109,132 @@ const Settings = () => {
 
         <div className="grid gap-8 md:grid-cols-2">
           {/* User Profile */}
-          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center mb-4">
-              <User className="w-5 h-5 text-blue-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">
-                User Profile
-              </h2>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Username
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter your username"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-center mb-4">
+                <User className="w-5 h-5 text-blue-600 mr-2" />
+                <h2 className="text-xl font-semibold text-gray-900">
+                  User Profile
+                </h2>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Change Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter new password"
-                    className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? (
-                      <EyeOff className="w-4 h-4" />
-                    ) : (
-                      <Eye className="w-4 h-4" />
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Username
+                  </label>
+
+                  <div className="relative">
+                    <input
+                      {...register("username")}
+                      type="text"
+                      // placeholder="Enter your username"
+                      placeholder={
+                        userCredentials?.username || "Enter your username"
+                      }
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      disabled={!!userCredentials?.username}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingUsername(!isEditingUsername)}
+                    >
+                      <Pencil
+                        size={"15"}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                      />
+                    </button>
+                  </div>
+                  {errors.username && (
+                    <p className="text-red-500">{errors.username.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <div className="relative">
+                    <input
+                      {...register("email")}
+                      type="email"
+                      placeholder={userCredentials?.email || "Enter your email"}
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      disabled={!!userCredentials?.email}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingEmail(!isEditingEmail)}
+                    >
+                      <Pencil
+                        size={"15"}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                      />
+                    </button>
+                  </div>
+                  {errors.email && (
+                    <p className="text-red-500">{errors.email.message}</p>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Change Password
+                  </label>
+                  <div className="relative">
+                    <input
+                      {...register("password")}
+                      type={showPassword ? "text" : "password"}
+                      placeholder={
+                        userCredentials?.password
+                          ? "************"
+                          : "Enter your password"
+                      }
+                      className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      disabled={!!userCredentials?.password}
+                    />
+                    {errors.password && (
+                      <p className="text-red-500">{errors.password.message}</p>
                     )}
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingPassword(!isEditingPassword)}
+                    >
+                      <Pencil
+                        size={"15"}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                      />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-10 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col w-full gap-3 mt-4">
+                  <button
+                    type="submit"
+                    className={`w-full py-2 px-4 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors font-semibold `}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Updating..." : "Update Credentials"}
+                  </button>
+
+                  <button className="w-full py-2 px-4 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition-colors font-semibold">
+                    Delete Account
                   </button>
                 </div>
               </div>
-              <button className="text-red-600 hover:text-red-700 font-medium transition-colors">
-                Delete Account
-              </button>
-            </div>
-          </section>
+            </section>
+          </form>
 
           {/* Typing Preferences */}
           <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">

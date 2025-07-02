@@ -6,6 +6,7 @@ import { checkWpm } from "@/helpers/wpm";
 import { TypingTestResponse } from "@/types/GlobalTypes";
 import { Redo, Settings, BarChart, Clock } from "lucide-react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -353,11 +354,13 @@ const TypingTest = () => {
                 <Redo size={18} />
                 <span>Restart</span>
               </button>
-              <button className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-colors">
-                <Settings size={18} />
-                {/* TODO: use this for something */}
-                <span>Settings</span>
-              </button>
+              <Link href={"/settings"}>
+                <button className="flex items-center space-x-1 text-gray-500 hover:text-gray-700 transition-colors">
+                  <Settings size={18} />
+                  {/* TODO: use this for something */}
+                  <span>Settings</span>
+                </button>
+              </Link>
             </div>
           </div>
 
