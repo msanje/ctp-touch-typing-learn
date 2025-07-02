@@ -38,9 +38,9 @@ const Settings = () => {
   const { data: session } = useSession();
   const user = session?.user;
 
-  console.log("user: ", user);
-
-  console.log("userCredentials: ", userCredentials);
+  useEffect(() => {
+    console.log(isEditingUsername, isEditingEmail, isEditingPassword);
+  }, [isEditingUsername, isEditingEmail, isEditingPassword]);
 
   const settingsSchema = z.object({
     username: z.string().min(8, "Username must be at least 8 characters long"),
@@ -132,7 +132,8 @@ const Settings = () => {
                         userCredentials?.username || "Enter your username"
                       }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      disabled={!!userCredentials?.username}
+                      // disabled={!!userCredentials?.username}
+                      disabled={!isEditingUsername}
                     />
 
                     <button
@@ -141,7 +142,11 @@ const Settings = () => {
                     >
                       <Pencil
                         size={"15"}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                        className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${
+                          isEditingUsername
+                            ? "text-blue-600"
+                            : "text-gray-400 hover:text-gray-600"
+                        }`}
                       />
                     </button>
                   </div>
@@ -159,7 +164,8 @@ const Settings = () => {
                       type="email"
                       placeholder={userCredentials?.email || "Enter your email"}
                       className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      disabled={!!userCredentials?.email}
+                      // disabled={!!userCredentials?.email}
+                      disabled={!isEditingEmail}
                     />
 
                     <button
@@ -168,7 +174,11 @@ const Settings = () => {
                     >
                       <Pencil
                         size={"15"}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                        className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${
+                          isEditingEmail
+                            ? "text-blue-600"
+                            : "text-gray-400 hover:text-gray-600"
+                        }`}
                       />
                     </button>
                   </div>
@@ -190,7 +200,8 @@ const Settings = () => {
                           : "Enter your password"
                       }
                       className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      disabled={!!userCredentials?.password}
+                      // disabled={!!userCredentials?.password}
+                      disabled={!isEditingPassword}
                     />
                     {errors.password && (
                       <p className="text-red-500">{errors.password.message}</p>
@@ -201,7 +212,11 @@ const Settings = () => {
                     >
                       <Pencil
                         size={"15"}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                        className={`absolute right-3 top-1/2 -translate-y-1/2 transition-colors ${
+                          isEditingPassword
+                            ? "text-blue-600"
+                            : "text-gray-400 hover:text-gray-600"
+                        }`}
                       />
                     </button>
 

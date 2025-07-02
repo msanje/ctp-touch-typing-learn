@@ -1,10 +1,18 @@
 import { db } from "@/lib/index";
 import bcrypt from "bcryptjs";
+import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import { options } from "../auth/[...nextauth]/options";
 
 export async function POST(req: Request) {
+  const session = await getServerSession(options);
+
+  if (!session || !session.user?.email) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 200 });
+  }
+
   try {
-    const { oldEmail, username, email, password } = await req.json();
+    const { username, email, password } = await req.json();
 
     if (!username) {
       return NextResponse.json(
@@ -25,7 +33,7 @@ export async function POST(req: Request) {
 
     const typingTestResult = await db.user.update({
       where: {
-        email: oldEmail,
+        email: session.user.email,
       },
       data: {
         username,
