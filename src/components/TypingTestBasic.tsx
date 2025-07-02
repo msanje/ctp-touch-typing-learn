@@ -38,10 +38,7 @@ const TypingTestBasic = () => {
   const [typingLevel, setTypingLevel] = useState<TypingLevel | null>(null);
   const router = useRouter();
   const { open, isOpen } = useAuthModal();
-
-  useEffect(() => {
-    console.log("isDisabled: ", isDisabled);
-  }, [isDisabled]);
+  const [disableInput, setDisableInput] = useState<boolean>(false);
 
   useEffect(() => {
     if (!user && wpmScore > 0 && typingLevel) {
@@ -163,28 +160,49 @@ const TypingTestBasic = () => {
       setTimerStarted(true);
       setTimeLeft(selectedTime);
     }
-    if (isDisabled) return;
+    // if (isDisabled) return;
 
     const value = e.target.value;
     const normalizedOriginal = originalText.trim();
-
     const newCharIndex = value.length - 1;
+
     if (newCharIndex >= 0) {
       if (value[newCharIndex] === normalizedOriginal[newCharIndex]) {
         setCorrectKeystrokes((prev) => prev + 1);
+        setCurrentError(false);
+        setDisableInput(false);
+        setIsDisabled(false);
       } else {
         setIncorrectKeystrokes((prev) => prev + 1);
+        setCurrentError(true);
+        setIsDisabled(true);
+        setDisableInput(true);
       }
+      setUserInput(value);
     }
-
-    if (normalizedOriginal.startsWith(value)) {
-      setCurrentError(false);
-    } else {
-      setCurrentError(true);
-    }
-
-    setUserInput(value);
   };
+
+  // Handle backspace keydown
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Backspace" && !disableInput && !currentError) {
+        e.preventDefault();
+      }
+
+      if (e.key === "Backspace" && disableInput && currentError) {
+        e.preventDefault();
+
+        setUserInput((prev) => prev.slice(0, -1));
+
+        setCurrentError(false);
+        setIsDisabled(false);
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+
+    return () => window.removeEventListener("keydown", handler);
+  }, [userInput, disableInput, currentError]);
 
   const calculateAccuracy = () => {
     const totalKeystrokes = correctKeyStrokes + incorrectKeyStrokes;
@@ -205,6 +223,7 @@ const TypingTestBasic = () => {
   const restartTest = () => {
     setUserInput("");
     setCurrentError(false);
+    setDisableInput(true);
     setTimeLeft(selectedTime);
     setTimerStarted(false);
     setIsDisabled(false);
@@ -259,7 +278,7 @@ const TypingTestBasic = () => {
   };
 
   useEffect(() => {
-    if (isDisabled) {
+    if (isDisabled && timeLeft == 0) {
       saveWpmScore(wpmScore, accuracy);
     }
   }, [wpmScore, accuracy, isDisabled]);
@@ -302,7 +321,7 @@ const TypingTestBasic = () => {
         <>
           <div
             className={`w-full max-w-3xl transition-all duration-300 ${
-              isDisabled ? "blur-sm" : ""
+              isDisabled && timeLeft == 0 ? "blur-sm" : ""
             }`}
           >
             {/* Title */}
@@ -396,7 +415,8 @@ const TypingTestBasic = () => {
               value={userInput}
               onChange={handleInputChange}
               onPaste={handlePaste}
-              disabled={isDisabled}
+              // disabled={isDisabled}
+              readOnly={isDisabled}
               className={`w-full px-5 py-3 text-lg border-2 rounded-lg focus:outline-none transition-shadow ${
                 currentError
                   ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-300"
@@ -417,7 +437,7 @@ const TypingTestBasic = () => {
           </div>
 
           {/* WPM Results Overlay */}
-          {isDisabled && (
+          {isDisabled && timeLeft == 0 && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10">
               <div className="bg-white p-8 rounded-lg shadow-2xl text-center w-96 border border-gray-200">
                 <div className="mb-3">
