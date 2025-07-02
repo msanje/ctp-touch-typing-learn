@@ -18,12 +18,23 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useSession } from "next-auth/react";
+import { useSound } from "./SoundContext";
 
 type UserCredentials = {
   id: string;
   username: string;
   email: string;
   password: string;
+};
+
+type LearningGoal = {
+  id: string;
+  userId: string;
+  dailyMinutes: number;
+  targetWPM: number;
+  accuracy: number;
+  createdAt: string;
+  updatedAt: string;
 };
 
 const Settings = () => {
@@ -37,15 +48,68 @@ const Settings = () => {
     useState<UserCredentials | null>(null);
   const { data: session } = useSession();
   const user = session?.user;
+  const [disabled, setDisabled] = useState<boolean>(false);
+  const [learningGoals, setLearningGoals] = useState<LearningGoal | null>(null);
+  const { isSoundEnabled, toggleSound } = useSound();
 
   useEffect(() => {
-    console.log(isEditingUsername, isEditingEmail, isEditingPassword);
-  }, [isEditingUsername, isEditingEmail, isEditingPassword]);
+    console.log("learning Goals from useEffect: ", learningGoals);
+
+    console.log("---Start---");
+    console.log(learningGoals?.dailyMinutes);
+    console.log(learningGoals?.targetWPM);
+    console.log(learningGoals?.accuracy);
+    console.log("---Stop---");
+  }, [learningGoals]);
+
+  useEffect(() => {
+    const fetchLearningGoals = async () => {
+      const result = await fetch("/api/learninggoals");
+      const data = await result.json();
+
+      setLearningGoals(data.learningGoals);
+
+      console.log("Learning Goals: ", data);
+    };
+
+    fetchLearningGoals();
+  }, []);
+
+  // TODO: For Debugging
+  // useEffect(() => {
+  //   console.log(isEditingUsername, isEditingEmail, isEditingPassword);
+  // }, [isEditingUsername, isEditingEmail, isEditingPassword]);
 
   const settingsSchema = z.object({
     username: z.string().min(8, "Username must be at least 8 characters long"),
     email: z.string().email("Invalid email"),
     password: z.string().min(8, "Password must be at least 8 characters long"),
+  });
+
+  const learingGoalsSchema = z.object({
+    // dailyPracticeTime: This should increase by 5,
+    dailyPracticeTime: z
+      .number()
+      .min(15)
+      .refine((val) => val % 5 === 0, {
+        message: "Must be in steps of 5",
+      }),
+
+    // targetWpm: This should also only increase by 5,
+    targetWpm: z
+      .number()
+      .min(35)
+      .refine((val) => val % 5 === 0, {
+        message: "Must be in steps of 5",
+      }),
+
+    // targetAccuracy: This also needs to increase by 5,
+    targetAccuracy: z
+      .number()
+      .min(60)
+      .refine((val) => val % 5 === 0, {
+        message: "Must be in steps of 5",
+      }),
   });
 
   const {
@@ -54,6 +118,14 @@ const Settings = () => {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(settingsSchema),
+  });
+
+  const {
+    register: registerGoals,
+    handleSubmit: handleGoalsSubmit,
+    formState: { errors: goalsErrors, isSubmitting: isSubmittingGoals },
+  } = useForm({
+    resolver: zodResolver(learingGoalsSchema),
   });
 
   // - [ ] Form handling: react-hook-form
@@ -70,6 +142,30 @@ const Settings = () => {
 
     fetchUser();
   }, []);
+
+  const onSubmitGoals = async (data: z.infer<typeof learingGoalsSchema>) => {
+    try {
+      setLoading(true);
+      const response = await fetch("/api/learninggoals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const { message } = await response.json();
+        alert(message || "Failed to update");
+        return;
+      }
+
+      alert("Learning Goals Added successfully");
+      router.push("/signin");
+    } catch (error) {
+      alert("Error updating user");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onSubmit = async (data: z.infer<typeof settingsSchema>) => {
     try {
@@ -243,9 +339,10 @@ const Settings = () => {
                     {isSubmitting ? "Updating..." : "Update Credentials"}
                   </button>
 
-                  <button className="w-full py-2 px-4 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition-colors font-semibold">
+                  {/* TODO: Verify whether you need to or not */}
+                  {/* <button className="w-full py-2 px-4 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition-colors font-semibold">
                     Delete Account
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </section>
@@ -304,6 +401,8 @@ const Settings = () => {
                 <label className="flex items-center">
                   <input
                     type="checkbox"
+                    checked={isSoundEnabled}
+                    onChange={toggleSound}
                     className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                   />
                   <span className="ml-2 text-sm text-gray-700">
@@ -324,46 +423,78 @@ const Settings = () => {
           </section>
 
           {/* Learning Goals */}
-          <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-            <div className="flex items-center mb-4">
-              <Target className="w-5 h-5 text-blue-600 mr-2" />
-              <h2 className="text-xl font-semibold text-gray-900">
-                Learning Goals
-              </h2>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Daily Practice Time (minutes)
-                </label>
-                <input
-                  type="number"
-                  placeholder="30"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
+          <form onSubmit={handleGoalsSubmit(onSubmitGoals)}>
+            <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+              <div className="flex items-center mb-4">
+                <Target className="w-5 h-5 text-blue-600 mr-2" />
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Learning Goals
+                </h2>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Target WPM
-                </label>
-                <input
-                  type="number"
-                  placeholder="60"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Daily Practice Time (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    step={5}
+                    min={15}
+                    {...registerGoals("dailyPracticeTime", {
+                      valueAsNumber: true,
+                    })}
+                    placeholder={learningGoals?.dailyMinutes.toString() || "15"}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Target WPM
+                  </label>
+                  <input
+                    type="number"
+                    step={5}
+                    min={35}
+                    {...registerGoals("targetWpm", {
+                      valueAsNumber: true,
+                    })}
+                    placeholder={learningGoals?.targetWPM.toString() || "15"}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Target Accuracy (%)
+                  </label>
+                  <input
+                    type="number"
+                    step={5}
+                    min={60}
+                    {...registerGoals("targetAccuracy", {
+                      valueAsNumber: true,
+                    })}
+                    placeholder={learningGoals?.accuracy.toString() || "15"}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Target Accuracy (%)
-                </label>
-                <input
-                  type="number"
-                  placeholder="95"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
+
+              <div className="flex flex-col w-full gap-3 mt-4">
+                <button
+                  type="submit"
+                  className={`w-full py-2 px-4 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors font-semibold `}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Updating..." : "Update Learning Goals"}
+                </button>
+
+                {/* TODO: Verify whether you need to or not */}
+                {/* <button className="w-full py-2 px-4 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition-colors font-semibold">
+                    Delete Account
+                  </button> */}
               </div>
-            </div>
-          </section>
+            </section>
+          </form>
 
           {/* Progress Settings */}
           <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">

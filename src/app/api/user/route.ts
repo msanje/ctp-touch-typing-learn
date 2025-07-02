@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { options } from "../auth/[...nextauth]/options";
 
-export async function GET(req: Request) {
+export async function GET(_: Request) {
   const session = await getServerSession(options);
 
   if (!session || !session.user?.email) {
@@ -29,6 +29,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json(user);
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

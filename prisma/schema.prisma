@@ -42,6 +42,7 @@ model User {
   progress          Progress[]
   TypingTestResult  TypingTestResult[]
   TypingCertificate TypingTestCertificate[]
+  LearningGoal      LearningGoal?
 }
 
 model Progress {
@@ -114,4 +115,15 @@ model Transaction {
   date          DateTime          @default(now())
   certificateId String            @unique
   certificate   Certificate       @relation(fields: [certificateId], references: [id])
+}
+
+model LearningGoal {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  dailyMinutes Int
+  targetWPM    Int
+  accuracy     Int
+  user         User     @relation(fields: [userId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

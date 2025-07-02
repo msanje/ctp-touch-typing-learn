@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { useSound } from "./SoundContext";
 
 const TypingTest = () => {
   const [started, setStarted] = useState<boolean>(false);
@@ -33,6 +34,7 @@ const TypingTest = () => {
   const [typingLevel, setTypingLevel] = useState<TypingLevel | null>(null);
   const [disabled, setDisabled] = useState<boolean>(false);
   const router = useRouter();
+  const { playWrongKeySound } = useSound();
 
   useEffect(() => {
     console.log("disabled: ", disabled);
@@ -248,9 +250,12 @@ const TypingTest = () => {
     if (newCharIndex >= 0 && newCharIndex < normalizedOriginal.length) {
       if (value[newCharIndex] === normalizedOriginal[newCharIndex]) {
         setCorrectKeystrokes((prev) => prev + 1);
+        // TODO: Don't think we need right key sound
+        // playRightKeySound();
       } else {
         setDisabled(true);
         setIncorrectKeystrokes((prev) => prev + 1);
+        playWrongKeySound();
       }
     }
 
