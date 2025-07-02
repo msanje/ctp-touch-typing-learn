@@ -13,6 +13,7 @@ import { getTypingLevel, TypingLevel } from "@/helpers/getTypingLevel";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { useAuthModal } from "@/hooks/useAuthModal";
+import { useSound } from "./SoundContext";
 
 const TypingTestBasic = () => {
   const originalText = lorem;
@@ -39,6 +40,7 @@ const TypingTestBasic = () => {
   const router = useRouter();
   const { open, isOpen } = useAuthModal();
   const [disableInput, setDisableInput] = useState<boolean>(false);
+  const { playWrongKeySound } = useSound();
 
   useEffect(() => {
     if (!user && wpmScore > 0 && typingLevel) {
@@ -173,6 +175,7 @@ const TypingTestBasic = () => {
         setDisableInput(false);
         setIsDisabled(false);
       } else {
+        playWrongKeySound();
         setIncorrectKeystrokes((prev) => prev + 1);
         setCurrentError(true);
         setIsDisabled(true);

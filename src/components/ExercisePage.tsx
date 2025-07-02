@@ -12,6 +12,7 @@ import {
 } from "@/utils/lessonNavigator";
 import { UserType } from "@/types/GlobalTypes";
 import toast from "react-hot-toast";
+import { useSound } from "./SoundContext";
 
 export default function ExercisePage({ user }: { user: UserType }) {
   const params = useParams<{ lessonId: string; exerciseId: string }>();
@@ -41,6 +42,8 @@ export default function ExercisePage({ user }: { user: UserType }) {
   const [speed, setSpeed] = useState<boolean>(false);
   const [accuracy, setAccuracy] = useState<boolean>(false);
   const [lessThenTwoTypos, setLessThenTwoTypos] = useState<boolean>(false);
+
+  const { playWrongKeySound } = useSound();
 
   useEffect(() => {
     if (wpm >= 28) {
@@ -228,6 +231,7 @@ export default function ExercisePage({ user }: { user: UserType }) {
         setCorrectKeystrokes((prev) => prev + 1);
       } else {
         setIncorrectKeystrokes((prev) => prev + 1);
+        playWrongKeySound();
       }
     }
 
