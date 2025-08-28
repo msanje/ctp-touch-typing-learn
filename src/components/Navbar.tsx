@@ -100,19 +100,16 @@ export default function Navbar() {
           type="button"
         >
           <span
-            className={`block w-6 h-0.5 bg-gray-700 transition-all duration-300 ${
-              isMobileMenuOpen ? "rotate-45 translate-y-1.5" : ""
-            }`}
+            className={`block w-6 h-0.5 bg-gray-700 transition-all duration-300 ${isMobileMenuOpen ? "rotate-45 translate-y-1.5" : ""
+              }`}
           />
           <span
-            className={`block w-6 h-0.5 bg-gray-700 transition-all duration-300 ${
-              isMobileMenuOpen ? "opacity-0" : ""
-            }`}
+            className={`block w-6 h-0.5 bg-gray-700 transition-all duration-300 ${isMobileMenuOpen ? "opacity-0" : ""
+              }`}
           />
           <span
-            className={`block w-6 h-0.5 bg-gray-700 transition-all duration-300 ${
-              isMobileMenuOpen ? "rotate-45 -translate-y-1.5" : ""
-            }`}
+            className={`block w-6 h-0.5 bg-gray-700 transition-all duration-300 ${isMobileMenuOpen ? "rotate-45 -translate-y-1.5" : ""
+              }`}
           />
         </button>
       </div>
@@ -127,9 +124,8 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       <div
-        className={`fixed top-24 right-0 w-80 bg-white border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out xl:hidden ${
-          isMobileMenuOpen ? "translate-x-0 z-50" : "hidden"
-        }`}
+        className={`fixed top-24 right-0 w-80 bg-white border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out xl:hidden ${isMobileMenuOpen ? "translate-x-0 z-50" : "hidden"
+          }`}
       >
         <div className="flex flex-col p-6 space-y-4">
           {/* Mobile Navigation Links */}

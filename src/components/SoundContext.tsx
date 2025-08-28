@@ -1,4 +1,6 @@
-import { createContext, useContext, useRef, useState } from "react";
+"use client"
+
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 interface SoundContextType {
   playWrongKeySound: () => void;
@@ -10,15 +12,21 @@ interface SoundContextType {
 const SoundContext = createContext<SoundContextType | undefined>(undefined);
 
 export const SoundProvider = ({ children }: { children: React.ReactNode }) => {
-  const wrongKeySound = useRef(new Audio("/sounds/error.mp3"));
-  const rightKeySound = useRef(new Audio("/sounds/correct.mp3"));
+  const wrongKeySound = useRef<HTMLAudioElement | null>(null);
+  const rightKeySound = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    wrongKeySound.current = new Audio("/sounds/error.mp3");
+    rightKeySound.current = new Audio("/sounds/correct.mp3");
+  }, [])
+
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
 
   const playWrongKeySound = () => {
     if (isSoundEnabled) {
-      wrongKeySound.current.currentTime = 0;
-      wrongKeySound.current.volume = 0.7;
-      wrongKeySound.current
+      wrongKeySound.current!.currentTime = 0;
+      wrongKeySound.current!.volume = 0.7;
+      wrongKeySound.current!
         .play()
         .catch((error) =>
           console.error("Error playing incorrect sound: ", error)
@@ -28,9 +36,9 @@ export const SoundProvider = ({ children }: { children: React.ReactNode }) => {
 
   const playRightKeySound = () => {
     if (isSoundEnabled) {
-      rightKeySound.current.currentTime = 0;
-      rightKeySound.current.volume = 0.5;
-      rightKeySound.current
+      rightKeySound.current!.currentTime = 0;
+      rightKeySound.current!.volume = 0.5;
+      rightKeySound.current!
         .play()
         .catch((error) => console.error("Error playing correct sound:", error));
     }

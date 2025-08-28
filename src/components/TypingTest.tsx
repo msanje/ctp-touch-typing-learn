@@ -373,9 +373,8 @@ const TypingTest = () => {
           <div className="relative w-full h-64 bg-white rounded-lg border border-gray-200 shadow-lg overflow-auto mb-4">
             <div
               ref={sentenceRef}
-              className={`p-6 leading-relaxed text-3xl transition-all duration-300 ${
-                !started ? "blur-sm select-none" : "blur-none"
-              }`}
+              className={`p-6 leading-relaxed text-3xl transition-all duration-300 ${!started ? "blur-sm select-none" : "blur-none"
+                }`}
             >
               {charStates.map(({ char, isCorrect, isTyped }, index) => {
                 const isCurrent = index === input.length;

@@ -57,16 +57,20 @@ const Lessons = () => {
   }, [userId]);
 
   if (loading)
-    return <div className="text-center text-gray-700 py-6">Loading...</div>;
+    return (
+      <>
+        <div role="status" aria-live="polite" className="py-10 text-center text-slate-400">Loading…</div>;
+      </>
+    );
   if (error)
     return <div className="text-center text-red-500 py-6">{error}</div>;
 
   const totalExercises =
     lessons && lessons.length > 0
       ? lessons?.reduce(
-          (acc, { exercises }) => acc + (exercises?.length || 0),
-          0,
-        )
+        (acc, { exercises }) => acc + (exercises?.length || 0),
+        0,
+      )
       : 0;
 
   return (

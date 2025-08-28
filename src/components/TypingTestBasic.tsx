@@ -323,9 +323,8 @@ const TypingTestBasic = () => {
       {!loading && !error && (
         <>
           <div
-            className={`w-full max-w-3xl transition-all duration-300 ${
-              isDisabled && timeLeft == 0 ? "blur-sm" : ""
-            }`}
+            className={`w-full max-w-3xl transition-all duration-300 ${isDisabled && timeLeft == 0 ? "blur-sm" : ""
+              }`}
           >
             {/* Title */}
             <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-3 text-center -mt-4 tracking-tight leading-tight drop-shadow-md">
@@ -361,8 +360,8 @@ const TypingTestBasic = () => {
                 >
                   <RotateCcw className="w-6 h-6" />
                 </button>
-                WPM: <span className="text-green-600">{wpmScore}</span>
-                HIGHEST WPM:{" "}
+                <p>WPM:{" "}</p><span className="text-green-600">{wpmScore}</span>
+                <p className="">HIGHEST WPM:{" "}</p>
                 <span className="text-green-600">
                   {typingTestResults?.highestWpm?.wpm ?? 0}
                 </span>
@@ -399,11 +398,10 @@ const TypingTestBasic = () => {
                 {/* Current character with ref */}
                 <span
                   ref={currentCharRef}
-                  className={`font-bold underline px-1 rounded ${
-                    currentError
-                      ? "text-red-600 bg-red-100"
-                      : "text-blue-600 bg-blue-100"
-                  }`}
+                  className={`font-bold underline px-1 rounded ${currentError
+                    ? "text-red-600 bg-red-100"
+                    : "text-blue-600 bg-blue-100"
+                    }`}
                 >
                   {originalText.charAt(userInput.length)}
                 </span>
@@ -420,11 +418,10 @@ const TypingTestBasic = () => {
               onPaste={handlePaste}
               // disabled={isDisabled}
               readOnly={isDisabled}
-              className={`w-full px-5 py-3 text-lg border-2 rounded-lg focus:outline-none transition-shadow ${
-                currentError
-                  ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-300"
-                  : "border-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-300"
-              }`}
+              className={`w-full px-5 py-3 text-lg border-2 rounded-lg focus:outline-none transition-shadow ${currentError
+                ? "border-red-400 bg-red-50 focus:ring-2 focus:ring-red-300"
+                : "border-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-300"
+                }`}
               placeholder={
                 isDisabled
                   ? "Test Over! Press Restart to try again."

@@ -285,11 +285,10 @@ export default function ExercisePage({ user }: { user: UserType }) {
                 {exerciseContent.slice(0, userInput.length)}
               </span>
               <span
-                className={`${
-                  currentError
-                    ? "text-red-600 bg-red-100 rounded px-1"
-                    : "text-blue-600 bg-blue-100 rounded px-1"
-                } font-bold underline`}
+                className={`${currentError
+                  ? "text-red-600 bg-red-100 rounded px-1"
+                  : "text-blue-600 bg-blue-100 rounded px-1"
+                  } font-bold underline`}
               >
                 {exerciseContent.charAt(userInput.length)}
               </span>
@@ -305,11 +304,10 @@ export default function ExercisePage({ user }: { user: UserType }) {
             value={userInput}
             onChange={handleInputChange}
             disabled={isDisabled}
-            className={`w-full max-w-2xl px-6 py-3 text-xl border-2 rounded-lg focus:outline-none transition-all duration-200 shadow-sm ${
-              currentError
-                ? "border-red-500 text-red-600 focus:border-red-500 bg-red-50"
-                : "border-gray-300 text-gray-800 focus:border-blue-500 bg-white"
-            }`}
+            className={`w-full max-w-2xl px-6 py-3 text-xl border-2 rounded-lg focus:outline-none transition-all duration-200 shadow-sm ${currentError
+              ? "border-red-500 text-red-600 focus:border-red-500 bg-red-50"
+              : "border-gray-300 text-gray-800 focus:border-blue-500 bg-white"
+              }`}
             placeholder={
               isDisabled
                 ? "Exercise Completed! Click 'Next Exercise' to continue."
