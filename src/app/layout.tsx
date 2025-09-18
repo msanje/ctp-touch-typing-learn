@@ -7,6 +7,7 @@ import { Toaster } from "react-hot-toast";
 import AuthModalWrapper from "@/components/AuthModalWrapper";
 import SoundContextWrapper from "@/components/SoundContextWrapper";
 import { Analytics } from "@vercel/analytics/next";
+import { Footer } from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
             <Analytics />
             <AuthModalWrapper />
           </SoundContextWrapper>
+          <Footer />
         </AuthProvider>
       </body>
     </html>

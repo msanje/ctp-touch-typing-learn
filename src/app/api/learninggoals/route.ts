@@ -46,21 +46,21 @@ export async function POST(req: Request) {
     if (!dailyMinutes) {
       return NextResponse.json(
         { error: "Daily Minutes is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!targetWPM) {
       return NextResponse.json(
         { error: "Target WPM is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!accuracy) {
       return NextResponse.json(
         { error: "Accuracy are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -88,12 +88,12 @@ export async function POST(req: Request) {
     console.error("Error saving Learning Goals: ", error);
     return NextResponse.json(
       { error: "Error saving Learning Goals" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-export async function GET(_: Request) {
+export async function GET() {
   const session = await getServerSession(options);
 
   if (!session || !session.user?.email) {
@@ -117,7 +117,7 @@ export async function GET(_: Request) {
     if (!learningGoals) {
       return NextResponse.json(
         { message: "Learning Goals not found." },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -130,7 +130,7 @@ export async function GET(_: Request) {
       console.error("Unknown error fetching Learning Goals: ", error);
       return NextResponse.json(
         { error: "Unknown error occured" },
-        { status: 500 }
+        { status: 500 },
       );
     }
   }

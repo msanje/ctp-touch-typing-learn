@@ -53,8 +53,8 @@ export const TermsAndConditions: React.FC<LegalProps> = ({
       <h2>Modifications</h2>
       <p>
         We may update features or these terms at any time. We will post the
-        updated terms on this page and update the "Last updated" date. Continued
-        use after changes means you accept them.
+        updated terms on this page and update the &quot;Last updated&quot; date.
+        Continued use after changes means you accept them.
       </p>
 
       <h2>Governing law</h2>

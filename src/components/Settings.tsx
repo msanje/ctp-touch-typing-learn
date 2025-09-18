@@ -48,7 +48,8 @@ const Settings = () => {
     useState<UserCredentials | null>(null);
   const { data: session } = useSession();
   const user = session?.user;
-  const [disabled, setDisabled] = useState<boolean>(false);
+  // TODO: Verify whehter we need this
+  // const [disabled, setDisabled] = useState<boolean>(false);
   const [learningGoals, setLearningGoals] = useState<LearningGoal | null>(null);
   const { isSoundEnabled, toggleSound } = useSound();
 
@@ -56,6 +57,8 @@ const Settings = () => {
     console.log("learning Goals from useEffect: ", learningGoals);
 
     console.log("---Start---");
+    // TODO: use user somewhere
+    console.log("user: ", user);
     console.log(learningGoals?.dailyMinutes);
     console.log(learningGoals?.targetWPM);
     console.log(learningGoals?.accuracy);
@@ -161,6 +164,7 @@ const Settings = () => {
       alert("Learning Goals Added successfully");
       router.push("/signin");
     } catch (error) {
+      console.log("Error updating learning goals: ", error);
       alert("Error updating user");
     } finally {
       setLoading(false);
@@ -185,13 +189,16 @@ const Settings = () => {
       alert("Update successful");
       router.push("/signin");
     } catch (error) {
+      console.log("Error updating user info: ", error);
       alert("Error updating user");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
+  return loading ? (
+    <h1>{loading}</h1>
+  ) : (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
@@ -334,9 +341,10 @@ const Settings = () => {
                   <button
                     type="submit"
                     className={`w-full py-2 px-4 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors font-semibold `}
-                    disabled={isSubmitting}
+                    // disabled={isSubmitting}
+                    disabled={isSubmittingGoals}
                   >
-                    {isSubmitting ? "Updating..." : "Update Credentials"}
+                    {isSubmittingGoals ? "Updating..." : "Update Credentials"}
                   </button>
 
                   {/* TODO: Verify whether you need to or not */}
@@ -382,8 +390,8 @@ const Settings = () => {
                   Font Size (px)
                 </label>
                 <input
-                  type="number"
                   placeholder="16"
+                  type="number"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                 />
               </div>
@@ -446,6 +454,12 @@ const Settings = () => {
                     placeholder={learningGoals?.dailyMinutes.toString() || "15"}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
+
+                  {goalsErrors.dailyPracticeTime && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {goalsErrors.dailyPracticeTime.message}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -461,6 +475,11 @@ const Settings = () => {
                     placeholder={learningGoals?.targetWPM.toString() || "15"}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
+                  {goalsErrors.targetWpm && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {goalsErrors.targetWpm.message}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -476,6 +495,11 @@ const Settings = () => {
                     placeholder={learningGoals?.accuracy.toString() || "15"}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                   />
+                  {goalsErrors.targetAccuracy && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {goalsErrors.targetAccuracy.message}
+                    </p>
+                  )}
                 </div>
               </div>
 

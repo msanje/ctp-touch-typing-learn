@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { options } from "../auth/[...nextauth]/options";
 
-export async function GET(_: Request) {
+export async function GET() {
   const session = await getServerSession(options);
 
   if (!session || !session.user?.email) {
