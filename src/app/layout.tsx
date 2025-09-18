@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import { Toaster } from "react-hot-toast";
 import AuthModalWrapper from "@/components/AuthModalWrapper";
 import SoundContextWrapper from "@/components/SoundContextWrapper";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,6 +38,7 @@ export default function RootLayout({
           <SoundContextWrapper>
             <Toaster position="top-right" />
             {children}
+            <Analytics />
             <AuthModalWrapper />
           </SoundContextWrapper>
         </AuthProvider>
